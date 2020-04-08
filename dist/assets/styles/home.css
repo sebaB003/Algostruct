@@ -1,0 +1,53 @@
+.presentation {
+  display: flex;
+  align-content: flex-start;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  height: 90vh;
+}
+
+
+.presentation__graphic {
+  position: relative;
+  background-color: rgba(0, 166, 81, 0.1);
+  height: 100%;
+  border-bottom-right-radius: 80%;
+  text-align: center;
+  float: left;
+  width: 50%;
+  min-width: 420px;
+}
+
+.presentation__graphic svg {
+  height: 70%;
+  margin-top: 50px;
+}
+
+.presentation__description {
+  position: relative;
+  height: 100%;
+  width: 50%;
+  float: left;
+}
+
+.presentation__description .description-box {
+  position: relative;
+  top: 25%;
+}
+
+.presentation__description .description-box .btn {
+  margin-top: 50px;
+}
+
+
+#tutorials {
+  padding: 60px 0;
+  width: 100%;
+  background-color: rgba(0, 166, 81, 0.1);
+}
+
+.tutorials__list {
+  margin-top: 40px;
+  display: flex;
+  align-content: center;
+}

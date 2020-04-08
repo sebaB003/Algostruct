@@ -1,0 +1,178 @@
+/**
+* Algostruct CSS
+* This file contains the general css of Algostruct
+*
+* Sebastiano Bisacchi
+*/
+
+/* GENERAL */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+html {
+  background-color: #fff;
+  color: #707070;
+  font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+  font-size: 20px;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+section, footer {
+  margin-top: 60px;
+}
+
+/* HEADINGS */
+
+h1 {
+  font-weight: 400;
+  color: #00a651;
+  font-size: 300%;
+  text-align: center;
+}
+
+h2 {
+  font-weight: 400;
+  font-size: 140%;
+  color: #0aa67e;
+  border-bottom: 1px solid #0aa67e;
+  padding-bottom: 2px;
+  margin-bottom: 10px;
+}
+
+h3 {
+  display: block;
+  color: #00a651;
+  font-size: 150%;
+}
+
+h6 {
+  font-size: 70%;
+  font-weight: 300;
+  text-align: center;
+}
+
+/* LINKS AND BUTTONS */
+
+a,
+a:visited {
+  text-decoration: none;
+  color: #707070;
+}
+
+a:not(.active):not(.btn):hover {
+  padding-bottom: 3px;
+  transition: all 0.3s ease-out;
+  color: #00a651;
+}
+
+a.btn {
+  display: inline-block;
+  color: #00a651;
+  border: 1px solid #00a651;
+  padding: 10px 20px;
+  transition: background 0.4s ease-in, color 0.4s ease-in;
+}
+
+a.btn:visited,
+a:active,
+a:link {
+  color: #00a651;
+}
+
+a.btn:hover,
+a.btn:visited {
+  background-color: #00a651;
+  color: #fff;
+}
+
+a.btn--big {
+  font-size: 200%;
+  font-weight: 700;
+  border: 3px solid #00a651;
+}
+
+a.btn--small {
+  margin: 0;
+  font-size: 100%;
+  font-weight: 700;
+  border: 1px solid #00a651;
+}
+
+a.round {
+  border-radius: 50px;
+}
+
+a.full {
+  color: #FFF;
+  background-color: #00a651;
+}
+
+a.full:hover {
+  color: #00a651;
+  background-color: #FFF;
+}
+
+.logo {
+  width: 100px;
+  height: auto;
+}
+
+.active {
+  color: #00a651;
+  font-weight: bold;
+  font-size: 130%;
+}
+
+
+/* NAVIGATION BAR*/
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 50px;
+  box-shadow: 1px 0 4px 1px rgba(0, 0, 0, 0.2);
+}
+
+.navbar__links {
+  list-style: none;
+}
+
+.navbar__links li {
+  display: inline-block;
+  margin: 0 10px;
+}
+
+
+/* BOX AND CONTAINERS */
+
+.description-box {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.description-box p {font-size: 100%;}
+
+.container {
+  padding: 20px 0;
+}
+
+.box-container {
+  cursor: pointer;
+  display: inline-block;
+  padding: 20px 40px;
+  background-color: #FFF;
+  border-radius: 20px;
+  transition: box-shadow 0.4s;
+}
+
+.box-container:hover {
+  box-shadow: 1px 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
