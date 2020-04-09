@@ -1,0 +1,97 @@
+#builder-interface__tools {
+  padding: 10px;
+  max-width: 10%;
+  min-width: 80px;
+  box-shadow: 1px 2px 3px 0 rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 10;
+}
+
+.tool-container {
+  display: inline-block;
+  padding: 10px;
+  margin-top: 10%;
+  
+}
+
+.tool-container * {
+  display: block;
+  float: left;
+}
+
+.tool-container p {
+  margin-left: 20px;
+  font-size: 80%;
+}
+
+#reduce-toolBar {
+  cursor: pointer;
+  border: 0;
+  display: block;
+  position: absolute;
+  width: 25px;
+  height: 50px;
+  border-radius: 0 50px 50px 0;
+  background-color: #FFF;
+  box-shadow: 2px 0px 1px 0 rgba(0, 0, 0, 0.2);
+  right: -25px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 0;
+}
+
+#reduce-toolBar::before {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 2px;
+  height: 21px;
+  background-color: #00A651;
+  right: 18px;
+  transform: rotateZ(-30deg);
+  top: 6px;
+  border-radius: 50px;
+  transition: all 0.5s;
+}
+#reduce-toolBar::after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 2px;
+  height: 21px;
+  background-color: #00A651;
+  right: 18px;
+  transform: rotateZ(30deg);
+  bottom: 6px;
+  border-radius: 50px;
+  transition: all 0.5s;
+}
+
+.small {
+  width: 50px;
+}
+
+.hide {
+  transition: all 1s;
+  letter-spacing: -10px;
+  color: #fff;
+  display: none;
+}
+
+@media screen and (max-width: 1200px) {
+  .tool-container p{
+      margin-left: 10px;
+  }
+}
+
+@media screen and (max-width: 1080px) {
+  .tool-container p{
+      float: none;
+      margin: 5px 0 0 0;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .tool-container p{
+      margin: 0;    }
+}

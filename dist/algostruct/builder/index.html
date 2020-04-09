@@ -2,16 +2,34 @@
 
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Algostruct</title>
     <link
       rel="stylesheet"
       type="text/css"
       href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&display=swap"
     />
-    <link rel="stylesheet" type="text/css" href="../../assets/styles/main.css" />
-    <link rel="stylesheet" type="text/css" href="../../assets/styles/builder/builder.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="../../assets/styles/main.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="../../assets/styles/builder/builder.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="../../assets/styles/builder/toolsbar.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="../../assets/styles/builder/editor.css"
+    />
   </head>
   <body>
     <nav class="navbar">
@@ -23,7 +41,9 @@
             <a href="#" class="drop-down__link" id="js--dropdown-new">New</a>
             <a href="#" class="drop-down__link" id="js--dropdown-open">Open</a>
             <a href="#" class="drop-down__link" id="js--dropdown-save">Save</a>
-            <a href="#" class="drop-down__link" id="js--dropdown-rename">Rename</a>
+            <a href="#" class="drop-down__link" id="js--dropdown-rename"
+              >Rename</a
+            >
           </div>
         </li>
         <li class="drop-down">
@@ -31,7 +51,9 @@
           <div class="drop-down-container">
             <a href="#" class="drop-down__link" id="js--dropdown-copy">Copy</a>
             <a href="#" class="drop-down__link" id="js--dropdown-cut">Cut</a>
-            <a href="#" class="drop-down__link" id="js--dropdown-delete">Delete</a>
+            <a href="#" class="drop-down__link" id="js--dropdown-delete"
+              >Delete</a
+            >
           </div>
         </li>
         <li class="drop-down">
@@ -45,46 +67,121 @@
         <li class="drop-down">
           <p>View</p>
           <div class="drop-down-container">
-            <a href="#" class="drop-down__link"id="js--dropdown-reset-default">Reset default</a>
-            <a href="#" class="drop-down__link"id="js--dropdown-only-editor">Only editor</a>
-            <a href="#" class="drop-down__link"id="js--dropdown-all-tools">All tools</a>
-            <a href="#" class="drop-down__link"id="js--dropdown-debug">Debug</a>
+            <a href="#" class="drop-down__link" id="js--dropdown-reset-default"
+              >Reset default</a
+            >
+            <a href="#" class="drop-down__link" id="js--dropdown-only-editor"
+              >Only editor</a
+            >
+            <a href="#" class="drop-down__link" id="js--dropdown-all-tools"
+              >All tools</a
+            >
+            <a href="#" class="drop-down__link" id="js--dropdown-debug"
+              >Debug</a
+            >
           </div>
         </li>
         <li class="drop-down">
           <p>Tools</p>
           <div class="drop-down-container">
-            <a href="#" class="drop-down__link"id="js--dropdown-reorder">Reorder</a>
-            <a href="#" class="drop-down__link"id="js--dropdown-logs">Logs</a>
-            <a href="#" class="drop-down__link"id="js--dropdown-watches">Watches</a>
-            <a href="#" class="drop-down__link"id="js--dropdown-flow-control">Flow control</a>
+            <a href="#" class="drop-down__link" id="js--dropdown-reorder"
+              >Reorder</a
+            >
+            <a href="#" class="drop-down__link" id="js--dropdown-logs">Logs</a>
+            <a href="#" class="drop-down__link" id="js--dropdown-watches"
+              >Watches</a
+            >
+            <a href="#" class="drop-down__link" id="js--dropdown-flow-control"
+              >Flow control</a
+            >
           </div>
         </li>
         <li class="drop-down">
           <p>Help</p>
           <div class="drop-down-container">
-            <a href="#" class="drop-down__link"id="js--dropdown-a-tutorial">Algostruct tutorial</a>
-            <a href="#" class="drop-down__link"id="js--dropdown-f-tutorial">Flowchart tutorial</a>
+            <a href="#" class="drop-down__link" id="js--dropdown-a-tutorial"
+              >Algostruct tutorial</a
+            >
+            <a href="#" class="drop-down__link" id="js--dropdown-f-tutorial"
+              >Flowchart tutorial</a
+            >
           </div>
         </li>
       </ul>
       <h2>Untitled</h2>
     </nav>
 
-    <section id="builder">
-
+    <section id="builder-interface">
+      <div id="builder-interface__tools">
+        <div class="tools-list">
+          <div class="tool-container">
+            <img class="tool-image" src="../../assets/icons/run_full.svg" />
+            <p>Run</p>
+          </div>
+          <div class="tool-container">
+            <img class="tool-image" src="../../assets/icons/run.svg" />
+            <p>Step</p>
+          </div>
+          <div class="tool-container">
+            <img class="tool-image" src="../../assets/icons/pause.svg" />
+            <p>Pause</p>
+          </div>
+          <div class="tool-container">
+            <img class="tool-image" src="../../assets/icons/stop.svg" />
+            <p>Stop</p>
+          </div>
+          <div class="tool-container">
+            <img class="tool-image" src="../../assets/icons/back.svg" />
+            <p>Undo</p>
+          </div>
+          <div class="tool-container">
+            <img class="tool-image" src="../../assets/icons/forward.svg" />
+            <p>Redo</p>
+          </div>
+          <div class="tool-container">
+            <img class="tool-image" src="../../assets/icons/new.svg" />
+            <p>New</p>
+          </div>
+          <div class="tool-container">
+            <img class="tool-image" src="../../assets/icons/save.svg" />
+            <p>Save</p>
+          </div>
+        </div>
+        <button id="reduce-toolBar"></button>
+      </div>
+      <div id="builder-interface__builder">
+        <div id="view-options">
+          <button id="js--zoom-in" title="zoom in">
+            <img src="../../assets/icons/zoomIn.svg" alt="zoom in" />
+          </button>
+          <button id="js--center-view" title="center view">
+            <img src="../../assets/icons/centerView.svg" alt="center view" />
+          </button>
+          <button id="js--zoom-out" title="zoom out">
+            <img src="../../assets/icons/zoomOut.svg" alt="zoom out" />
+          </button>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div id="builder-interface__editor">
+        <div>
+          <h2>Content</h2>
+        </div>
+      </div>
     </section>
+    <section class="tools-container"></section>
+
+    <section id="status-bar"></section>
 
     <div class="loading-wrapper">
-      <div class="loader">
-      </div>
+      <div class="loader"></div>
       <h1>Algostruct</h1>
     </div>
     <script>
-      const loaderWrapper = document.querySelector('.loading-wrapper');
+      var loaderWrapper = document.querySelector(".loading-wrapper");
       window.onload = () => {
-        loaderWrapper.style.display = 'none';
-      }
+        loaderWrapper.style.display = "none";
+      };
     </script>
   </body>
 </html>

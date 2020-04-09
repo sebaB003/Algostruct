@@ -1,0 +1,12 @@
+#builder-interface__editor {
+  position: relative;
+  padding: 20px;
+  padding-left: 0;
+  width: 25%;
+  box-shadow: -2px 1px 3px 0 rgba(0, 0, 0, 0.2);
+}
+
+#builder-interface__editor {
+  display: flex;
+  align-items: stretch;
+}
