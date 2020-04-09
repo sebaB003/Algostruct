@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algostruct</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&display=swap"
+    />
+    <link rel="stylesheet" type="text/css" href="../../assets/styles/main.css" />
+    <link rel="stylesheet" type="text/css" href="../../assets/styles/builder/builder.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <h3 class="t-logo">Algostruct</h3>
+      <ul class="navbar__links">
+        <li class="drop-down">
+          <p>File</p>
+          <div class="drop-down-container">
+            <a href="#" class="drop-down__link" id="js--dropdown-new">New</a>
+            <a href="#" class="drop-down__link" id="js--dropdown-open">Open</a>
+            <a href="#" class="drop-down__link" id="js--dropdown-save">Save</a>
+            <a href="#" class="drop-down__link" id="js--dropdown-rename">Rename</a>
+          </div>
+        </li>
+        <li class="drop-down">
+          <p>Edit</p>
+          <div class="drop-down-container">
+            <a href="#" class="drop-down__link" id="js--dropdown-copy">Copy</a>
+            <a href="#" class="drop-down__link" id="js--dropdown-cut">Cut</a>
+            <a href="#" class="drop-down__link" id="js--dropdown-delete">Delete</a>
+          </div>
+        </li>
+        <li class="drop-down">
+          <p>Preferences</p>
+          <div class="drop-down-container">
+            <a href="#" class="drop-down__link" id="js--dropdown-">P1</a>
+            <a href="#" class="drop-down__link" id="js--dropdown-">P2</a>
+            <a href="#" class="drop-down__link" id="js--dropdown-">P3</a>
+          </div>
+        </li>
+        <li class="drop-down">
+          <p>View</p>
+          <div class="drop-down-container">
+            <a href="#" class="drop-down__link"id="js--dropdown-reset-default">Reset default</a>
+            <a href="#" class="drop-down__link"id="js--dropdown-only-editor">Only editor</a>
+            <a href="#" class="drop-down__link"id="js--dropdown-all-tools">All tools</a>
+            <a href="#" class="drop-down__link"id="js--dropdown-debug">Debug</a>
+          </div>
+        </li>
+        <li class="drop-down">
+          <p>Tools</p>
+          <div class="drop-down-container">
+            <a href="#" class="drop-down__link"id="js--dropdown-reorder">Reorder</a>
+            <a href="#" class="drop-down__link"id="js--dropdown-logs">Logs</a>
+            <a href="#" class="drop-down__link"id="js--dropdown-watches">Watches</a>
+            <a href="#" class="drop-down__link"id="js--dropdown-flow-control">Flow control</a>
+          </div>
+        </li>
+        <li class="drop-down">
+          <p>Help</p>
+          <div class="drop-down-container">
+            <a href="#" class="drop-down__link"id="js--dropdown-a-tutorial">Algostruct tutorial</a>
+            <a href="#" class="drop-down__link"id="js--dropdown-f-tutorial">Flowchart tutorial</a>
+          </div>
+        </li>
+      </ul>
+      <h2>Untitled</h2>
+    </nav>
+
+    <section id="builder">
+
+    </section>
+
+    <div class="loading-wrapper">
+      <div class="loader">
+      </div>
+      <h1>Algostruct</h1>
+    </div>
+    <script>
+      const loaderWrapper = document.querySelector('.loading-wrapper');
+      window.onload = () => {
+        loaderWrapper.style.display = 'none';
+      }
+    </script>
+  </body>
+</html>

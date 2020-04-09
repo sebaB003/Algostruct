@@ -66,14 +66,12 @@ h6 {
 
 /* LINKS AND BUTTONS */
 
-a,
-a:visited {
+a {
   text-decoration: none;
   color: #707070;
 }
 
-a:not(.active):not(.btn):hover {
-  padding-bottom: 3px;
+a:not(.active):not(.btn):not(.drop-down__link):hover {
   transition: all 0.3s ease-out;
   color: #00a651;
 }
@@ -130,10 +128,29 @@ a.full:hover {
   height: auto;
 }
 
+.t-logo {
+  font-size: 170%;
+  font-weight: 700;
+  color: #00A651;
+  text-decoration: none;
+}
+
 .active {
   color: #00a651;
   font-weight: bold;
   font-size: 130%;
+}
+
+.drop-down__link  {
+  display: block;
+  padding: 10px;
+  transition: background 0.2s, padding 0.2s;
+}
+
+.drop-down__link:hover {
+  padding-left: 15px;
+  background-color: #EEE;
+  border-radius: 5px;
 }
 
 
@@ -188,4 +205,86 @@ nav {
 .flex-group {
   display: flex;
   flex-wrap: wrap;
+}
+
+.drop-down p {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.drop-down-container {
+  display: none;
+  position: absolute;
+  background-color: #FFF;
+  min-width: 160px;
+  box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.1);
+  border-radius: 5px;
+  z-index: 1;
+}
+
+.drop-down:hover .drop-down-container{
+  display: block;
+}
+
+.drop-down:hover p {
+  display: block;
+  color: #00A651;
+  
+}
+
+
+/* WRAPPERS AND MODALS */
+
+.loading-wrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #FFF;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+}
+
+.loader {
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  border-radius: 50px;
+  border: 5px solid #FFF;
+  border-top: 5px solid #00A651;
+  animation: load 1s infinite ease;
+  top: 50%;
+}
+
+@keyframes load {
+  0% {
+    border: 5px solid #FFF;
+    border-top: 5px solid #00A651;
+    transform: rotate(0deg);
+  }
+  25% {
+    border: 5px solid #FFF;
+    border-top: 5px solid #00A651;
+    border-right: 5px solid #00A651;
+  }
+  50% {
+    border: 5px solid #FFF;
+    border-top: 5px solid #00A651;
+    border-right: 5px solid #00A651;
+    border-bottom: 5px solid #00A651;
+    transform: rotate(180deg);
+  }
+  75% {
+    border: 5px solid #00A651;
+    border-top: 5px solid #FFF;
+  }
+  100% {
+    border: 5px solid #FFF;
+    border-top: 5px solid #00A651;
+    transform: rotate(360deg);
+  }
 }

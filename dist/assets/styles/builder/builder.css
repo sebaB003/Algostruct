@@ -1,0 +1,13 @@
+.navbar {
+  align-content: center;
+  justify-content: flex-start;
+}
+
+.navbar h3 {
+  margin-right: 40px;
+}
+
+.navbar h2 {
+  justify-self: flex-end;
+  margin-left: auto;
+}
