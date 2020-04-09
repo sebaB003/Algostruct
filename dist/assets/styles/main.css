@@ -26,6 +26,12 @@ html {
 
 section, footer {
   margin-top: 60px;
+  width: 100%;
+}
+
+ul,
+ol {
+  list-style: none;
 }
 
 /* HEADINGS */
@@ -175,4 +181,11 @@ nav {
 
 .box-container:hover {
   box-shadow: 1px 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+
+/* LAYOUT */
+.flex-group {
+  display: flex;
+  flex-wrap: wrap;
 }
