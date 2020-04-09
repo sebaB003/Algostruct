@@ -95,3 +95,9 @@
   .tool-container p{
       margin: 0;    }
 }
+
+@media screen and (max-width: 450px) {
+  #reduce-toolBar {
+    display: none;
+  }
+}

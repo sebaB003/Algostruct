@@ -4,9 +4,14 @@
   padding-left: 0;
   width: 25%;
   box-shadow: -2px 1px 3px 0 rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-content: stretch;
 }
 
-#builder-interface__editor {
-  display: flex;
-  align-items: stretch;
+#builder-interface__editor h2 {
+  text-align: center;
+}
+
+#builder-interface__editor > div {
+  width: 100%;
 }

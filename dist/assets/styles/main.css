@@ -79,6 +79,10 @@ a:not(.active):not(.btn):not(.drop-down__link):hover {
   color: #00a651;
 }
 
+.btn {
+  cursor: pointer;
+}
+
 a.btn {
   display: inline-block;
   color: #00a651;
