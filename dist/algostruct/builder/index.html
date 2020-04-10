@@ -30,9 +30,7 @@
       type="text/css"
       href="../../assets/styles/builder/editor.css"
     />
-    <script src="../../assets/scripts/app.js" defer>
-
-    </script>
+    <script src="../../assets/scripts/app.js" defer></script>
   </head>
   <body>
     <nav class="navbar">
@@ -119,35 +117,35 @@
         <div class="tools-list">
           <div class="tool-container">
             <img class="tool-image" src="../../assets/icons/run_full.svg" />
-            <p>Run</p>
+            <p class="tool-label">Run</p>
           </div>
           <div class="tool-container">
             <img class="tool-image" src="../../assets/icons/run.svg" />
-            <p>Step</p>
+            <p class="tool-label">Step</p>
           </div>
           <div class="tool-container">
             <img class="tool-image" src="../../assets/icons/pause.svg" />
-            <p>Pause</p>
+            <p class="tool-label">Pause</p>
           </div>
           <div class="tool-container">
             <img class="tool-image" src="../../assets/icons/stop.svg" />
-            <p>Stop</p>
+            <p class="tool-label">Stop</p>
           </div>
           <div class="tool-container">
             <img class="tool-image" src="../../assets/icons/back.svg" />
-            <p>Undo</p>
+            <p class="tool-label">Undo</p>
           </div>
           <div class="tool-container">
             <img class="tool-image" src="../../assets/icons/forward.svg" />
-            <p>Redo</p>
+            <p class="tool-label">Redo</p>
           </div>
           <div class="tool-container">
             <img class="tool-image" src="../../assets/icons/new.svg" />
-            <p>New</p>
+            <p class="tool-label">New</p>
           </div>
           <div class="tool-container">
             <img class="tool-image" src="../../assets/icons/save.svg" />
-            <p>Save</p>
+            <p class="tool-label">Save</p>
           </div>
         </div>
         <button id="reduce-toolBar"></button>
@@ -157,14 +155,17 @@
           <button id="js--zoom-in" title="zoom in">
             <img src="../../assets/icons/zoomIn.svg" alt="zoom in" />
           </button>
-          <button id="js--center-view" title="center view">
+          <button id="js--reset-view" title="center view">
             <img src="../../assets/icons/centerView.svg" alt="center view" />
           </button>
           <button id="js--zoom-out" title="zoom out">
             <img src="../../assets/icons/zoomOut.svg" alt="zoom out" />
           </button>
         </div>
-        <svg xmlns="http://www.w3.org/2000/svg"></svg>
+        <svg
+          id="builder-interface__builder__screen"
+          xmlns="http://www.w3.org/2000/svg"
+        ></svg>
       </div>
       <div id="builder-interface__editor">
         <div>

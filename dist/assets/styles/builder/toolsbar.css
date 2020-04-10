@@ -11,7 +11,6 @@
   display: inline-block;
   padding: 10px;
   margin-top: 10%;
-  
 }
 
 .tool-container * {
@@ -19,9 +18,10 @@
   float: left;
 }
 
-.tool-container p {
+.tool-label {
   margin-left: 20px;
   font-size: 80%;
+  width: 10px;
 }
 
 #reduce-toolBar {
@@ -48,7 +48,7 @@
   height: 21px;
   background-color: #00A651;
   right: 18px;
-  transform: rotateZ(-30deg);
+  transform: rotateZ(30deg);
   top: 6px;
   border-radius: 50px;
   transition: all 0.5s;
@@ -61,10 +61,18 @@
   height: 21px;
   background-color: #00A651;
   right: 18px;
-  transform: rotateZ(30deg);
+  transform: rotateZ(-30deg);
   bottom: 6px;
   border-radius: 50px;
   transition: all 0.5s;
+}
+
+#reduce-toolBar.reverse::before {
+  transform: rotate(-30deg);
+}
+
+#reduce-toolBar.reverse::after {
+  transform: rotate(30deg);
 }
 
 .small {
@@ -100,4 +108,5 @@
   #reduce-toolBar {
     display: none;
   }
+  .tool-label {display: none;}
 }
