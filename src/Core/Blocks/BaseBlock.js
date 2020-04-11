@@ -14,7 +14,6 @@ export class BaseBlock {
     this.previousBlock;
     this.posX = 0;
     this.posY = 0;
-    this._style='';
     this.content = '';
     this.branchID = 0;
   }

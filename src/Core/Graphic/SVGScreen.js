@@ -169,4 +169,20 @@ export class SVGScreen {
       }
     }
   }
+
+  /**
+   * Returns svg element width
+   * @return {number} width:
+  */
+  getWidth() {
+    const width = this.SVGScreenEl.getBoundingClientRect().width;
+    return width;
+  }
+
+  /**
+   * Remove all the elemnts
+   */
+  clean() {
+    this.SVGScreenEl.innerHTML = '';
+  }
 }
