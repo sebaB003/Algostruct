@@ -1,7 +1,9 @@
 import {SVGScreen} from '../Core/Graphic/SVGScreen';
 import {StartBlock} from '../Core/Blocks/StartBlock';
 import {Flowchart} from '../Core/Flowchart';
-import {generateCRect} from '../Core/Graphic/BlockGenerators';
+import {generateCRect, generateCircle, generateRect} from '../Core/Graphic/BlockGenerators';
+import {InsertBlock} from '../Core/Blocks/InsertBlock';
+import { ContextMenu } from './ContextMenu';
 // import {EndBlock} from '../Core/Blocks/EndBlock';
 // import {ContextMenu} from '.components/ContextMenu';
 
@@ -35,6 +37,7 @@ export class Builder {
     this.project.title = title;
     this.project.flowchart.structure = new StartBlock(
         this.screen.getWidth() / 2, 100);
+    this.project.flowchart.structure.insert(new InsertBlock);
     this.project.flowchart.structure.reorderStructure();
   }
 
@@ -62,6 +65,14 @@ export class Builder {
       case 'start':
       case 'end':
         generateCRect(this.screen.SVGScreenEl, block);
+        break;
+      case 'insert':
+        const element = generateCircle(this.screen.SVGScreenEl, block);
+        element.addEventListener('click', (event) => new ContextMenu(event, {'try': console.log.bind(null, 'ok')}));
+        break;
+      case 'define':
+      case 'action':
+        generateRect(this.screen.SVGScreenEl, block);
         break;
     }
   }

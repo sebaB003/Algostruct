@@ -295,3 +295,9 @@ nav {
     transform: rotate(360deg);
   }
 }
+
+.contextmenu {
+  position: absolute;
+  background-color: #FFF;
+  border: 1px solid #000;
+}

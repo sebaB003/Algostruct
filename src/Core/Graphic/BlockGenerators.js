@@ -18,6 +18,38 @@ export function generateCRect(screen, block) {
 }
 
 /**
+ * @param {*} screen
+ * @param {*} block
+ * @return {*} svgEl
+ */
+export function generateCircle(screen, block) {
+  const svgEl = document.createElementNS(SVGNS, 'g');
+  const offsetX = block.width/2;
+  svgEl.innerHTML = `<rect x=${block.posX - offsetX} y=${block.posY} width=${block.width} height=${block.height} style="${presets.circle}"/>`;
+
+  _generateText(svgEl, block);
+
+  screen.append(svgEl);
+  return svgEl;
+}
+
+/**
+ * @param {*} screen
+ * @param {*} block
+ * @return {*} svgEl
+ */
+export function generateRect(screen, block) {
+  const svgEl = document.createElementNS(SVGNS, 'g');
+  const offsetX = block.width/2;
+  svgEl.innerHTML = `<rect x=${block.posX - offsetX} y=${block.posY} width=${block.width} height=${block.height} style="${presets.circle}"/>`;
+
+  _generateText(svgEl, block);
+
+  screen.append(svgEl);
+  return svgEl;
+}
+
+/**
  * @param {*} svgEl
  * @param {*} block
  */
@@ -33,5 +65,10 @@ function _generateText(svgEl, block) {
 }
 
 const presets = {
+  // Rect
+  'rect': 'fill:#fff;stroke:#00A651;stroke-width:3',
+  // Rounded rectangle
   'crect': 'rx:30;ry:30;fill:#fff;stroke:#00A651;stroke-width:3',
+  // Circle
+  'circle': 'rx:100%;ry:100%;fill:#fff;stroke:#00A651;stroke-width:3',
 };
