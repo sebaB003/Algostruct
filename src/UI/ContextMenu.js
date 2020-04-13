@@ -1,29 +1,36 @@
-
-/** */
-export class ContextMenu {
+/**
+ * Allow to open and close custom context menus
+*/
+export class ContextMenuManager {
   /**
-   * @param {*} event
-   * @param {*} functions
+   * @param {*} parent: The context menu related object
    */
-  constructor(event, functions) {
+  constructor(parent) {
     this.contextMenuElement;
-    this.openContextMenu(event, functions);
+    this.closeContextMenuHandler = this.close.bind(this);
+    this.isContextMenuOpen = false;
+    this.parent = parent;
   }
 
   /**
+   * Close previous instances and next create a new one
    * @param {*} event
-   * @param {*} functions
+   * @param {*} block: the caller object
+   * @param {*} functions: the object that contains the labels and the functions
    */
-  openContextMenu(event, functions) {
+  open(event, block, functions) {
     event.stopPropagation();
     event.preventDefault();
+    this.close();
     this.createContextMenu(event.pageX, event.pageY);
-    this.addFunctions(functions);
-    window.addEventListener('click', this.closeContextMenu);
+    this.addFunctions(block, functions);
+    window.addEventListener('click', this.closeContextMenuHandler);
     document.body.appendChild(this.contextMenuElement);
+    this.isContextMenuOpen = true;
   }
 
   /**
+   * Create the context menu container and position it
    * @param {*} posX
    * @param {*} posY
    */
@@ -35,31 +42,40 @@ export class ContextMenu {
   }
 
   /**
-   * @param {*} functions
+   * Iterate the functions object and create the buttons
+   * @param {*} block: the caller object
+   * @param {*} functions: the object that contains the labels and the functions
    */
-  addFunctions(functions) {
+  addFunctions(block, functions) {
     for (const func in functions) {
       if (functions[func]) {
-        this._createEventHandler(func, functions[func]);
+        this._createEventHandler(func, block, functions[func]);
       }
     }
   }
 
   /**
-   * @param {*} funcName
-   * @param {*} func
+   * Creates a labeled button with a binded function
+   * @param {string} funcName: function name to display
+   * @param {*} block: the caller object
+   * @param {*} func: the function to attach
    */
-  _createEventHandler(funcName, func) {
+  _createEventHandler(funcName, block, func) {
     const element = document.createElement('button');
     element.textContent = funcName;
-    element.addEventListener('click', func);
+    element.addEventListener('click', () => func(block, this.parent));
     this.contextMenuElement.appendChild(element);
   }
 
-  /** */
-  closeContextMenu() {
-    this.contextMenuElement.remove();
-    this.contextMenuElement = null;
-    window.removeEventListener('click', this.contextMenuElement);
+  /**
+   * This function close the active context menu
+  */
+  close() {
+    if (this.isContextMenuOpen) {
+      this.contextMenuElement.remove();
+      this.contextMenuElement = null;
+      window.removeEventListener('click', this.closeContextMenuHandler);
+      this.isContextMenuOpen = false;
+    }
   }
 }

@@ -221,7 +221,8 @@ nav {
   transition: color 0.2s;
 }
 
-.drop-down-container {
+.drop-down-container,
+.contextmenu {
   display: none;
   position: absolute;
   background-color: #FFF;
@@ -296,8 +297,4 @@ nav {
   }
 }
 
-.contextmenu {
-  position: absolute;
-  background-color: #FFF;
-  border: 1px solid #000;
-}
+.contextmenu {display: block;}

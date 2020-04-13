@@ -3,9 +3,8 @@ import {StartBlock} from '../Core/Blocks/StartBlock';
 import {Flowchart} from '../Core/Flowchart';
 import {generateCRect, generateCircle, generateRect} from '../Core/Graphic/BlockGenerators';
 import {InsertBlock} from '../Core/Blocks/InsertBlock';
-import { ContextMenu } from './ContextMenu';
-// import {EndBlock} from '../Core/Blocks/EndBlock';
-// import {ContextMenu} from '.components/ContextMenu';
+import {ContextMenuManager} from './ContextMenu';
+import {addBlocksContextMenu} from '../Core/Utils/ContextMenusPresets';
 
 /** */
 export class Builder {
@@ -18,6 +17,7 @@ export class Builder {
         'js--reset-view');
 
     this.project;
+    this.contextMenu = new ContextMenuManager(this);
 
     this.init();
   }
@@ -68,7 +68,7 @@ export class Builder {
         break;
       case 'insert':
         const element = generateCircle(this.screen.SVGScreenEl, block);
-        element.addEventListener('click', (event) => new ContextMenu(event, {'try': console.log.bind(null, 'ok')}));
+        element.addEventListener('click', ()=>this.contextMenu.open(event, block, addBlocksContextMenu));
         break;
       case 'define':
       case 'action':
