@@ -1,7 +1,11 @@
 import {SVGScreen} from '../Core/Graphic/SVGScreen';
 import {StartBlock} from '../Core/Blocks/StartBlock';
 import {Flowchart} from '../Core/Flowchart';
-import {generateCRect, generateCircle, generateRect} from '../Core/Graphic/BlockGenerators';
+import {generateCRect,
+  generateCircle,
+  generateRect,
+  generateORect,
+  generateDiamond} from '../Core/Graphic/BlockGenerators';
 import {InsertBlock} from '../Core/Blocks/InsertBlock';
 import {ContextMenuManager} from './ContextMenu';
 import {addBlocksContextMenu} from '../Core/Utils/ContextMenusPresets';
@@ -38,7 +42,7 @@ export class Builder {
     this.project.flowchart.structure = new StartBlock(
         this.screen.getWidth() / 2, 100);
     this.project.flowchart.structure.insert(new InsertBlock);
-    this.project.flowchart.structure.reorderStructure();
+    this.project.flowchart.reorder();
   }
 
   /**
@@ -54,6 +58,7 @@ export class Builder {
    */
   render() {
     this.screen.clean();
+    this.project.flowchart.reorder();
     this.project.flowchart.apply(this.generateBlock.bind(this));
   }
 
@@ -67,12 +72,23 @@ export class Builder {
         generateCRect(this.screen.SVGScreenEl, block);
         break;
       case 'insert':
+      case 'node':
         const element = generateCircle(this.screen.SVGScreenEl, block);
-        element.addEventListener('click', ()=>this.contextMenu.open(event, block, addBlocksContextMenu));
+        if (block.type == 'insert') {
+          element.addEventListener('click',
+              ()=>this.contextMenu.open(event, block, addBlocksContextMenu));
+        }
         break;
       case 'define':
       case 'action':
         generateRect(this.screen.SVGScreenEl, block);
+        break;
+      case 'input':
+      case 'output':
+        generateORect(this.screen.SVGScreenEl, block);
+        break;
+      case 'condition':
+        generateDiamond(this.screen.SVGScreenEl, block);
         break;
     }
   }

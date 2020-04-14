@@ -50,6 +50,7 @@ export class BaseBlock {
       previous.setPreviousBlock(block);
     }
 
+    console.log(this);
     this.updateStructure();
   }
 
@@ -151,7 +152,7 @@ export class BaseBlock {
       }
 
       if (pointer.type == 'conditional' && pointer.nextBlock2) {
-        this.updateStructure(pointer.nextBlock2, (p)=> p.type != 'end');
+        this.updateStructure(pointer.nextBlock2, (p)=> p.branchID == p.nextBlock.branchID);
       }
       pointer = pointer.nextBlock;
     }
@@ -159,36 +160,6 @@ export class BaseBlock {
       pointer.posY = pointer.previousBlock.posY +
       pointer.previousBlock.height + 50;
     }
-  }
-
-  /**
-   *
-   * @param {*} pointer
-   * @param {*} condition
-   */
-  reorderStructure(pointer=this.nextBlock ? this.nextBlock : this,
-      condition=(p) => p.nextBlock != undefined) {
-    while (condition(pointer)) {
-      if (pointer.previousBlock) {
-        pointer.posX = pointer.previousBlock.posX;
-      }
-      if (pointer.previousBlock) {
-        pointer.posY = pointer.previousBlock.posY +
-        pointer.previousBlock.height + 50;
-      }
-      BaseBlock.setBranchOffset(pointer);
-      BaseBlock.centerNode(pointer);
-      if (pointer.type == 'conditional' && pointer.nextBlock2) {
-        this.reorderStructure(pointer.nextBlock2,
-            (p)=> p.branchID == p.nextBlock.branchID);
-      }
-      pointer = pointer.nextBlock;
-    }
-    if (pointer.previousBlock) {
-      pointer.posY = pointer.previousBlock.posY +
-      pointer.previousBlock.height + 50;
-    }
-    pointer.posX = pointer.previousBlock.posX;
   }
 
   /**

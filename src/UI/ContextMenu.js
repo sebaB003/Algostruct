@@ -22,7 +22,7 @@ export class ContextMenuManager {
     event.stopPropagation();
     event.preventDefault();
     this.close();
-    this.createContextMenu(event.pageX, event.pageY);
+    this.createContextMenu(event.pageX + block.width/2, event.pageY);
     this.addFunctions(block, functions);
     window.addEventListener('click', this.closeContextMenuHandler);
     document.body.appendChild(this.contextMenuElement);

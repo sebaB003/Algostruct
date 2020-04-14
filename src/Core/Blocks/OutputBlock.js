@@ -1,11 +1,11 @@
 import {BaseBlock} from './BaseBlock';
 
 /** */
-export class InputBlock extends BaseBlock {
+export class OutputBlock extends BaseBlock {
   /** */
   constructor() {
-    super('input');
-    super.content = 'Input';
+    super('output');
+    super.content = 'Output';
     this.width = this.content.length * 28 + 80;
     this.height = 50;
   }

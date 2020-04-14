@@ -6,13 +6,19 @@ const SVGNS = 'http://www.w3.org/2000/svg';
  * @param {*} block
  * @return {*} svgEl
  */
-export function generateCRect(screen, block) {
-  if (block.previousBlock) {
-    generateConnector(screen, block.previousBlock, block);
+export function generateDiamond(screen, block) {
+  if (block.nextBlock) {
+    generateConnector(screen, block, block.nextBlock);
+  }
+  if (block.nextBlock2) {
+    generateConnector(screen, block, block.nextBlock2);
   }
   const svgEl = document.createElementNS(SVGNS, 'g');
   const offsetX = block.width/2;
-  svgEl.innerHTML = `<rect x=${block.posX - offsetX} y=${block.posY} width=${block.width} height=${block.height} style="${presets.crect}"/>`;
+  const centerY = block.height / 2;
+  const centerX = block.width / 2;
+
+  svgEl.innerHTML = `<path transform="translate(${block.posX - offsetX}, ${block.posY})" d="M0,${centerY} L${centerX},0 L${block.width},${centerY} L${centerX},${block.height}z" style="${presets.rect}"/>`;
 
   _generateText(svgEl, block);
 
@@ -26,8 +32,8 @@ export function generateCRect(screen, block) {
  * @return {*} svgEl
  */
 export function generateCircle(screen, block) {
-  if (block.previousBlock) {
-    generateConnector(screen, block.previousBlock, block);
+  if (block.nextBlock) {
+    generateConnector(screen, block, block.nextBlock);
   }
   const svgEl = document.createElementNS(SVGNS, 'g');
   const offsetX = block.width/2;
@@ -44,14 +50,53 @@ export function generateCircle(screen, block) {
  * @param {*} block
  * @return {*} svgEl
  */
+export function generateCRect(screen, block) {
+  if (block.nextBlock) {
+    generateConnector(screen, block, block.nextBlock);
+  }
+  const svgEl = document.createElementNS(SVGNS, 'g');
+  const offsetX = block.width/2;
+  svgEl.innerHTML = `<rect x=${block.posX - offsetX} y=${block.posY} width=${block.width} height=${block.height} style="${presets.crect}"/>`;
+
+  _generateText(svgEl, block);
+
+  screen.append(svgEl);
+  return svgEl;
+}
+
+
+/**
+ * @param {*} screen
+ * @param {*} block
+ * @return {*} svgEl
+ */
 export function generateRect(screen, block) {
-  if (block.previousBlock) {
-    generateConnector(screen, block.previousBlock, block);
+  if (block.nextBlock) {
+    generateConnector(screen, block, block.nextBlock);
   }
   const svgEl = document.createElementNS(SVGNS, 'g');
   const offsetX = block.width/2;
   svgEl.innerHTML = `<rect x=${block.posX - offsetX} y=${block.posY} width=${block.width} height=${block.height} style="${presets.rect}"/>`;
 
+  _generateText(svgEl, block);
+
+  screen.append(svgEl);
+  return svgEl;
+}
+
+/**
+ * @param {*} screen
+ * @param {*} block
+ * @return {*} svgEl
+ */
+export function generateORect(screen, block) {
+  if (block.nextBlock) {
+    generateConnector(screen, block, block.nextBlock);
+  }
+  const svgEl = document.createElementNS(SVGNS, 'g');
+  const offsetX = block.width/2;
+  svgEl.innerHTML = `<path transform="translate(${block.posX - offsetX}, ${block.posY})" d="M10,0 L${block.width+10},0 L${block.width-10},${block.height} L-10,${block.height}z" style="${presets.rect}"/>`;
+  svgEl.innerHTML += `<text x=${block.posX + block.width/2} y=${block.posY + block.height} font-family="Verdana" font-size=28 fill="#00A651">${block.type[0].toUpperCase()}</text>`;
   _generateText(svgEl, block);
 
   screen.append(svgEl);
@@ -89,7 +134,7 @@ function generateConnector(screen, block1, block2) {
   const middleY = y1 - ((y1 - block2.posY) / 2);
 
   if (block1.posY < block2.posY - block1.height) {
-    if (block1.type == 'conditional') {
+    if (block1.type == 'condition') {
       const offsetY = block1.height / 2;
       svgEl.setAttribute('points', `${centerX1}, ${y1 - offsetY} ${centerX2}, ${y1 - offsetY} ${centerX2}, ${block2.posY}`);
     } else if (block2.type == 'node') {

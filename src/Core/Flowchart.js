@@ -19,8 +19,8 @@ export class Flowchart {
       condition=(p)=> p.type != 'end',
       callback=null) {
     while (condition(pointer)) {
-      if (pointer.type == 'conditional' && pointer.nextBlock2) {
-        parse(pointer.nextBlock2, (p)=> p.type!='end', callback);
+      if (pointer.type == 'condition' && pointer.nextBlock2) {
+        this._parse(pointer.nextBlock2, (p)=> p.branchID == p.nextBlock.branchID, callback);
       }
       if (callback) {
         callback(pointer);
@@ -38,5 +38,25 @@ export class Flowchart {
    */
   apply(func) {
     this._parse(this.structure, (p)=> p.type != 'end', func);
+  }
+
+  /**
+   * Reorders the blocks and puts the blocks
+   * at the same distance.
+  */
+  reorder() {
+    // TODO: find a way to render the branch with the right size
+    this._parse(this.structure, (p)=> p.type != 'end', function(block) {
+      if (block.previousBlock) {
+        if (block.type == 'node') {
+          block.posY = Math.max(
+              block.previousBlock.posY + 50 + block.previousBlock.height,
+              block.previousBlock2.posY + 50 + block.previousBlock2.height);
+        } else {
+          block.posY = block.previousBlock.posY + 50 + block.previousBlock.height;
+          block.posX = block.previousBlock.posX;
+        }
+      }
+    });
   }
 }
