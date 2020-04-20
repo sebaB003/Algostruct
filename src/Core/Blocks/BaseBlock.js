@@ -49,8 +49,9 @@ export class BaseBlock {
     } else {
       previous.setPreviousBlock(block);
     }
-
-    console.log(this);
+    // if (block.type == 'condition') {
+    //   this.updateBranchOffset(block);
+    // }
     this.updateStructure();
   }
 
@@ -70,17 +71,22 @@ export class BaseBlock {
 
   /** */
   delete() {
-    if (this.type == 'conditional') {
-      if (this.previousBlock.previousBlock.type == 'conditional' &&
-      this.branchID > this.previousBlock.previousBlock.branchID) {
-        this.previousBlock.previousBlock.setSecondaryNextBlock(
-            this.node.nextBlock);
+    if (this.type == 'condition') {
+      if (this.previousBlock.type == 'node') {
+        this.node.previousBlock.setNextBlock(this.nextBlock.nextBlock);
+        this.nextBlock.nextBlock.previousBlock.setPreviousBlock(this.previousBlock);
       } else {
-        this.previousBlock.previousBlock.setNextBlock(this.node.nextBlock);
+        if (this.previousBlock.previousBlock.type == 'condition' &&
+        this.branchID > this.previousBlock.previousBlock.branchID) {
+          this.previousBlock.previousBlock.setSecondaryNextBlock(
+              this.node.nextBlock);
+        } else {
+          this.previousBlock.previousBlock.setNextBlock(this.node.nextBlock);
+        }
+        this.node.nextBlock.setPreviousBlock(this.previousBlock.previousBlock);
       }
-      this.node.nextBlock.setPreviousBlock(this.previousBlock.previousBlock);
     } else {
-      if (this.previousBlock.previousBlock.type == 'conditional' &&
+      if (this.previousBlock.previousBlock.type == 'condition' &&
       this.branchID > this.previousBlock.previousBlock.branchID) {
         this.previousBlock.previousBlock.setSecondaryNextBlock(this.nextBlock);
       } else {
@@ -92,28 +98,39 @@ export class BaseBlock {
     this.updateStructure();
   }
 
-  /** */
-  cut() {
-    builderData.notes = this;
-    this.delete();
+  /**
+   *
+   * @param {*} pointer
+   */
+  updateBranchOffset(pointer) {
+    let prevCond = pointer;
+    let leftBranchOffset = 1;
+    let rightBranchOffset = 1;
+    while (pointer.type != 'start') {
+      if (pointer.type == 'condition') {
+        if (prevCond.branchID == pointer.branchID) {
+          pointer.brenchWidth = rightBranchOffset;
+          rightBranchOffset += 1;
+        } else {
+          pointer.secondaryBrenchWidth = leftBranchOffset;
+          leftBranchOffset += 1;
+        }
+      }
+      prevCond = pointer;
+      pointer = pointer.previousBlock;
+    }
   }
-
-  /** */
-  copy() {
-    builderData.notes = Object.assign(new this.constructor, this);
-  }
-
   /**
    *
    * @param {*} pointer
    */
   static setBranchOffset(pointer) {
     if (pointer.previousBlock) {
-      if (pointer.previousBlock.type == 'conditional') {
+      if (pointer.previousBlock.type == 'condition') {
         if (pointer.branchID > pointer.previousBlock.branchID) {
-          pointer.posX = pointer.previousBlock.posX - 200;
+          pointer.posX -= pointer.previousBlock.secondaryBrenchWidth * 200;
         } else {
-          pointer.posX = pointer.previousBlock.posX + 200;
+          pointer.posX += pointer.previousBlock.brenchWidth * 200;
         }
       }
     }
@@ -128,6 +145,9 @@ export class BaseBlock {
       if (pointer.type == 'node') {
         pointer.posX = (pointer.previousBlock.posX +
           pointer.previousBlock2.posX) / 2;
+        pointer.posY = Math.max(
+            pointer.previousBlock.posY + 50 + pointer.previousBlock.height,
+            pointer.previousBlock2.posY + 50 + pointer.previousBlock2.height);
       }
     }
   }
@@ -138,7 +158,7 @@ export class BaseBlock {
    * @param {*} condition
    */
   updateStructure(pointer=this.nextBlock,
-      condition=(p) => p.nextBlock != undefined) {
+      condition=(p) => p.type != 'end') {
     if (pointer.previousBlock) {
       pointer.posX = pointer.previousBlock.posX;
     }
@@ -149,9 +169,14 @@ export class BaseBlock {
       if (pointer.previousBlock) {
         pointer.posY = pointer.previousBlock.posY +
         pointer.previousBlock.height + 50;
+        if (pointer.type == 'node' && pointer.previousBlock2) {
+          pointer.posY = Math.max(
+              pointer.previousBlock.posY + 50 + pointer.previousBlock.height,
+              pointer.previousBlock2.posY + 50 + pointer.previousBlock2.height);
+        }
       }
 
-      if (pointer.type == 'conditional' && pointer.nextBlock2) {
+      if (pointer.type == 'condition' && pointer.nextBlock2) {
         this.updateStructure(pointer.nextBlock2, (p)=> p.branchID == p.nextBlock.branchID);
       }
       pointer = pointer.nextBlock;
@@ -170,16 +195,31 @@ export class BaseBlock {
    * @param {*} condition
    */
   moveStructure(x, y, pointer=this, condition=(p) => p.nextBlock != undefined) {
+    let isNodeReaced = false;
     while (condition(pointer)) {
-      if (pointer.type == 'conditional' && pointer.nextBlock2) {
+      if (pointer.type == 'condition' && pointer.nextBlock2) {
         this.moveStructure(x, y, pointer.nextBlock2,
             (p)=> p.branchID == p.nextBlock.branchID);
       }
+
       pointer.posY += y;
-      pointer.posX += x;
+      if (pointer.type == 'node') {
+        isNodeReaced = true;
+        pointer.posX = (pointer.previousBlock.posX + pointer.previousBlock2.posX) / 2;
+      } else {
+        if (isNodeReaced) {
+          pointer.posX = pointer.previousBlock.posX;
+        } else {
+          pointer.posX += x;
+        }
+      }
       pointer = pointer.nextBlock;
     }
     pointer.posY += y;
-    pointer.posX += x;
+    if (isNodeReaced) {
+      pointer.posX = pointer.previousBlock.posX;
+    } else {
+      pointer.posX += x;
+    }
   }
 }

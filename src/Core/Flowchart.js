@@ -1,3 +1,4 @@
+const cloneobj = require('lodash.clonedeep');
 /**
  * Flowchart
  */
@@ -41,6 +42,27 @@ export class Flowchart {
   }
 
   /**
+   * @param {*} block
+   * @return {*} blockCopy
+   * TODO: deep copy of conditional block
+   */
+  copy(block) {
+    const getCircularReplacer = () => {
+      const seen = new WeakSet();
+      return (key, value) => {
+        if (typeof value === "object" && value !== null) {
+          if (seen.has(value)) {
+            return;
+          }
+          seen.add(value);
+        }
+        return value;
+      };
+    };
+    console.log(JSON.parse(JSON.stringify(block, getCircularReplacer())));
+    // return blockCopy;
+  }
+  /**
    * Reorders the blocks and puts the blocks
    * at the same distance.
   */
@@ -49,12 +71,24 @@ export class Flowchart {
     this._parse(this.structure, (p)=> p.type != 'end', function(block) {
       if (block.previousBlock) {
         if (block.type == 'node') {
-          block.posY = Math.max(
-              block.previousBlock.posY + 50 + block.previousBlock.height,
-              block.previousBlock2.posY + 50 + block.previousBlock2.height);
+          if (block != block.nextBlock.node) {
+            block.posY = Math.max(
+                block.previousBlock.posY + 50 + block.previousBlock.height,
+                block.previousBlock2.posY + 50 + block.previousBlock2.height);
+          } else {
+            block.posY = block.previousBlock.posY + 50 + block.previousBlock.height;
+            block.posX = block.previousBlock.posX;
+          }
         } else {
           block.posY = block.previousBlock.posY + 50 + block.previousBlock.height;
           block.posX = block.previousBlock.posX;
+        }
+        if (block.previousBlock.type == 'condition') {
+          if (block.branchID > block.previousBlock.branchID) {
+            block.posX -= block.previousBlock.secondaryBrenchWidth * 200;
+          } else {
+            block.posX += block.previousBlock.brenchWidth * 200;
+          }
         }
       }
     });

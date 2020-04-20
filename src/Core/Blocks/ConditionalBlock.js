@@ -12,6 +12,8 @@ export class ConditionalBlock extends BaseBlock {
     this.height = 100;
     this.node = node;
     this.nextBlock2;
+    this.brenchWidth = 1;
+    this.secondaryBrenchWidth = 1;
   }
 
   /**

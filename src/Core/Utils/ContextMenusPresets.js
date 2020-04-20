@@ -10,6 +10,19 @@ export const addBlocksContextMenu = {
   'Input': addInputBlockHandler,
   'Output': addOutputBlockHandler,
   'Condition': addConditionalBlockHandler,
+  'While': addWhileBlockHandler,
+  'DoWhile': addDoWhileBlockHandler,
+  'Paste': pasteBlock,
+};
+
+export const clipboardContextMenu = {
+  'Copy': copyBlock,
+  'Cut': cutBlock,
+  'Delete': deleteBlock,
+};
+
+export const viewContextMenu = {
+  'Reorder': reorderHandler,
 };
 
 /**
@@ -53,11 +66,104 @@ function addConditionalBlockHandler(block, parent) {
   const leftBranchInsert = new InsertBlock();
   const rightBranchInsert = new InsertBlock();
   block.nextBlock.insert(rightBranchInsert);
-  block.nextBlock.createSecondaryBranch(leftBranchInsert); //TODO: solve the connectors rendering bug
+  block.nextBlock.createSecondaryBranch(leftBranchInsert);
   node.insert(new InsertBlock());
   node.posX = (node.previousBlock.posX + node.previousBlock2.posX) / 2;
-  leftBranchInsert.posX -= 200;
-  rightBranchInsert.posX += 200;
   node.updateStructure();
+  console.log(block.nextBlock);
+  parent.render();
+}
+
+
+/**
+ * @param {*} block
+ * @param {*} parent
+ * TODO: Adjust rendering and delete
+ * FIXME: connectors stretch when a new block is added
+ */
+function addWhileBlockHandler(block, parent) {
+  const node = new NodeBlock();
+  const whileBlock = new ConditionalBlock(node);
+  const insertBlock = new InsertBlock();
+  block.insert(whileBlock);
+  block.insert(node);
+  node.setSecondaryPreviousBlock(insertBlock);
+  whileBlock.secondaryBrenchWidth = 0;
+  insertBlock.branchID += 1;
+  insertBlock.setPreviousBlock(whileBlock);
+  insertBlock.setNextBlock(node);
+  whileBlock.setSecondaryNextBlock(insertBlock);
+  whileBlock.insert(new InsertBlock());
+  console.log(whileBlock);
+  parent.render();
+}
+
+/**
+ * @param {*} block
+ * @param {*} parent
+ * TODO: Adjust rendering and delete
+ */
+function addDoWhileBlockHandler(block, parent) {
+  const node = new NodeBlock();
+  const whileBlock = new ConditionalBlock(node);
+  block.insert(whileBlock);
+  block.insert(node);
+  node.insert(new InsertBlock());
+  whileBlock.secondaryBrenchWidth = 0;
+  whileBlock.insert(new InsertBlock());
+  whileBlock.setSecondaryNextBlock(node);
+  node.setSecondaryPreviousBlock(whileBlock);
+  node.branchID += 1;
+  console.log(whileBlock);
+  parent.render();
+}
+
+/* --------------- CLIPBOARD CONTEXT MENU --------------- */
+
+/**
+ * @param {*} block
+ * @param {*} parent
+ */
+function copyBlock(block, parent) {
+  parent.clipboard = parent.project.flowchart.copy(block);
+}
+
+/**
+ * @param {*} block
+ * @param {*} parent
+ */
+function cutBlock(block, parent) {
+  block.delete();
+  parent.clipboard = parent.project.flowchart.copy(block);
+  parent.render();
+}
+
+/**
+ * @param {*} block
+ * @param {*} parent
+ */
+function deleteBlock(block, parent) {
+  block.delete();
+  parent.render();
+}
+
+/**
+ * @param {*} block
+ * @param {*} parent
+ */
+function pasteBlock(block, parent) {
+  if (parent.clipboard) {
+    block.insert(parent.clipboard);
+    block.nextBlock.insert(new InsertBlock());
+    parent.render();
+  }
+}
+
+/**
+ * @param {*} block
+ * @param {*} parent
+ */
+function reorderHandler(block, parent) {
+  parent.project.flowchart.reorder();
   parent.render();
 }

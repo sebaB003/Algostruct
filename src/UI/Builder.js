@@ -8,7 +8,9 @@ import {generateCRect,
   generateDiamond} from '../Core/Graphic/BlockGenerators';
 import {InsertBlock} from '../Core/Blocks/InsertBlock';
 import {ContextMenuManager} from './ContextMenu';
-import {addBlocksContextMenu} from '../Core/Utils/ContextMenusPresets';
+import {addBlocksContextMenu, viewContextMenu} from '../Core/Utils/ContextMenusPresets';
+import {clipboardContextMenu} from '../Core/Utils/ContextMenusPresets';
+import { moveBlockHandler } from '../Core/Utils/BlockBehaviour';
 
 /** */
 export class Builder {
@@ -23,15 +25,23 @@ export class Builder {
     this.project;
     this.contextMenu = new ContextMenuManager(this);
 
+    this.clipboard = 0;
     this.init();
   }
 
   /** */
   init() {
+    this.setupEventHandlers();
     this.newProject();
     this.render();
   }
 
+  /**
+   */
+  setupEventHandlers() {
+    this.screen.SVGScreenEl.addEventListener('contextmenu',
+        (event) => this.contextMenu.open(event, undefined, viewContextMenu));
+  }
   /**
    * Create a new project
    * @param {string} title
@@ -58,7 +68,7 @@ export class Builder {
    */
   render() {
     this.screen.clean();
-    this.project.flowchart.reorder();
+    // this.project.flowchart.updateStructure();
     this.project.flowchart.apply(this.generateBlock.bind(this));
   }
 
@@ -66,14 +76,17 @@ export class Builder {
    * @param {BaseBlock} block
    */
   generateBlock(block) {
+    let element = undefined;
     switch (block.type) {
       case 'start':
       case 'end':
-        generateCRect(this.screen.SVGScreenEl, block);
+        element = generateCRect(this.screen.SVGScreenEl, block);
+        element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
         break;
       case 'insert':
       case 'node':
-        const element = generateCircle(this.screen.SVGScreenEl, block);
+        element = generateCircle(this.screen.SVGScreenEl, block);
+        element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
         if (block.type == 'insert') {
           element.addEventListener('click',
               ()=>this.contextMenu.open(event, block, addBlocksContextMenu));
@@ -81,14 +94,29 @@ export class Builder {
         break;
       case 'define':
       case 'action':
-        generateRect(this.screen.SVGScreenEl, block);
+        element = generateRect(this.screen.SVGScreenEl, block);
+        element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
+        element.addEventListener('contextmenu',
+            ()=>this.contextMenu.open(event, block, clipboardContextMenu));
+        element.addEventListener('click',
+            ()=>this.contextMenu.open(event, block, addBlocksContextMenu));
         break;
       case 'input':
       case 'output':
-        generateORect(this.screen.SVGScreenEl, block);
+        element = generateORect(this.screen.SVGScreenEl, block);
+        element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
+        element.addEventListener('contextmenu',
+            ()=>this.contextMenu.open(event, block, clipboardContextMenu));
+        element.addEventListener('click',
+            ()=>this.contextMenu.open(event, block, addBlocksContextMenu));
         break;
       case 'condition':
-        generateDiamond(this.screen.SVGScreenEl, block);
+        element = generateDiamond(this.screen.SVGScreenEl, block);
+        element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
+        element.addEventListener('contextmenu',
+            ()=>this.contextMenu.open(event, block, clipboardContextMenu));
+        element.addEventListener('click',
+            ()=>this.contextMenu.open(event, block, addBlocksContextMenu));
         break;
     }
   }

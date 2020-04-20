@@ -20,11 +20,14 @@
   },
   "homepage": "https://github.com/sebaB003/Algostruct#readme",
   "devDependencies": {
+    "clean-webpack-plugin": "^3.0.0",
     "eslint": "^6.8.0",
     "eslint-config-google": "^0.14.0",
-    "clean-webpack-plugin": "^3.0.0",
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.10.3"
+  },
+  "dependencies": {
+    "lodash.clonedeep": "^4.5.0"
   }
 }

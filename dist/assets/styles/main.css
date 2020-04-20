@@ -69,9 +69,11 @@ h6 {
 
 /* LINKS AND BUTTONS */
 
-a {
+a,
+button {
   text-decoration: none;
   color: #707070;
+  font-size: 18px;
 }
 
 a:not(.active):not(.btn):not(.drop-down__link):hover {
@@ -148,13 +150,15 @@ a.full:hover {
   font-size: 130%;
 }
 
-.drop-down__link  {
+.drop-down__link,
+.contextmenu button {
   display: block;
   padding: 10px;
   transition: background 0.2s, padding 0.2s;
 }
 
-.drop-down__link:hover {
+.drop-down__link:hover,
+.contextmenu button:hover {
   padding-left: 15px;
   background-color: #EEE;
   border-radius: 5px;
@@ -298,3 +302,9 @@ nav {
 }
 
 .contextmenu {display: block;}
+
+.contextmenu button {
+  border: none;
+  width: 100%;
+  text-align: left;
+}
