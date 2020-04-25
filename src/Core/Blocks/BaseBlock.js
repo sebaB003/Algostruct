@@ -72,9 +72,13 @@ export class BaseBlock {
   /** */
   delete() {
     if (this.type == 'condition') {
-      if (this.previousBlock.type == 'node') {
+      if (this.previousBlock.type == 'node' || this.nextBlock2 == this.node) {
         this.node.previousBlock.setNextBlock(this.nextBlock.nextBlock);
-        this.nextBlock.nextBlock.previousBlock.setPreviousBlock(this.previousBlock);
+        if (this.nextBlock.nextBlock.branchID < this.nextBlock.branchID) {
+          this.nextBlock.nextBlock.setSecondaryPreviousBlock(this.node.previousBlock);
+        } else {
+          this.nextBlock.nextBlock.setPreviousBlock(this.node.previousBlock);
+        }
       } else {
         if (this.previousBlock.previousBlock.type == 'condition' &&
         this.branchID > this.previousBlock.previousBlock.branchID) {
@@ -96,6 +100,7 @@ export class BaseBlock {
     }
 
     this.updateStructure();
+    delete(this);
   }
 
   /**
@@ -170,14 +175,18 @@ export class BaseBlock {
         pointer.posY = pointer.previousBlock.posY +
         pointer.previousBlock.height + 50;
         if (pointer.type == 'node' && pointer.previousBlock2) {
-          pointer.posY = Math.max(
-              pointer.previousBlock.posY + 50 + pointer.previousBlock.height,
-              pointer.previousBlock2.posY + 50 + pointer.previousBlock2.height);
+          if (pointer != pointer.nextBlock.node && pointer.previousBlock2.type != 'condition') {
+            pointer.posY = Math.max(
+                pointer.previousBlock.posY + 50 + pointer.previousBlock.height,
+                pointer.previousBlock2.posY + 50 + pointer.previousBlock2.height);
+          }
         }
       }
 
       if (pointer.type == 'condition' && pointer.nextBlock2) {
-        this.updateStructure(pointer.nextBlock2, (p)=> p.branchID == p.nextBlock.branchID);
+        if (pointer.node != pointer.nextBlock2) {
+          this.updateStructure(pointer.nextBlock2, (p)=> p.branchID == p.nextBlock.branchID);
+        }
       }
       pointer = pointer.nextBlock;
     }
@@ -194,29 +203,29 @@ export class BaseBlock {
    * @param {*} pointer
    * @param {*} condition
    */
-  moveStructure(x, y, pointer=this, condition=(p) => p.nextBlock != undefined) {
-    let isNodeReaced = false;
+  moveStructure(x, y, pointer=this, condition=(p) => p.nextBlock != undefined && p.branchID == p.nextBlock.branchID) {
     while (condition(pointer)) {
-      if (pointer.type == 'condition' && pointer.nextBlock2) {
-        this.moveStructure(x, y, pointer.nextBlock2,
-            (p)=> p.branchID == p.nextBlock.branchID);
-      }
-
       pointer.posY += y;
       if (pointer.type == 'node') {
-        isNodeReaced = true;
-        pointer.posX = (pointer.previousBlock.posX + pointer.previousBlock2.posX) / 2;
-      } else {
-        if (isNodeReaced) {
+        if (pointer.nextBlock == pointer.previousBlock2) {
           pointer.posX = pointer.previousBlock.posX;
         } else {
-          pointer.posX += x;
+          pointer.posX = (pointer.previousBlock.posX + pointer.previousBlock2.posX) / 2;
+        }
+      } else {
+        pointer.posX += x;
+      }
+
+      if (pointer.type == 'condition' && pointer.nextBlock2) {
+        if (pointer.node != pointer.nextBlock2) {
+          this.moveStructure(x, y, pointer.nextBlock2,
+              (p)=> p.branchID == p.nextBlock.branchID);
         }
       }
       pointer = pointer.nextBlock;
     }
     pointer.posY += y;
-    if (isNodeReaced) {
+    if (pointer.type == 'node' && pointer.previousBlock2.type == 'condition') {
       pointer.posX = pointer.previousBlock.posX;
     } else {
       pointer.posX += x;

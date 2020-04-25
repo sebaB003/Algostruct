@@ -78,43 +78,44 @@ function addConditionalBlockHandler(block, parent) {
 /**
  * @param {*} block
  * @param {*} parent
- * TODO: Adjust rendering and delete
- * FIXME: connectors stretch when a new block is added
+ * TODO: Adjust rendering
  */
 function addWhileBlockHandler(block, parent) {
   const node = new NodeBlock();
   const whileBlock = new ConditionalBlock(node);
   const insertBlock = new InsertBlock();
-  block.insert(whileBlock);
   block.insert(node);
+  node.insert(whileBlock);
   node.setSecondaryPreviousBlock(insertBlock);
   whileBlock.secondaryBrenchWidth = 0;
-  insertBlock.branchID += 1;
+  whileBlock.brenchWidth = 1;
+  whileBlock.branchID = block.branchID;
+  insertBlock.branchID = block.branchID + 1;
+  node.branchID = block.branchID;
   insertBlock.setPreviousBlock(whileBlock);
   insertBlock.setNextBlock(node);
   whileBlock.setSecondaryNextBlock(insertBlock);
   whileBlock.insert(new InsertBlock());
-  console.log(whileBlock);
+  insertBlock.posX = whileBlock.posX;
+  insertBlock.posY = whileBlock.posY + 50 + whileBlock.height;
   parent.render();
 }
 
 /**
  * @param {*} block
  * @param {*} parent
- * TODO: Adjust rendering and delete
  */
 function addDoWhileBlockHandler(block, parent) {
   const node = new NodeBlock();
   const whileBlock = new ConditionalBlock(node);
-  block.insert(whileBlock);
   block.insert(node);
+  node.insert(whileBlock);
   node.insert(new InsertBlock());
   whileBlock.secondaryBrenchWidth = 0;
   whileBlock.insert(new InsertBlock());
   whileBlock.setSecondaryNextBlock(node);
   node.setSecondaryPreviousBlock(whileBlock);
-  node.branchID += 1;
-  console.log(whileBlock);
+  whileBlock.branchID = block.branchID;
   parent.render();
 }
 

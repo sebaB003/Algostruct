@@ -123,6 +123,7 @@ function _generateText(svgEl, block) {
  * @param {*} screen
  * @param {*} block1
  * @param {*} block2
+ * TODO: divide in multiple functions
  */
 function generateConnector(screen, block1, block2) {
   const svgEl = document.createElementNS(SVGNS, 'polyline');
@@ -139,15 +140,29 @@ function generateConnector(screen, block1, block2) {
       svgEl.setAttribute('points', `${centerX1}, ${y1 - offsetY} ${centerX2}, ${y1 - offsetY} ${centerX2}, ${block2.posY}`);
     } else if (block2.type == 'node') {
       const offsetY = block2.height / 2;
-      svgEl.setAttribute('points', `${centerX1}, ${y1} ${centerX1}, ${block2.posY +offsetY} ${centerX2}, ${block2.posY +offsetY}`);
+      svgEl.setAttribute('points', `${centerX1}, ${y1} ${centerX1}, ${block2.posY + offsetY} ${centerX2}, ${block2.posY +offsetY}`);
     } else {
       svgEl.setAttribute('points', `${centerX1}, ${y1} ${centerX1}, ${middleY} ${centerX2}, ${middleY} ${centerX2}, ${block2.posY}`);
     }
   } else {
-    const middleX = centerX1 - ((centerX1 - centerX2) / 2);
-    const y2 = y1 + 50;
-    const y3 = block2.posY - 50;
-    svgEl.setAttribute('points', `${centerX1}, ${y1} ${centerX1}, ${y2} ${middleX}, ${y2} ${middleX}, ${y3} ${centerX2}, ${y3} ${centerX2}, ${block2.posY}`);
+    if (block1.nextBlock && block2.nextBlock) {
+      if (block1.type == 'condition' && block1.node == block2 || block2 == block2.nextBlock.node) {
+        const offsetY1 = block1.height / 2;
+        const offsetY2 = block2.height / 2;
+        const offsetX = block1.posX > block2.posX ? centerX1 - Math.abs(centerX2 - centerX1) - 200 : centerX1 - 200;
+        svgEl.setAttribute('points', `${centerX1}, ${y1 - offsetY1} ${offsetX}, ${y1 - offsetY1} ${offsetX}, ${block2.posY + offsetY2} ${centerX2}, ${block2.posY + offsetY2}`);
+      } else {
+        const middleX = centerX1 - ((centerX1 - centerX2) / 2);
+        const y2 = y1 + 50;
+        const y3 = block2.posY - 50;
+        svgEl.setAttribute('points', `${centerX1}, ${y1} ${centerX1}, ${y2} ${middleX}, ${y2} ${middleX}, ${y3} ${centerX2}, ${y3} ${centerX2}, ${block2.posY}`);
+      }
+    } else {
+      const middleX = centerX1 - ((centerX1 - centerX2) / 2);
+      const y2 = y1 + 50;
+      const y3 = block2.posY - 50;
+      svgEl.setAttribute('points', `${centerX1}, ${y1} ${centerX1}, ${y2} ${middleX}, ${y2} ${middleX}, ${y3} ${centerX2}, ${y3} ${centerX2}, ${block2.posY}`);
+    }
   }
   screen.append(svgEl);
   if (block2.type != 'insert' && block2.type != 'node') generateArrow(screen, centerX2, block2.posY);

@@ -1,6 +1,7 @@
 import {Topbar} from './UI/Topbar';
 import {Toolbar} from './UI/Toolbar';
 import {Builder} from './UI/Builder';
+import {Editor} from './UI/Editor';
 
 /**
  * This class contains is the core of Algostruct
@@ -14,6 +15,7 @@ class App {
     this.toolbar = new Toolbar();
     this.topbar = new Topbar();
     this.builder = new Builder();
+    this.editor = new Editor(this.builder.project);
   }
 
   /**

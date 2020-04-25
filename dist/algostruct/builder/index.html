@@ -33,6 +33,12 @@
     <script src="../../assets/scripts/app.js" defer></script>
   </head>
   <body>
+
+    <div class="loading-wrapper">
+      <div class="loader"></div>
+      <h1>Algostruct</h1>
+    </div>
+
     <nav class="navbar">
       <a class="t-logo" href="../../index.html">Algostruct</a>
       <ul class="navbar__links">
@@ -179,10 +185,6 @@
 
     <section id="status-bar"></section>
 
-    <div class="loading-wrapper">
-      <div class="loader"></div>
-      <h1>Algostruct</h1>
-    </div>
     <script>
       var loaderWrapper = document.querySelector(".loading-wrapper");
       window.onload = () => {

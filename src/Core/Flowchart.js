@@ -20,11 +20,13 @@ export class Flowchart {
       condition=(p)=> p.type != 'end',
       callback=null) {
     while (condition(pointer)) {
-      if (pointer.type == 'condition' && pointer.nextBlock2) {
-        this._parse(pointer.nextBlock2, (p)=> p.branchID == p.nextBlock.branchID, callback);
-      }
       if (callback) {
         callback(pointer);
+      }
+      if (pointer.type == 'condition' && pointer.nextBlock2) {
+        if (pointer.node != pointer.nextBlock2) {
+          this._parse(pointer.nextBlock2, (p)=> p.branchID == p.nextBlock.branchID, callback);
+        }
       }
       pointer = pointer.nextBlock;
     }
@@ -71,10 +73,11 @@ export class Flowchart {
     this._parse(this.structure, (p)=> p.type != 'end', function(block) {
       if (block.previousBlock) {
         if (block.type == 'node') {
-          if (block != block.nextBlock.node) {
+          if (block != block.nextBlock.node && block.previousBlock2.type != 'condition') {
             block.posY = Math.max(
                 block.previousBlock.posY + 50 + block.previousBlock.height,
                 block.previousBlock2.posY + 50 + block.previousBlock2.height);
+            block.posX = (block.previousBlock.posX + block.previousBlock2.posX) / 2;
           } else {
             block.posY = block.previousBlock.posY + 50 + block.previousBlock.height;
             block.posX = block.previousBlock.posX;

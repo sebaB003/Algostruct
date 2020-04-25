@@ -70,6 +70,7 @@ export class Builder {
     this.screen.clean();
     // this.project.flowchart.updateStructure();
     this.project.flowchart.apply(this.generateBlock.bind(this));
+    console.log(this.project.flowchart);
   }
 
   /**
