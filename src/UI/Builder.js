@@ -5,22 +5,30 @@ import {generateCRect,
   generateCircle,
   generateRect,
   generateORect,
-  generateDiamond} from '../Core/Graphic/BlockGenerators';
+  generateDiamond,
+  generateComment} from '../Core/Graphic/BlockGenerators';
+
 import {InsertBlock} from '../Core/Blocks/InsertBlock';
 import {ContextMenuManager} from './ContextMenu';
-import {addBlocksContextMenu, viewContextMenu} from '../Core/Utils/ContextMenusPresets';
+import {addBlocksContextMenu,
+  viewContextMenu} from '../Core/Utils/ContextMenusPresets';
+
 import {clipboardContextMenu} from '../Core/Utils/ContextMenusPresets';
-import { moveBlockHandler } from '../Core/Utils/BlockBehaviour';
+import {moveBlockHandler} from '../Core/Utils/BlockBehaviour';
 
 /** */
 export class Builder {
-  /** */
-  constructor() {
+  /**
+   * @param {*} selectCallback
+  */
+  constructor(selectCallback) {
     this.screen = new SVGScreen(
         'builder-interface__builder__screen',
         'js--zoom-in',
         'js--zoom-out',
         'js--reset-view');
+
+    this.selectCallback = selectCallback;
 
     this.project;
     this.contextMenu = new ContextMenuManager(this);
@@ -42,6 +50,7 @@ export class Builder {
     this.screen.SVGScreenEl.addEventListener('contextmenu',
         (event) => this.contextMenu.open(event, undefined, viewContextMenu));
   }
+
   /**
    * Create a new project
    * @param {string} title
@@ -69,6 +78,7 @@ export class Builder {
   render() {
     this.screen.clean();
     // this.project.flowchart.updateStructure();
+    this.renderComments();
     this.project.flowchart.apply(this.generateBlock.bind(this));
     console.log(this.project.flowchart);
   }
@@ -99,8 +109,7 @@ export class Builder {
         element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
         element.addEventListener('contextmenu',
             ()=>this.contextMenu.open(event, block, clipboardContextMenu));
-        element.addEventListener('click',
-            ()=>this.contextMenu.open(event, block, addBlocksContextMenu));
+        element.addEventListener('click', (event) => this._select(event, block));
         break;
       case 'input':
       case 'output':
@@ -108,18 +117,42 @@ export class Builder {
         element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
         element.addEventListener('contextmenu',
             ()=>this.contextMenu.open(event, block, clipboardContextMenu));
-        element.addEventListener('click',
-            ()=>this.contextMenu.open(event, block, addBlocksContextMenu));
+        element.addEventListener('click', (event) => this._select(event, block));
         break;
       case 'condition':
         element = generateDiamond(this.screen.SVGScreenEl, block);
         element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
         element.addEventListener('contextmenu',
             ()=>this.contextMenu.open(event, block, clipboardContextMenu));
-        element.addEventListener('click',
-            ()=>this.contextMenu.open(event, block, addBlocksContextMenu));
+        element.addEventListener('click', (event) => this._select(event, block));
         break;
     }
+  }
+
+  /** */
+  renderComments() {
+    for (const comment of this.project.flowchart.comments) {
+      comment.posY = comment.previousBlock.posY - 70 + comment.offsetY;
+      comment.posX = comment.previousBlock.posX + 300 + comment.offsetX;
+      const element = generateComment(this.screen.SVGScreenEl, comment);
+      element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, comment));
+      element.addEventListener('contextmenu',
+          ()=>this.contextMenu.open(event, comment, clipboardContextMenu));
+    }
+  }
+
+  /**
+   * @param {*} event
+   * @param {*} block
+   */
+  _select(event, block) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.project.flowchart.select(block);
+    if (this.selectCallback) {
+      this.selectCallback(block);
+    }
+    this.render();
   }
 }
 

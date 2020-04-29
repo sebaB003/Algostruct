@@ -16,6 +16,7 @@ export class BaseBlock {
     this.posY = 0;
     this.content = '';
     this.branchID = 0;
+    this.isSelected = false;
   }
 
   /**
@@ -73,34 +74,49 @@ export class BaseBlock {
   delete() {
     if (this.type == 'condition') {
       if (this.previousBlock.type == 'node' || this.nextBlock2 == this.node) {
-        this.node.previousBlock.setNextBlock(this.nextBlock.nextBlock);
-        if (this.nextBlock.nextBlock.branchID < this.nextBlock.branchID) {
-          this.nextBlock.nextBlock.setSecondaryPreviousBlock(this.node.previousBlock);
-        } else {
-          this.nextBlock.nextBlock.setPreviousBlock(this.node.previousBlock);
-        }
+        this._deleteConditionBlock();
       } else {
-        if (this.previousBlock.previousBlock.type == 'condition' &&
-        this.branchID > this.previousBlock.previousBlock.branchID) {
-          this.previousBlock.previousBlock.setSecondaryNextBlock(
-              this.node.nextBlock);
-        } else {
-          this.previousBlock.previousBlock.setNextBlock(this.node.nextBlock);
-        }
-        this.node.nextBlock.setPreviousBlock(this.previousBlock.previousBlock);
+        this._deleteSecondaryBranchBlock();
       }
     } else {
-      if (this.previousBlock.previousBlock.type == 'condition' &&
-      this.branchID > this.previousBlock.previousBlock.branchID) {
-        this.previousBlock.previousBlock.setSecondaryNextBlock(this.nextBlock);
-      } else {
-        this.previousBlock.previousBlock.setNextBlock(this.nextBlock);
-      }
-      this.nextBlock.setPreviousBlock(this.previousBlock.previousBlock);
+      this._deleteNormalBlock();
     }
 
     this.updateStructure();
     delete(this);
+  }
+
+  /** */
+  _deleteConditionBlock() {
+    this.node.previousBlock.setNextBlock(this.nextBlock.nextBlock);
+    if (this.nextBlock.nextBlock.branchID < this.nextBlock.branchID) {
+      this.nextBlock.nextBlock.setSecondaryPreviousBlock(this.node.previousBlock);
+    } else {
+      this.nextBlock.nextBlock.setPreviousBlock(this.node.previousBlock);
+    }
+  }
+
+  /** */
+  _deleteSecondaryBranchBlock() {
+    if (this.previousBlock.previousBlock.type == 'condition' &&
+        this.branchID > this.previousBlock.previousBlock.branchID) {
+      this.previousBlock.previousBlock.setSecondaryNextBlock(
+          this.node.nextBlock);
+    } else {
+      this.previousBlock.previousBlock.setNextBlock(this.node.nextBlock);
+    }
+    this.node.nextBlock.setPreviousBlock(this.previousBlock.previousBlock);
+  }
+
+  /** */
+  _deleteNormalBlock() {
+    if (this.previousBlock.previousBlock.type == 'condition' &&
+      this.branchID > this.previousBlock.previousBlock.branchID) {
+      this.previousBlock.previousBlock.setSecondaryNextBlock(this.nextBlock);
+    } else {
+      this.previousBlock.previousBlock.setNextBlock(this.nextBlock);
+    }
+    this.nextBlock.setPreviousBlock(this.previousBlock.previousBlock);
   }
 
   /**
@@ -125,6 +141,7 @@ export class BaseBlock {
       pointer = pointer.previousBlock;
     }
   }
+
   /**
    *
    * @param {*} pointer

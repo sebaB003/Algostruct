@@ -8,6 +8,8 @@ export class Flowchart {
    */
   constructor() {
     this.structure;
+    this.comments = [];
+    this.selected = undefined;
   }
 
   /**
@@ -49,21 +51,13 @@ export class Flowchart {
    * TODO: deep copy of conditional block
    */
   copy(block) {
-    const getCircularReplacer = () => {
-      const seen = new WeakSet();
-      return (key, value) => {
-        if (typeof value === "object" && value !== null) {
-          if (seen.has(value)) {
-            return;
-          }
-          seen.add(value);
-        }
-        return value;
-      };
-    };
-    console.log(JSON.parse(JSON.stringify(block, getCircularReplacer())));
-    // return blockCopy;
+    if (block.type != 'condition') {
+      const blockCopy = Object.assign(new block.constructor, block);
+      return blockCopy;
+    }
+    return undefined;
   }
+
   /**
    * Reorders the blocks and puts the blocks
    * at the same distance.
@@ -95,5 +89,16 @@ export class Flowchart {
         }
       }
     });
+  }
+
+  /**
+   * @param {*} block
+   */
+  select(block) {
+    if (this.selected) {
+      this.selected.isSelected = false;
+    }
+    block.isSelected = true;
+    this.selected = block;
   }
 }

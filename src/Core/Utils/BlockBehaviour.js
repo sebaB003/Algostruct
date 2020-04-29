@@ -25,7 +25,12 @@ export function moveBlockHandler(event, parent, element) {
       // window.style.cursor = 'default';
       window.removeEventListener('mousemove', moveBlock);
     } else {
-      element.moveStructure(event.pageX - lastX, event.pageY - lastY);
+      if (element.type == 'comment') {
+        element.offsetX += event.pageX - lastX;
+        element.offsetY += event.pageY - lastY;
+      } else {
+        element.moveStructure(event.pageX - lastX, event.pageY - lastY);
+      }
       parent.render();
       lastX = event.pageX;
       lastY = event.pageY;

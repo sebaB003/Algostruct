@@ -4,6 +4,8 @@ import {ConditionalBlock} from '../Blocks/ConditionalBlock';
 import {OutputBlock} from '../Blocks/OutputBlock';
 import {InsertBlock} from '../Blocks/InsertBlock';
 import {NodeBlock} from '../Blocks/NodeBlock';
+import { CommentBlock } from '../Blocks/CommentBlock';
+import { moveBlockHandler } from './BlockBehaviour';
 
 export const addBlocksContextMenu = {
   'Define': addDefineBlockHandler,
@@ -12,12 +14,13 @@ export const addBlocksContextMenu = {
   'Condition': addConditionalBlockHandler,
   'While': addWhileBlockHandler,
   'DoWhile': addDoWhileBlockHandler,
+  'Comment': addCommentHandler,
   'Paste': pasteBlock,
 };
 
 export const clipboardContextMenu = {
-  'Copy': copyBlock,
-  'Cut': cutBlock,
+  'Copy': copyBlockHandler,
+  'Cut': cutBlockHandler,
   'Delete': deleteBlock,
 };
 
@@ -119,13 +122,25 @@ function addDoWhileBlockHandler(block, parent) {
   parent.render();
 }
 
+/**
+ * @param {*} block
+ * @param {*} parent
+ */
+function addCommentHandler(block, parent) {
+  const comment = new CommentBlock();
+  comment.setPreviousBlock(block);
+  comment.posY = block.posY - 20;
+  comment.posX = block.posX + 300;
+  parent.project.flowchart.comments.push(comment);
+  parent.render();
+}
 /* --------------- CLIPBOARD CONTEXT MENU --------------- */
 
 /**
  * @param {*} block
  * @param {*} parent
  */
-function copyBlock(block, parent) {
+function copyBlockHandler(block, parent) {
   parent.clipboard = parent.project.flowchart.copy(block);
 }
 
@@ -133,10 +148,17 @@ function copyBlock(block, parent) {
  * @param {*} block
  * @param {*} parent
  */
-function cutBlock(block, parent) {
-  block.delete();
-  parent.clipboard = parent.project.flowchart.copy(block);
-  parent.render();
+function cutBlockHandler(block, parent) {
+  if (block.type != 'comment') {
+    block.delete();
+    parent.clipboard = parent.project.flowchart.copy(block);
+    parent.render();
+  } else {
+    const commentIndex = parent.project.flowchart.comments.indexOf(block);
+    parent.project.flowchart.comments.splice(commentIndex, 1);
+    parent.clipboard = block;
+    parent.render();
+  }
 }
 
 /**
@@ -144,7 +166,12 @@ function cutBlock(block, parent) {
  * @param {*} parent
  */
 function deleteBlock(block, parent) {
-  block.delete();
+  if (block.type != 'comment') {
+    block.delete();
+  } else {
+    const commentIndex = parent.project.flowchart.comments.indexOf(block);
+    parent.project.flowchart.comments.splice(commentIndex, 1);
+  }
   parent.render();
 }
 
@@ -154,8 +181,13 @@ function deleteBlock(block, parent) {
  */
 function pasteBlock(block, parent) {
   if (parent.clipboard) {
-    block.insert(parent.clipboard);
-    block.nextBlock.insert(new InsertBlock());
+    if (parent.clipboard.type != 'comment') {
+      block.insert(parent.clipboard);
+      block.nextBlock.insert(new InsertBlock());
+    } else {
+      parent.clipboard.previousBlock = block;
+      parent.project.flowchart.comments.push(parent.clipboard);
+    }
     parent.render();
   }
 }

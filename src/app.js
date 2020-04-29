@@ -14,8 +14,8 @@ class App {
   constructor() {
     this.toolbar = new Toolbar();
     this.topbar = new Topbar();
-    this.builder = new Builder();
-    this.editor = new Editor(this.builder.project);
+    this.editor = new Editor();
+    this.builder = new Builder(this.editor.loadBlock);
   }
 
   /**
