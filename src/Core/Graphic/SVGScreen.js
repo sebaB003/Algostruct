@@ -53,6 +53,8 @@ export class SVGScreen {
     this.SVGScreenEl.addEventListener('mousedown',
         (event) => this.moveBuilderView(event));
 
+    this.SVGScreenEl.addEventListener('wheel', (event) => this.wheelHandler(event));
+
     // Prevent to open contextmenu
     this.SVGScreenEl.addEventListener('contextmenu',
         (event) => event.preventDefault());
@@ -65,11 +67,22 @@ export class SVGScreen {
   }
 
   /**
+   * Manage the mouse wheel events
+   * @param {Event} event
+   */
+  wheelHandler(event) {
+    if (event.deltaY == -100) {
+      this.zoomIn();
+    } else {
+      this.zoomOut();
+    }
+  }
+
+  /**
    * Mangae the screen schortcuts
    * @param {Event} event
    */
   keysHandler(event) {
-    console.log(event);
     if (event.code == 'BracketRight' && (event.ctrlKey || event.metaKey)) {
       this.zoomIn();
       event.preventDefault();

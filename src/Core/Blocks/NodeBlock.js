@@ -6,8 +6,8 @@ export class NodeBlock extends BaseBlock {
   constructor() {
     super('node');
     this.previousBlock2;
-    this.width = 10;
-    this.height = 10;
+    super.width = 10;
+    super.height = 10;
   }
 
   /**

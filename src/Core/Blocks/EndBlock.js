@@ -13,7 +13,6 @@ export class EndBlock extends BaseBlock {
     super.posX = previousBlock.posX;
     super.posY = previousBlock.posY + 100;
     super.content = 'End';
-    this.width = this.content.length * 28 + 100;
-    this.height = 50;
+    super.height = 50;
   }
 }

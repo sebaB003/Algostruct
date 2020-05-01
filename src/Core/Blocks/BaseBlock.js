@@ -14,11 +14,25 @@ export class BaseBlock {
     this.previousBlock;
     this.posX = 0;
     this.posY = 0;
-    this.content = '';
+    this._content = '';
+    this.width = 0;
+    this.height = 0;
     this.branchID = 0;
     this.isSelected = false;
   }
 
+  /**
+   * @param {*} value
+   */
+  set content(value) {
+    this._content = value;
+    this.width = Math.max(this._content.length * 28 + 80, 200);
+  }
+
+  /** */
+  get content() {
+    return this._content;
+  }
   /**
    *
    * @param {*} nextBlock
@@ -207,10 +221,8 @@ export class BaseBlock {
       }
       pointer = pointer.nextBlock;
     }
-    if (pointer.previousBlock) {
-      pointer.posY = pointer.previousBlock.posY +
-      pointer.previousBlock.height + 50;
-    }
+    pointer.posY = pointer.previousBlock.posY +
+    pointer.previousBlock.height + 50;
   }
 
   /**

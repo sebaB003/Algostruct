@@ -8,8 +8,7 @@ export class ConditionalBlock extends BaseBlock {
   constructor(node) {
     super('condition');
     super.content = 'Condition';
-    this.width = this.content.length * 28 + 80;
-    this.height = 100;
+    super.height = 100;
     this.node = node;
     this.nextBlock2;
     this.brenchWidth = 1;

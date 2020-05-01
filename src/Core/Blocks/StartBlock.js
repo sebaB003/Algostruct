@@ -16,7 +16,6 @@ export class StartBlock extends BaseBlock {
     super.posX = posx;
     super.posY = posy;
     super.content = 'Start';
-    this.width = this.content.length * 28 + 80;
-    this.height = 50;
+    super.height = 50;
   }
 }

@@ -15,14 +15,24 @@ class App {
     this.toolbar = new Toolbar();
     this.topbar = new Topbar();
     this.editor = new Editor();
-    this.builder = new Builder(this.editor.loadBlock);
+    this.builder = new Builder();
+
+    this.project = undefined;
   }
 
   /**
    * Create a new project and setup the environment
   */
   init() {
-    console.log('Hello world');
+    this.project = this.builder.project;
+    this.editor.setRenderCallback(this.builder.render.bind(this.builder));
+    this.builder.setSelectCallback(this.update.bind(this));
+  }
+
+  /** */
+  update() {
+    this.project = this.builder.project;
+    this.editor.loadBlock(this.project.flowchart.selected);
   }
 }
 

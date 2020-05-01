@@ -18,17 +18,15 @@ import {moveBlockHandler} from '../Core/Utils/BlockBehaviour';
 
 /** */
 export class Builder {
-  /**
-   * @param {*} selectCallback
-  */
-  constructor(selectCallback) {
+  /** */
+  constructor() {
     this.screen = new SVGScreen(
         'builder-interface__builder__screen',
         'js--zoom-in',
         'js--zoom-out',
         'js--reset-view');
 
-    this.selectCallback = selectCallback;
+    this.selectCallback = undefined;
 
     this.project;
     this.contextMenu = new ContextMenuManager(this);
@@ -80,7 +78,6 @@ export class Builder {
     // this.project.flowchart.updateStructure();
     this.renderComments();
     this.project.flowchart.apply(this.generateBlock.bind(this));
-    console.log(this.project.flowchart);
   }
 
   /**
@@ -153,6 +150,13 @@ export class Builder {
       this.selectCallback(block);
     }
     this.render();
+  }
+
+  /**
+   * @param {*} callback
+  */
+  setSelectCallback(callback) {
+    this.selectCallback = callback;
   }
 }
 

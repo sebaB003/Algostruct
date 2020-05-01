@@ -6,7 +6,7 @@ export class DefineBlock extends BaseBlock {
   constructor() {
     super('define');
     super.content = 'Define';
-    this.width = this.content.length * 28 + 80;
-    this.height = 50;
+    super.width = this.content.length * 28 + 80;
+    super.height = 50;
   }
 }

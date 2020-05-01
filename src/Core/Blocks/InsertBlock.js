@@ -10,7 +10,7 @@ export class InsertBlock extends BaseBlock {
   constructor() {
     super('insert');
     super.content = '+';
-    this.width = 30;
-    this.height = 30;
+    super.width = 30;
+    super.height = 30;
   }
 }
