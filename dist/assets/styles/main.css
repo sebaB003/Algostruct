@@ -165,6 +165,7 @@ a:not(.active):not(.btn):not(.drop-down__link):hover {
   display: block;
   padding: 10px;
   transition: background 0.2s, padding 0.2s;
+  background: #FFF;
 }
 
 .drop-down__link:hover,
@@ -224,7 +225,19 @@ nav {
   box-shadow: 1px 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
+.autocomplete-box {
+  position: relative;
+  display: inline-block;
+}
 
+.autocomplete-box-hints {
+  height: 100px;
+  overflow-y: scroll;
+}
+
+.autocomplete-box-hints button {
+  display: block;
+}
 /* LAYOUT */
 .flex-group {
   display: flex;

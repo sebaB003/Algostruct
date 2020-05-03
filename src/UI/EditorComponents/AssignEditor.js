@@ -168,12 +168,37 @@ export class AssignEditor {
    */
   setupAutocomplete(modalContent) {
     const variableName = modalContent.querySelector('input');
-
-    variableName.onkeypress = (event) => this.generateAutocomplete();
+    const hintsContainer = modalContent.querySelector('.autocomplete-box-hints');
+    hintsContainer.style.display = 'none';
+    variableName.onkeypress = async (event) => await this.generateAutocomplete(event, variableName.value, hintsContainer);
   }
 
   /** */
-  generateAutocomplete() {
-    console.log(this);
+  generateAutocomplete(event, value, container) {
+    return new Promise(
+        (resolve) => {
+          container.innerHTML = '';
+          let isHintFound = false;
+          if (/^([A-Za-z_][[A-Za-z0-9_]*)/.test(value)) {
+            for (const variable of this.variables) {
+              console.log(variable);
+              if (variable.search(value) != -1) {
+                const hintButton = document.createElement('button');
+                hintButton.textContent = variable;
+                hintButton.onclick = (event) => {
+                  container.previousElementSibling.value = event.target.textContent;
+                  container.style.display = 'none';
+                };
+                container.appendChild(hintButton);
+                isHintFound = true;
+              }
+            }
+          }
+
+          if (isHintFound) {
+            container.style.display = 'block';
+          }
+        },
+    );
   }
 }
