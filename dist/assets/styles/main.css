@@ -85,49 +85,59 @@ a:not(.active):not(.btn):not(.drop-down__link):hover {
   cursor: pointer;
 }
 
-a.btn {
+.btn
+{
   display: inline-block;
   color: #00a651;
   border: 1px solid #00a651;
+  background-color: #FFF;
   padding: 10px 20px;
   transition: background 0.4s ease-in, color 0.4s ease-in;
 }
 
-a.btn:visited,
-a:active,
-a:link {
+.btn:visited:not('static'),
+.btn:active:not('static'),
+.btn:link:not('static') {
   color: #00a651;
 }
 
-a.btn:hover,
-a.btn:visited {
+.btn:hover:not('static'),
+.btn:visited:not('static') {
   background-color: #00a651;
   color: #fff;
 }
 
-a.btn--big {
+.btn--big {
   font-size: 200%;
   font-weight: 700;
   border: 3px solid #00a651;
 }
 
-a.btn--small {
+.btn--small {
   margin: 0;
   font-size: 100%;
   font-weight: 700;
   border: 1px solid #00a651;
 }
 
-a.round {
+.round {
   border-radius: 50px;
 }
 
-a.full {
+.round-left {
+  border-radius: 20px 0 0 20px;
+}
+
+.round-right {
+  border-radius: 0 20px 20px 0;
+}
+
+.full {
   color: #FFF;
   background-color: #00a651;
 }
 
-a.full:hover {
+.full:hover {
   color: #00a651;
   background-color: #FFF;
 }
@@ -164,7 +174,10 @@ a.full:hover {
   border-radius: 5px;
 }
 
-
+.variable-selector {
+  width: 80px;
+  padding: 2px;
+}
 /* NAVIGATION BAR*/
 
 nav {
@@ -248,6 +261,56 @@ nav {
 
 
 /* WRAPPERS AND MODALS */
+
+.modal {
+  z-index: 100;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.2);
+  top: 0;
+  left: 0;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+}
+
+.modal--box {
+  top: 50%;
+  position: absolute;
+  display: block;
+  width: 50%;
+  transform: translateY(-50%);
+  height: 100px;
+  background-color: #FFF;
+  border-radius: 20px;
+  box-shadow: 1px 1px 4px 1px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+}
+
+.modal--box p,
+.modal--box li {
+  font-size: 14px;
+}
+
+.button-bar {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  align-content: center;
+}
+
+.modal--box ul {
+  list-style: circle;
+}
+
+input[type="text"] {
+  border: none;
+  border-bottom: 1px solid #00a651;
+}
 
 .loading-wrapper {
   z-index: 100;

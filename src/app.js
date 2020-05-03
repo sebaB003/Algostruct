@@ -26,6 +26,7 @@ class App {
   init() {
     this.project = this.builder.project;
     this.editor.setRenderCallback(this.builder.render.bind(this.builder));
+    this.editor.setVariablePool(this.project.flowchart.variablePool);
     this.builder.setSelectCallback(this.update.bind(this));
   }
 

@@ -1,12 +1,22 @@
+import {AssignEditor} from './EditorComponents/AssignEditor';
+import {OperationEditor} from './EditorComponents/OperationEditor';
+import {ModalManager} from './EditorComponents/ModalManager';
+
 /** */
 export class Editor {
   /** */
   constructor() {
     this.editorEl = document.querySelector(
         '#builder-interface__editor div');
+    this.operationsContainer = document.createElement('div');
+    this.blockOperations = [];
+
     this.currentSelected = undefined;
 
     this.renderCallback = undefined;
+
+    this.modalManager = new ModalManager();
+    this.variablePool = undefined;
 
     this.init();
   }
@@ -17,8 +27,13 @@ export class Editor {
   }
 
   /** */
+  setVariablePool(variablePool) {
+    this.variablePool = variablePool;
+  }
+
+  /** */
   setupEventHandlers() {
-    this.editorEl.parentElement.addEventListener('mousedown', (event) => this.resize(event));
+    // this.editorEl.parentElement.addEventListener('mousedown', (event) => this.resize(event));
   }
 
   /**
@@ -26,6 +41,7 @@ export class Editor {
   */
   loadBlock(block) {
     if (this.currentSelected != block) {
+      this.blockOperations = [];
       this.currentSelected = block;
       this.updateUI();
     }
@@ -34,19 +50,78 @@ export class Editor {
   /** */
   updateUI() {
     this.editorEl.innerHTML = '';
-    const typeLabel = document.createElement('p');
-    typeLabel.innerHTML = `Type: ${this.currentSelected.type}`;
-    const contentEditor = document.createElement('input');
-    contentEditor.setAttribute('type', 'text');
-    contentEditor.setAttribute('value', this.currentSelected.content);
-    this.editorEl.appendChild(typeLabel);
-    this.editorEl.appendChild(contentEditor);
-    contentEditor.onkeyup = (event) => {
-      this.currentSelected.content = event.target.value;
-      this.renderCallback();
-    };
+    const title = document.createElement('p');
+    title.innerHTML = 'Operations';
+    this.editorEl.appendChild(title);
+    this.operationsContainer.innerHTML = '';
+    this.editorEl.appendChild(this.operationsContainer);
+
+    this.parseContent();
+    this.generateBlockContent();
+
+    this.showCreateAssignEditorButton();
+    this.showCreateOperationEditorButton();
   }
 
+  /** */
+  parseContent() {
+    const operations = this.currentSelected.content.split('; ');
+    const assignRegex = /^([A-Za-z_][[A-Za-z0-9_]*){0,1}?\s*(=|\+=|-=|\*=|\/=|%=){1}?\s*(([A-Za-z_][[A-Za-z0-9_]*)|(\".*\")|(\'.*\')|([0-9]+)){0,1}$/;
+    const operationRegex = /^([A-Za-z_][[A-Za-z0-9_]*){0,1}?\s*(=|\+=|-=|\*=|\/=|%=){1}?\s*(([A-Za-z_][[A-Za-z0-9_]*)|(\".*\")|(\'.*\')|([0-9]+)){0,1}\s*(\+|-|\*|\/|%){1}?\s*(([A-Za-z_][[A-Za-z0-9_]*)|(\".*\")|(\'.*\')|([0-9]+)){0,1}$/;
+    for (const operation of operations) {
+      if (assignRegex.test(operation)) {
+        const regexResult = assignRegex.exec(operation);
+        this.createAssignEditor(regexResult[1], regexResult[2], regexResult[3]);
+      } else if (operationRegex.test(operation)) {
+        const regexResult = operationRegex.exec(operation);
+        this.createOperationEditor(regexResult[1], regexResult[2], regexResult[3], regexResult[8], regexResult[9]);
+      }
+    }
+  }
+
+  /** */
+  showCreateAssignEditorButton() {
+    const createAssignEditorButton = document.createElement('button');
+    createAssignEditorButton.innerHTML = 'New assign operation';
+    createAssignEditorButton.onclick = () => this.createAssignEditor();
+    this.editorEl.appendChild(createAssignEditorButton);
+  }
+
+  /** */
+  showCreateOperationEditorButton() {
+    const createOperationEditorButton = document.createElement('button');
+    createOperationEditorButton.innerHTML = 'New operation';
+    createOperationEditorButton.onclick = () => this.createOperationEditor();
+    this.editorEl.appendChild(createOperationEditorButton);
+  }
+
+  /** */
+  createAssignEditor(...components) {
+    console.log(this.variablePool);
+    const newOperation = new AssignEditor(components, this.variablePool, this.modalManager, this.generateBlockContent.bind(this));
+    this.blockOperations.push(newOperation);
+    this.operationsContainer.appendChild(newOperation.container);
+    this.generateBlockContent();
+  }
+
+  /** */
+  createOperationEditor(...components) {
+    const newOperation = new OperationEditor(components, this.variablePool, this.modalManager, this.generateBlockContent.bind(this));
+    this.blockOperations.push(newOperation);
+    this.operationsContainer.appendChild(newOperation.container);
+    this.generateBlockContent();
+  }
+
+  /** */
+  generateBlockContent() {
+    this.currentSelected.content = '';
+    for (const operation of this.blockOperations) {
+      if (operation instanceof AssignEditor) {
+        this.currentSelected.content += `${operation.variable1} ${operation.operator} ${operation.variable2}; `;
+      }
+    }
+    this.renderCallback();
+  }
   /**
    * @param {*} callback
   */
@@ -85,7 +160,6 @@ export class Editor {
         newWidth = oldWidth + (resizable.getBoundingClientRect().left - event.pageX);
         newWidth = Math.min(parseInt(window.innerWidth), Math.max(10, newWidth));
         resizable.style.width = newWidth + 'px';
-        lastX = event.pageX;
       }
     }
   }

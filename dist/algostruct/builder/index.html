@@ -34,6 +34,28 @@
   </head>
   <body>
 
+    <template id="createVariableModal">
+      <div class="modal--box">
+        <!--
+        <p>Choose a name for the new variable:</p>
+        <ul>
+          <li>The name must start with a <strong>letter</strong> or <strong>_</strong></li>
+          <li>The name should be greather than <strong>4</strong> characters</li>
+        </ul>
+      -->
+      
+      <p class="error"></p>
+      <div class="button-bar">
+        <div>
+          <label for="variableName">Variable name: </label>
+          <input type="text" name="variableName">
+        </div>
+        <button class='btn btn-small full round'>Create</button>
+      </div>
+      <p class="error"></p>
+    </div>  
+    </template>
+
     <div class="loading-wrapper">
       <div class="loader"></div>
       <h1>Algostruct</h1>

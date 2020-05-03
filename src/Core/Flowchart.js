@@ -10,6 +10,7 @@ export class Flowchart {
     this.structure;
     this.comments = [];
     this.selected = undefined;
+    this.variablePool = new Set();
   }
 
   /**
