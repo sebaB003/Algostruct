@@ -145,9 +145,21 @@ export class Builder {
   _select(event, block) {
     event.preventDefault();
     event.stopPropagation();
+
     this.project.flowchart.select(block);
     if (this.selectCallback) {
       this.selectCallback(block);
+    }
+    this.render();
+  }
+
+  /**
+   *
+  */
+  _deselect() {
+    this.project.flowchart.selected = null;
+    if (this.selectCallback) {
+      this.selectCallback();
     }
     this.render();
   }

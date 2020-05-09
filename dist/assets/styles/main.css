@@ -37,7 +37,7 @@ ol {
   list-style: none;
 }
 
-/* HEADINGS */
+/* HEADINGS AND TEXTS */
 
 h1 {
   font-weight: 400;
@@ -65,6 +65,11 @@ h6 {
   font-size: 70%;
   font-weight: 300;
   text-align: center;
+}
+
+.error {
+  color: #FF0000;
+  font-size: 80%;
 }
 
 /* LINKS AND BUTTONS */
@@ -125,10 +130,12 @@ a:not(.active):not(.btn):not(.drop-down__link):hover {
 }
 
 .round-left {
+  height: 30px;
   border-radius: 20px 0 0 20px;
 }
 
 .round-right {
+  height: 30px;
   border-radius: 0 20px 20px 0;
 }
 
@@ -292,7 +299,7 @@ nav {
   top: 50%;
   position: absolute;
   display: block;
-  width: 50%;
+  width: 600px;
   transform: translateY(-50%);
   height: 100px;
   background-color: #FFF;
@@ -322,7 +329,15 @@ nav {
 
 input[type="text"] {
   border: none;
-  border-bottom: 1px solid #00a651;
+  width: 50%;
+  border-bottom: 2px solid #00a651;
+  transition: all 0.5s ease-in;
+  font-size: 100%;
+}
+
+input[type="text"]:focus {
+
+  width: 100%;
 }
 
 .loading-wrapper {

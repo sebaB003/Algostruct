@@ -172,6 +172,11 @@ function deleteBlock(block, parent) {
     const commentIndex = parent.project.flowchart.comments.indexOf(block);
     parent.project.flowchart.comments.splice(commentIndex, 1);
   }
+
+  if (block == parent.project.flowchart.selected) {
+    parent._deselect();
+  }
+
   parent.render();
 }
 

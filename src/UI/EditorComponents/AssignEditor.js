@@ -6,68 +6,82 @@ export class AssignEditor {
    * @param {*} components
    * @param {*} variables
    * @param {*} modalManager
+   * @param {*} renderCallback
+   * @param {*} removeCallback
    */
-  constructor(components, variables, modalManager, renderCallback) {
-    this.variables = variables;
-    this.container = document.createElement('div');
+  constructor(components, variables, modalManager, renderCallback, removeCallback) {
+    this.containerEl = document.createElement('div');
+    this.containerEl.classList.add('operation-container');
+    this.deleteBtn = document.createElement('button');
 
+    // Variables for the autocomplete interface
+    this.variables = variables;
+
+    // Setup loaded content
     [this.variable1='', this.operator='=', this.variable2=''] = components;
 
+    // Define the oprtators allowed
     this.operators = ['=', '+=', '-=', '*=', '/=', '%='];
-    this.init();
 
+    // Init modal manager
     if (modalManager) {
       this.modalManager = modalManager;
     } else {
       this.modalManager = new ModalManager();
     }
 
+    // Set callbacks
     this.renderCallback = renderCallback;
+    this.removeCallback = removeCallback;
+
+    this.init();
   }
 
-  /** */
+  /**
+   * Render UI and setup remove button
+  */
   init() {
     this.generateUI();
+    this.setupRemoveButton();
   }
 
-  /** */
+  /**
+   * Generates the widget
+  */
   generateUI() {
-    this.container.innerHTML = '';
+    this.containerEl.innerHTML = '';
     const variable1 = document.createElement('button');
     const operator = document.createElement('select');
     const variable2 = document.createElement('button');
 
+    // Define the new elements classes
     variable1.classList.add('btn', 'round-left', 'variable-selector', 'static');
     variable2.classList.add('btn', 'round-right', 'variable-selector', 'static');
+
+    // Set an inital content
     variable1.textContent = this.variable1;
     variable2.textContent = this.variable2;
 
-    this.populateWithValue(operator, this.operators, false, false);
+    this.populateWithValue(operator, this.operators);
 
     operator.value = this.operator;
     this.setSelectorEventHandler(operator, 'operator');
 
-    this.container.appendChild(variable1);
-    this.container.appendChild(operator);
-    this.container.appendChild(variable2);
+    this.containerEl.appendChild(variable1);
+    this.containerEl.appendChild(operator);
+    this.containerEl.appendChild(variable2);
+    this.containerEl.appendChild(this.deleteBtn);
 
     this.setModal(variable1, 'variable1');
     this.setModal(variable2, 'variable2');
   }
 
   /**
-   * @param {*} target
-   * @param {*} values
-   * @param {*} allowNew
-   * @param {*} generateVoid
+   * Populates a select element
+   * @param {*} target the select element
+   * @param {*} values the valuse to populet the select elemnt with
    */
-  populateWithValue(target, values, allowNew=true, generateVoid=true) {
-    if (generateVoid) {
-      values.add(' ');
-    }
-    if (allowNew) {
-      values.add('New');
-    }
+  populateWithValue(target, values) {
     for (const value of values) {
       if (value) {
         const optionEl = document.createElement('option');
@@ -200,5 +214,16 @@ export class AssignEditor {
           }
         },
     );
+  }
+
+  /** */
+  setupRemoveButton() {
+    this.deleteBtn.classList.add('delete-operation');
+    this.deleteBtn.innerHTML = 'X';
+
+    this.deleteBtn.addEventListener('click', (event) => {
+      event.target.parentElement.remove();
+      this.removeCallback(this);
+    });
   }
 }
