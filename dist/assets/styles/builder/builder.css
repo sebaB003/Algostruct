@@ -74,5 +74,36 @@ h2 {
 
 #status-bar {
   height: 30px;
-  border-top: 1px solid #707070;
+  padding: 2px;
+  box-shadow: 0 -1px 4px 1px rgba(0, 0, 0, 0.2);
+}
+
+
+#tools-container {
+  border-top: 1px solid #707070; 
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#tools-container h4 {
+  color: #00A651;
+}
+
+#tools-container > div {
+  padding: 10px;
+  height: 200px;
+  width: 100%;
+  overflow-y: scroll;
+}
+
+#output,
+#watches {
+  border-left: 1px solid #707070;
+}
+
+.watches-container {
+  width: 100%;
+  text-align: left;
 }

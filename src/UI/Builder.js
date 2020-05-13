@@ -75,7 +75,6 @@ export class Builder {
    */
   render() {
     this.screen.clean();
-    // this.project.flowchart.updateStructure();
     this.renderComments();
     this.project.flowchart.apply(this.generateBlock.bind(this));
   }
@@ -135,6 +134,7 @@ export class Builder {
       element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, comment));
       element.addEventListener('contextmenu',
           ()=>this.contextMenu.open(event, comment, clipboardContextMenu));
+      element.addEventListener('click', (event) => this._select(event, comment));
     }
   }
 

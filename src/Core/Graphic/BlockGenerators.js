@@ -20,6 +20,7 @@ export function generateDiamond(screen, block) {
 
   svgEl.innerHTML = `<path transform="translate(${block.posX - offsetX}, ${block.posY})" d="M0,${centerY} L${centerX},0 L${block.width},${centerY} L${centerX},${block.height}z" style="${presets.rect}"/>`;
   showSelected(block, svgEl);
+  setOutlineColor(block, svgEl);
 
   _generateText(svgEl, block);
 
@@ -40,6 +41,7 @@ export function generateCircle(screen, block) {
   const offsetX = block.width/2;
   svgEl.innerHTML = `<rect x=${block.posX - offsetX} y=${block.posY} width=${block.width} height=${block.height} style="${presets.circle}"/>`;
   showSelected(block, svgEl);
+  setOutlineColor(block, svgEl);
 
   _generateText(svgEl, block);
 
@@ -60,6 +62,7 @@ export function generateCRect(screen, block) {
   const offsetX = block.width/2;
   svgEl.innerHTML = `<rect x=${block.posX - offsetX} y=${block.posY} width=${block.width} height=${block.height} style="${presets.crect}"/>`;
   showSelected(block, svgEl);
+  setOutlineColor(block, svgEl);
 
   _generateText(svgEl, block);
 
@@ -81,6 +84,7 @@ export function generateRect(screen, block) {
   const offsetX = block.width/2;
   svgEl.innerHTML = `<rect x=${block.posX - offsetX} y=${block.posY} width=${block.width} height=${block.height} style="${presets.rect}"/>`;
   showSelected(block, svgEl);
+  setOutlineColor(block, svgEl);
 
   _generateText(svgEl, block);
 
@@ -102,6 +106,7 @@ export function generateORect(screen, block) {
   svgEl.innerHTML = `<path transform="translate(${block.posX - offsetX}, ${block.posY})" d="M10,0 L${block.width+10},0 L${block.width-10},${block.height} L-10,${block.height}z" style="${presets.rect}"/>`;
   svgEl.innerHTML += `<text x=${block.posX + block.width/2} y=${block.posY + block.height} font-family="Verdana" font-size=28 fill="#00A651">${block.type[0].toUpperCase()}</text>`;
   showSelected(block, svgEl);
+  setOutlineColor(block, svgEl);
 
   _generateText(svgEl, block);
 
@@ -282,11 +287,24 @@ function showSelected(block, el) {
   }
 }
 
+/**
+ * Set the outline color
+ * @param {*} block
+ * @param {*} el
+*/
+function setOutlineColor(block, el) {
+  if (block.hasErrors) {
+    el.firstChild.setAttribute('stroke', '#F00');
+  } else {
+    el.firstChild.setAttribute('stroke', '#00A651');
+  }
+}
+
 const presets = {
   // Rect
-  'rect': 'fill:#fff;stroke:#00A651;',
+  'rect': 'fill:#fff;',
   // Rounded rectangle
-  'crect': 'rx:30;ry:30;fill:#fff;stroke:#00A651;',
+  'crect': 'rx:30;ry:30;fill:#fff;',
   // Circle
-  'circle': 'rx:100%;ry:100%;fill:#fff;stroke:#00A651;',
+  'circle': 'rx:100%;ry:100%;fill:#fff;',
 };

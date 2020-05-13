@@ -19,6 +19,7 @@ export class BaseBlock {
     this.height = 0;
     this.branchID = 0;
     this.isSelected = false;
+    this.hasErrors = false;
   }
 
   /**

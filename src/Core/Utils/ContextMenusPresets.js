@@ -4,8 +4,8 @@ import {ConditionalBlock} from '../Blocks/ConditionalBlock';
 import {OutputBlock} from '../Blocks/OutputBlock';
 import {InsertBlock} from '../Blocks/InsertBlock';
 import {NodeBlock} from '../Blocks/NodeBlock';
-import { CommentBlock } from '../Blocks/CommentBlock';
-import { moveBlockHandler } from './BlockBehaviour';
+import {CommentBlock} from '../Blocks/CommentBlock';
+import {moveBlockHandler} from './BlockBehaviour';
 
 export const addBlocksContextMenu = {
   'Define': addDefineBlockHandler,
@@ -36,6 +36,7 @@ function addDefineBlockHandler(block, parent) {
   block.insert(new DefineBlock());
   block.nextBlock.insert(new InsertBlock());
   parent.render();
+  parent.project.flowchart.updateFlowchart();
 }
 
 /**
@@ -46,6 +47,7 @@ function addInputBlockHandler(block, parent) {
   block.insert(new InputBlock());
   block.nextBlock.insert(new InsertBlock());
   parent.render();
+  parent.project.flowchart.updateFlowchart();
 }
 
 /**
@@ -56,6 +58,7 @@ function addOutputBlockHandler(block, parent) {
   block.insert(new OutputBlock());
   block.nextBlock.insert(new InsertBlock());
   parent.render();
+  parent.project.flowchart.updateFlowchart();
 }
 
 /**
@@ -75,6 +78,7 @@ function addConditionalBlockHandler(block, parent) {
   node.updateStructure();
   console.log(block.nextBlock);
   parent.render();
+  parent.project.flowchart.updateFlowchart();
 }
 
 
@@ -102,6 +106,7 @@ function addWhileBlockHandler(block, parent) {
   insertBlock.posX = whileBlock.posX;
   insertBlock.posY = whileBlock.posY + 50 + whileBlock.height;
   parent.render();
+  parent.project.flowchart.updateFlowchart();
 }
 
 /**
@@ -120,6 +125,7 @@ function addDoWhileBlockHandler(block, parent) {
   node.setSecondaryPreviousBlock(whileBlock);
   whileBlock.branchID = block.branchID;
   parent.render();
+  parent.project.flowchart.updateFlowchart();
 }
 
 /**
@@ -134,6 +140,7 @@ function addCommentHandler(block, parent) {
   parent.project.flowchart.comments.push(comment);
   parent.render();
 }
+
 /* --------------- CLIPBOARD CONTEXT MENU --------------- */
 
 /**
@@ -152,6 +159,8 @@ function cutBlockHandler(block, parent) {
   if (block.type != 'comment') {
     block.delete();
     parent.clipboard = parent.project.flowchart.copy(block);
+    parent.clipboard.isSelected = true;
+    parent.project.flowchart.updateFlowchart();
     parent.render();
   } else {
     const commentIndex = parent.project.flowchart.comments.indexOf(block);
@@ -168,6 +177,7 @@ function cutBlockHandler(block, parent) {
 function deleteBlock(block, parent) {
   if (block.type != 'comment') {
     block.delete();
+    parent.project.flowchart.updateFlowchart();
   } else {
     const commentIndex = parent.project.flowchart.comments.indexOf(block);
     parent.project.flowchart.comments.splice(commentIndex, 1);
@@ -194,6 +204,7 @@ function pasteBlock(block, parent) {
       parent.project.flowchart.comments.push(parent.clipboard);
     }
     parent.render();
+    parent.project.flowchart.updateFlowchart();
   }
 }
 

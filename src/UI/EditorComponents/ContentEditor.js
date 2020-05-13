@@ -32,7 +32,7 @@ export class ContentEditor {
   setupContentInput() {
     this.contentInput = document.createElement('input');
     this.contentInput.setAttribute('type', 'text');
-
+    this.contentInput.value = this.block.content;
     this.contentEditor.append(this.contentInput);
   }
 
@@ -50,9 +50,11 @@ export class ContentEditor {
   setupEventListeners() {
     this.contentInput.onkeyup = (event) => {
       this.block.content = event.target.value;
-      if (!SyntaxChecker.checkBlockSyntax(this.block) && this.block.content != '') {
+      if (!SyntaxChecker.checkBlockSyntax(this.block)) {
+        this.block.hasErrors = true;
         this.createErrorMessage('Invalid syntax!');
       } else {
+        this.block.hasErrors = false;
         this.hideErrorMessage();
       }
       this.renderCallback();

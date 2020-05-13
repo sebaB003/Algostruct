@@ -32,11 +32,43 @@ section, footer {
   width: 100%;
 }
 
+/* TABLES AND LISTS */
 ul,
 ol {
   list-style: none;
 }
 
+table {
+  margin-top: 10px;
+  border-collapse: collapse;
+}
+
+th {
+  border-bottom: 1px solid black;
+  border-left: 1px solid black;
+  padding-left: 10px;
+}
+
+tr {height: 40px;}
+
+tr td {
+  border-left: 1px solid #000;
+  padding: 2px;
+  padding-left: 10px;
+}
+
+td:first-child,
+th:first-child {border-left: 0;}
+
+tr:nth-child(even) td {
+  background-color: rgb(0, 166, 81, 0.2);
+  color: #000;
+}
+
+tbody tr:hover {
+  box-shadow: 0px 1px 4px 1px rgba(0, 0, 0, 0.2);
+  height: 50px;
+}
 /* HEADINGS AND TEXTS */
 
 h1 {

@@ -1,3 +1,5 @@
+import { checkDefinitonRegex } from './Utils/Regex';
+
 const cloneobj = require('lodash.clonedeep');
 /**
  * Flowchart
@@ -11,6 +13,8 @@ export class Flowchart {
     this.comments = [];
     this.selected = undefined;
     this.variablePool = new Set();
+    this.instructions = 0;
+    this.errors = 0;
   }
 
   /**
@@ -54,6 +58,7 @@ export class Flowchart {
   copy(block) {
     if (block.type != 'condition') {
       const blockCopy = Object.assign(new block.constructor, block);
+      blockCopy.isSelected = false;
       return blockCopy;
     }
     return undefined;
@@ -101,5 +106,34 @@ export class Flowchart {
     }
     block.isSelected = true;
     this.selected = block;
+  }
+
+  /** */
+  updateFlowchart() {
+    this.errors = 0;
+    this.instructions = 0;
+    this.apply(this._updateFlowchart.bind(this));
+    this.instructions -= 2;
+    console.log(this.instructions);
+    console.log(this.variablePool);
+  }
+
+  /** */
+  _updateFlowchart(block) {
+    if (block.type != 'insert') {
+      this.instructions += 1;
+    }
+
+    if (block.hasErrors) {
+      this.errors += 1;
+    }
+
+    if (block.type == 'define') {
+      for (const definition of block.content.split(';')) {
+        if (checkDefinitonRegex.test(definition)) {
+          this.variablePool.add(checkDefinitonRegex.exec(definition)[1]);
+        }
+      }
+    }
   }
 }

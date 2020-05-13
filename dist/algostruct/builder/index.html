@@ -206,9 +206,33 @@
         </div>
       </div>
     </section>
-    <section class="tools-container"></section>
+    <section id="tools-container">
+      <div id="logs">
+        <h4>Logs</h4>
+      </div>
+      <div id="output">
+        <h4>Output</h4>
+      </div>
+      <div id="watches">
+        <h4>Watches</h4>
+        <table class="watches-container">
+          <thead>
+            <tr>
+              <th>Identificator</th>
+              <th>Type</th>
+              <th>Flag</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody class="watches-list">
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-    <section id="status-bar"></section>
+    <section id="status-bar">
+    <p></p>
+    </section>
 
     <script>
       var loaderWrapper = document.querySelector(".loading-wrapper");
