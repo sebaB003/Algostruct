@@ -1,5 +1,4 @@
 import {SVGScreen} from '../Core/Graphic/SVGScreen';
-import {StartBlock} from '../Core/Blocks/StartBlock';
 import {Flowchart} from '../Core/Flowchart';
 import {generateCRect,
   generateCircle,
@@ -8,7 +7,6 @@ import {generateCRect,
   generateDiamond,
   generateComment} from '../Core/Graphic/BlockGenerators';
 
-import {InsertBlock} from '../Core/Blocks/InsertBlock';
 import {ContextMenuManager} from './ContextMenu';
 import {addBlocksContextMenu,
   viewContextMenu} from '../Core/Utils/ContextMenusPresets';
@@ -54,11 +52,9 @@ export class Builder {
    * @param {string} title
    */
   newProject(title='untitled') {
-    this.project = new Project;
+    this.project = new Project();
     this.project.title = title;
-    this.project.flowchart.structure = new StartBlock(
-        this.screen.getWidth() / 2, 100);
-    this.project.flowchart.structure.insert(new InsertBlock);
+    this.project.flowchart.init();
     this.project.flowchart.reorder();
   }
 
@@ -83,58 +79,68 @@ export class Builder {
    * @param {BaseBlock} block
    */
   generateBlock(block) {
-    let element = undefined;
-    switch (block.type) {
-      case 'start':
-      case 'end':
-        element = generateCRect(this.screen.SVGScreenEl, block);
-        element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
-        break;
-      case 'insert':
-      case 'node':
-        element = generateCircle(this.screen.SVGScreenEl, block);
-        element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
-        if (block.type == 'insert') {
-          element.addEventListener('click',
-              ()=>this.contextMenu.open(event, block, addBlocksContextMenu));
-        }
-        break;
-      case 'define':
-      case 'action':
-        element = generateRect(this.screen.SVGScreenEl, block);
-        element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
-        element.addEventListener('contextmenu',
-            ()=>this.contextMenu.open(event, block, clipboardContextMenu));
-        element.addEventListener('click', (event) => this._select(event, block));
-        break;
-      case 'input':
-      case 'output':
-        element = generateORect(this.screen.SVGScreenEl, block);
-        element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
-        element.addEventListener('contextmenu',
-            ()=>this.contextMenu.open(event, block, clipboardContextMenu));
-        element.addEventListener('click', (event) => this._select(event, block));
-        break;
-      case 'condition':
-        element = generateDiamond(this.screen.SVGScreenEl, block);
-        element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
-        element.addEventListener('contextmenu',
-            ()=>this.contextMenu.open(event, block, clipboardContextMenu));
-        element.addEventListener('click', (event) => this._select(event, block));
-        break;
+    if (block.posY < 1000 && block.posY > -100) {
+      let element = undefined;
+      switch (block.type) {
+        case 'start':
+        case 'end':
+          element = generateCRect(this.screen.SVGScreenEl, block);
+          element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
+          break;
+        case 'insert':
+        case 'node':
+          element = generateCircle(this.screen.SVGScreenEl, block);
+          if (element) {
+            element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
+            if (block.type == 'insert') {
+              element.addEventListener('click',
+                  ()=>this.contextMenu.open(event, block, addBlocksContextMenu));
+            }
+          }
+          break;
+        case 'define':
+        case 'action':
+          element = generateRect(this.screen.SVGScreenEl, block);
+          element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
+          element.addEventListener('contextmenu',
+              ()=>this.contextMenu.open(event, block, clipboardContextMenu));
+          element.addEventListener('click', (event) => this._select(event, block));
+          break;
+        case 'input':
+        case 'output':
+          element = generateORect(this.screen.SVGScreenEl, block);
+          element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
+          element.addEventListener('contextmenu',
+              ()=>this.contextMenu.open(event, block, clipboardContextMenu));
+          element.addEventListener('click', (event) => this._select(event, block));
+          break;
+        case 'condition':
+          element = generateDiamond(this.screen.SVGScreenEl, block);
+          element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
+          element.addEventListener('contextmenu',
+              ()=>this.contextMenu.open(event, block, clipboardContextMenu));
+          element.addEventListener('click', (event) => this._select(event, block));
+          break;
+      }
     }
   }
 
-  /** */
+  /**
+   * TODO: Create a function checkParent existence
+  */
   renderComments() {
     for (const comment of this.project.flowchart.comments) {
-      comment.posY = comment.previousBlock.posY - 70 + comment.offsetY;
-      comment.posX = comment.previousBlock.posX + 300 + comment.offsetX;
-      const element = generateComment(this.screen.SVGScreenEl, comment);
-      element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, comment));
-      element.addEventListener('contextmenu',
-          ()=>this.contextMenu.open(event, comment, clipboardContextMenu));
-      element.addEventListener('click', (event) => this._select(event, comment));
+      if (comment.previousBlock) {
+        comment.posY = comment.previousBlock.posY - 70 + comment.offsetY;
+        comment.posX = comment.previousBlock.posX + 300 + comment.offsetX;
+        const element = generateComment(this.screen.SVGScreenEl, comment);
+        element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, comment));
+        element.addEventListener('contextmenu',
+            ()=>this.contextMenu.open(event, comment, clipboardContextMenu));
+        element.addEventListener('click', (event) => this._select(event, comment));
+      } else {
+        this.project.flowchart.comments.delete(comment.id);
+      }
     }
   }
 

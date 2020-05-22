@@ -1,6 +1,15 @@
-import { checkDefinitonRegex } from './Utils/Regex';
+import {checkDefinitonRegex} from './Utils/Regex';
+import {Memory} from './Memory';
+import {StartBlock} from './Blocks/StartBlock';
+import {EndBlock} from './Blocks/EndBlock';
+import {InsertBlock} from './Blocks/InsertBlock';
+import {InputBlock} from './Blocks/InputBlock';
+import {OutputBlock} from './Blocks/OutputBlock';
+import {DefineBlock} from './Blocks/DefineBlock';
+import {NodeBlock} from './Blocks/NodeBlock';
+import {ConditionalBlock} from './Blocks/ConditionalBlock';
+import {CommentBlock} from './Blocks/CommentBlock';
 
-const cloneobj = require('lodash.clonedeep');
 /**
  * Flowchart
  */
@@ -9,12 +18,207 @@ export class Flowchart {
    *
    */
   constructor() {
-    this.structure;
-    this.comments = [];
+    this.memory = new Memory();
+    console.log(this.memory);
+    this._startBlockID = undefined;
+    this._endBlockID = undefined;
+    this.comments = new Memory();
     this.selected = undefined;
     this.variablePool = new Set();
     this.instructions = 0;
     this.errors = 0;
+  }
+
+  /**
+   * @param {*} value
+  */
+  set startBlock(value) {
+    this._startBlockID = value.id;
+  }
+
+  /**
+   * @param {*} value
+  */
+  get startBlock() {
+    return this.memory.get(this._startBlockID);
+  }
+
+  /**
+   * @param {*} value
+  */
+  set endBlock(value) {
+    this._endBlockID = value.id;
+  }
+
+  /** */
+  get endBlock() {
+    return this.memory.get(this._endBlockID);
+  }
+
+  /** */
+  init() {
+    const startBlock = new StartBlock(100, 100, this.memory);
+    const endBlock = new EndBlock(startBlock, this.memory);
+    startBlock.setNextBlock(endBlock);
+    this.startBlock = startBlock;
+    this.endBlock = endBlock;
+
+    startBlock.insert(new InsertBlock(this.memory));
+  }
+
+  /**
+   * @param {*} block
+   */
+  createInput(block) {
+    block.insert(new InputBlock(this.memory));
+    block.nextBlock.insert(new InsertBlock(this.memory));
+    this.updateFlowchart();
+  }
+
+  /**
+   * @param {*} block
+   */
+  createOutput(block) {
+    block.insert(new OutputBlock(this.memory));
+    block.nextBlock.insert(new InsertBlock(this.memory));
+    this.updateFlowchart();
+  }
+
+  /**
+   * @param {*} block
+   */
+  createDefine(block) {
+    block.insert(new DefineBlock(this.memory));
+    block.nextBlock.insert(new InsertBlock(this.memory));
+    this.updateFlowchart();
+  }
+
+  /**
+   * @param {*} block
+   */
+  createCondition(block) {
+    const node = new NodeBlock(this.memory);
+    block.insert(new ConditionalBlock(node, this.memory));
+    block.nextBlock.insert(node, this.memory);
+    const leftBranchInsert = new InsertBlock(this.memory);
+    const rightBranchInsert = new InsertBlock(this.memory);
+    block.nextBlock.insert(rightBranchInsert);
+    block.nextBlock.createSecondaryBranch(leftBranchInsert);
+    node.insert(new InsertBlock(this.memory));
+    node.posX = (node.previousBlock.posX + node.previousBlock2.posX) / 2;
+    node.updateStructure();
+    this.updateFlowchart();
+  }
+
+  /**
+   * @param {*} block
+   */
+  createDoWhile(block) {
+    const node = new NodeBlock(this.memory);
+    const whileBlock = new ConditionalBlock(node, this.memory);
+    block.insert(node);
+    node.insert(whileBlock);
+    node.insert(new InsertBlock(this.memory));
+    whileBlock.secondaryBrenchWidth = 0;
+    whileBlock.insert(new InsertBlock(this.memory));
+    whileBlock.setSecondaryNextBlock(node);
+    node.setSecondaryPreviousBlock(whileBlock);
+    whileBlock.branchID = block.branchID;
+    this.updateFlowchart();
+  }
+
+  /**
+   * @param {*} block
+   */
+  createWhile(block) {
+    const node = new NodeBlock(this.memory);
+    const whileBlock = new ConditionalBlock(node, this.memory);
+    const insertBlock = new InsertBlock(this.memory);
+    block.insert(node);
+    node.insert(whileBlock);
+    node.setSecondaryPreviousBlock(insertBlock);
+    whileBlock.secondaryBrenchWidth = 0;
+    whileBlock.brenchWidth = 1;
+    whileBlock.branchID = block.branchID;
+    insertBlock.branchID = block.branchID + 1;
+    node.branchID = block.branchID;
+    insertBlock.setPreviousBlock(whileBlock);
+    insertBlock.setNextBlock(node);
+    whileBlock.setSecondaryNextBlock(insertBlock);
+    whileBlock.insert(new InsertBlock(this.memory));
+    insertBlock.posX = whileBlock.posX;
+    insertBlock.posY = whileBlock.posY + 50 + whileBlock.height;
+    this.updateFlowchart();
+  }
+
+  /**
+   * @param {*} block
+   */
+  createComment(block) {
+    const comment = new CommentBlock(this.memory);
+    this.comments.add(comment);
+    comment.setPreviousBlock(block);
+    comment.posY = block.posY - 20;
+    comment.posX = block.posX + 300;
+    console.log(this.comments);
+    this.updateFlowchart();
+  }
+
+  /**
+   * Deletes a block from the flowchart structure
+   * and from the memory
+   * @param {BaseBlock} block the block to delete
+  */
+  delete(block) {
+    let previousBlock;
+    let nextBlock;
+
+    // Find the previous and the next block of the
+    // current block
+    switch (block.type) {
+      case 'input':
+      case 'output':
+      case 'define':
+        previousBlock = block.previousBlock;
+        nextBlock = block.nextBlock.nextBlock;
+        break;
+      case 'condition':
+        if (block.previousBlock == block.node ||
+          block.nextBlock2 == block.node) {
+          previousBlock = block.node.previousBlock;
+          nextBlock = block.nextBlock.nextBlock;
+        } else {
+          previousBlock = block.previousBlock;
+          nextBlock = block.node.nextBlock.nextBlock;
+        }
+        break;
+    }
+
+    // Apply deletion to the memory to take space and generate new IDs
+    this._deleteBlocksFromMemory(previousBlock, nextBlock);
+
+    // Apply deletion to the flowchart structure
+    previousBlock.nextBlock = nextBlock;
+    nextBlock.previousBlock = previousBlock;
+
+    previousBlock.updateStructure();
+  }
+
+  /**
+   * Interate between startBlock and endBlock
+   * in the flowchart structure to delete the blocks from
+   * memory
+   * TODO: Remove the bomments when the parent block is deleted
+   * @param {*} startBlock
+   * @param {*} endBlock
+   */
+  _deleteBlocksFromMemory(startBlock, endBlock) {
+    const _toDeleteIDs = new Set;
+    this._parse(startBlock.nextBlock, (p) => p != endBlock.previousBlock,
+        function(block) {
+          _toDeleteIDs.add(block.id);
+        });
+    _toDeleteIDs.forEach((id) => this.memory.delete(id));
   }
 
   /**
@@ -23,7 +227,7 @@ export class Flowchart {
    * @param {*} condition: set when the iteration must end
    * @param {*} callback: the function to apply
    */
-  _parse(pointer=this.structure,
+  _parse(pointer=this.startBlock,
       condition=(p)=> p.type != 'end',
       callback=null) {
     while (condition(pointer)) {
@@ -32,7 +236,9 @@ export class Flowchart {
       }
       if (pointer.type == 'condition' && pointer.nextBlock2) {
         if (pointer.node != pointer.nextBlock2) {
-          this._parse(pointer.nextBlock2, (p)=> p.branchID == p.nextBlock.branchID, callback);
+          this._parse(pointer.nextBlock2,
+              (p)=> p.branchID == p.nextBlock.branchID,
+              callback);
         }
       }
       pointer = pointer.nextBlock;
@@ -47,20 +253,23 @@ export class Flowchart {
    * @param {*} func: the function to apply
    */
   apply(func) {
-    this._parse(this.structure, (p)=> p.type != 'end', func);
+    this._parse(this.startBlock, (p)=> p.type != 'end', func);
   }
 
+
   /**
-   * @param {*} block
-   * @return {*} blockCopy
-   * TODO: deep copy of conditional block
-   */
+   * Extract block data to be copyed
+   * @param {BaseBlock} block the block to copy
+   * @return {*} blockData
+  */
   copy(block) {
     if (block.type != 'condition') {
-      const blockCopy = Object.assign(new block.constructor, block);
-      blockCopy.isSelected = false;
-      return blockCopy;
+      const constructor = block.constructor;
+      const {_content, hasErrors} = block;
+      const blockData = {constructor, _content, hasErrors};
+      return blockData;
     }
+
     return undefined;
   }
 
@@ -70,10 +279,11 @@ export class Flowchart {
   */
   reorder() {
     // TODO: find a way to render the branch with the right size
-    this._parse(this.structure, (p)=> p.type != 'end', function(block) {
+    this._parse(this.startBlock, (p)=> p.type != 'end', function(block) {
       if (block.previousBlock) {
         if (block.type == 'node') {
-          if (block != block.nextBlock.node && block.previousBlock2.type != 'condition') {
+          if (block != block.nextBlock.node &&
+            block.previousBlock2.type != 'condition') {
             block.posY = Math.max(
                 block.previousBlock.posY + 50 + block.previousBlock.height,
                 block.previousBlock2.posY + 50 + block.previousBlock2.height);
@@ -98,6 +308,7 @@ export class Flowchart {
   }
 
   /**
+   * Select a block
    * @param {*} block
    */
   select(block) {
@@ -118,7 +329,10 @@ export class Flowchart {
     console.log(this.variablePool);
   }
 
-  /** */
+  /**
+   * @param {*} block
+   *
+  */
   _updateFlowchart(block) {
     if (block.type != 'insert') {
       this.instructions += 1;

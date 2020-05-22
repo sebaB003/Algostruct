@@ -5,13 +5,15 @@
 */
 export class BaseBlock {
   /**
-   *
    * @param {*} type
+   * @param {*} memoryReference
    */
-  constructor(type) {
+  constructor(type, memoryReference) {
+    this.memoryReference = memoryReference;
+    this.id = undefined;
     this.type = type;
-    this.nextBlock;
-    this.previousBlock;
+    this._nextBlockID;
+    this._previousBlockID;
     this.posX = 0;
     this.posY = 0;
     this._content = '';
@@ -51,6 +53,34 @@ export class BaseBlock {
   }
 
   /**
+   * @param {*} value
+   */
+  set nextBlock(value) {
+    this._nextBlockID = value.id;
+  }
+
+  /**
+   * @param {*} value
+   */
+  get nextBlock() {
+    return this.memoryReference.get(this._nextBlockID);
+  }
+
+  /**
+   * @param {*} value
+   */
+  set previousBlock(value) {
+    this._previousBlockID = value.id;
+  }
+
+  /**
+   * @param {*} value
+   */
+  get previousBlock() {
+    return this.memoryReference.get(this._previousBlockID);
+  }
+
+  /**
    *
    * @param {*} block
    */
@@ -83,55 +113,6 @@ export class BaseBlock {
     previousBlock.setSecondaryPreviousBlock(block);
     block.branchID = block.previousBlock.branchID + 1;
     this.updateStructure(this.nextBlock2);
-  }
-
-  /** */
-  delete() {
-    if (this.type == 'condition') {
-      if (this.previousBlock.type == 'node' || this.nextBlock2 == this.node) {
-        this._deleteConditionBlock();
-      } else {
-        this._deleteSecondaryBranchBlock();
-      }
-    } else {
-      this._deleteNormalBlock();
-    }
-
-    this.updateStructure();
-    delete(this);
-  }
-
-  /** */
-  _deleteConditionBlock() {
-    this.node.previousBlock.setNextBlock(this.nextBlock.nextBlock);
-    if (this.nextBlock.nextBlock.branchID < this.nextBlock.branchID) {
-      this.nextBlock.nextBlock.setSecondaryPreviousBlock(this.node.previousBlock);
-    } else {
-      this.nextBlock.nextBlock.setPreviousBlock(this.node.previousBlock);
-    }
-  }
-
-  /** */
-  _deleteSecondaryBranchBlock() {
-    if (this.previousBlock.previousBlock.type == 'condition' &&
-        this.branchID > this.previousBlock.previousBlock.branchID) {
-      this.previousBlock.previousBlock.setSecondaryNextBlock(
-          this.node.nextBlock);
-    } else {
-      this.previousBlock.previousBlock.setNextBlock(this.node.nextBlock);
-    }
-    this.node.nextBlock.setPreviousBlock(this.previousBlock.previousBlock);
-  }
-
-  /** */
-  _deleteNormalBlock() {
-    if (this.previousBlock.previousBlock.type == 'condition' &&
-      this.branchID > this.previousBlock.previousBlock.branchID) {
-      this.previousBlock.previousBlock.setSecondaryNextBlock(this.nextBlock);
-    } else {
-      this.previousBlock.previousBlock.setNextBlock(this.nextBlock);
-    }
-    this.nextBlock.setPreviousBlock(this.previousBlock.previousBlock);
   }
 
   /**

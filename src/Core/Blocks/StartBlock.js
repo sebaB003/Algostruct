@@ -1,5 +1,4 @@
 import {BaseBlock} from './BaseBlock';
-import {EndBlock} from './EndBlock';
 
 /**
  *
@@ -9,13 +8,14 @@ export class StartBlock extends BaseBlock {
    *
    * @param {number} posx
    * @param {number} posy
+   * @param {*} memoryReference
    */
-  constructor(posx, posy) {
-    super('start');
-    super.nextBlock = new EndBlock(this);
+  constructor(posx, posy, memoryReference) {
+    super('start', memoryReference);
     super.posX = posx;
     super.posY = posy;
     super.content = 'Start';
     super.height = 50;
+    memoryReference.add(this);
   }
 }

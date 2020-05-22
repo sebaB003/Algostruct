@@ -32,6 +32,21 @@ section, footer {
   width: 100%;
 }
 
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #eee;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #00A651;
+  border-radius: 10px;
+}
+
 /* TABLES AND LISTS */
 ul,
 ol {

@@ -48,7 +48,11 @@ export class ContextMenuManager {
    */
   addFunctions(block, functions) {
     for (const func in functions) {
-      if (functions[func]) {
+      if (functions[func].chk) {
+        if (functions[func].chk(this.parent, block)) {
+          this._createEventHandler(func, block, functions[func].func);
+        }
+      } else {
         this._createEventHandler(func, block, functions[func]);
       }
     }

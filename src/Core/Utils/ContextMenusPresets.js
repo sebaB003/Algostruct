@@ -1,11 +1,4 @@
-import {DefineBlock} from '../Blocks/DefineBlock';
-import {InputBlock} from '../Blocks/InputBlock';
-import {ConditionalBlock} from '../Blocks/ConditionalBlock';
-import {OutputBlock} from '../Blocks/OutputBlock';
 import {InsertBlock} from '../Blocks/InsertBlock';
-import {NodeBlock} from '../Blocks/NodeBlock';
-import {CommentBlock} from '../Blocks/CommentBlock';
-import {moveBlockHandler} from './BlockBehaviour';
 
 export const addBlocksContextMenu = {
   'Define': addDefineBlockHandler,
@@ -14,13 +7,14 @@ export const addBlocksContextMenu = {
   'Condition': addConditionalBlockHandler,
   'While': addWhileBlockHandler,
   'DoWhile': addDoWhileBlockHandler,
-  'Comment': addCommentHandler,
-  'Paste': pasteBlock,
+  'Paste': {chk: canPasteBlock, func: pasteBlock},
 };
 
 export const clipboardContextMenu = {
-  'Copy': copyBlockHandler,
-  'Cut': cutBlockHandler,
+  'Comment': addCommentHandler,
+  'Paste comment': {chk: canPasteComment, func: pasteCommentHandler},
+  'Copy': {chk: canExecuteClipboardAction, func: copyBlockHandler},
+  'Cut': {chk: canExecuteClipboardAction, func: cutBlockHandler},
   'Delete': deleteBlock,
 };
 
@@ -33,10 +27,8 @@ export const viewContextMenu = {
  * @param {*} parent
  */
 function addDefineBlockHandler(block, parent) {
-  block.insert(new DefineBlock());
-  block.nextBlock.insert(new InsertBlock());
+  parent.project.flowchart.createDefine(block);
   parent.render();
-  parent.project.flowchart.updateFlowchart();
 }
 
 /**
@@ -44,10 +36,8 @@ function addDefineBlockHandler(block, parent) {
  * @param {*} parent
  */
 function addInputBlockHandler(block, parent) {
-  block.insert(new InputBlock());
-  block.nextBlock.insert(new InsertBlock());
+  parent.project.flowchart.createInput(block);
   parent.render();
-  parent.project.flowchart.updateFlowchart();
 }
 
 /**
@@ -55,10 +45,8 @@ function addInputBlockHandler(block, parent) {
  * @param {*} parent
  */
 function addOutputBlockHandler(block, parent) {
-  block.insert(new OutputBlock());
-  block.nextBlock.insert(new InsertBlock());
+  parent.project.flowchart.createOutput(block);
   parent.render();
-  parent.project.flowchart.updateFlowchart();
 }
 
 /**
@@ -66,19 +54,8 @@ function addOutputBlockHandler(block, parent) {
  * @param {*} parent
  */
 function addConditionalBlockHandler(block, parent) {
-  const node = new NodeBlock();
-  block.insert(new ConditionalBlock(node));
-  block.nextBlock.insert(node);
-  const leftBranchInsert = new InsertBlock();
-  const rightBranchInsert = new InsertBlock();
-  block.nextBlock.insert(rightBranchInsert);
-  block.nextBlock.createSecondaryBranch(leftBranchInsert);
-  node.insert(new InsertBlock());
-  node.posX = (node.previousBlock.posX + node.previousBlock2.posX) / 2;
-  node.updateStructure();
-  console.log(block.nextBlock);
+  parent.project.flowchart.createCondition(block);
   parent.render();
-  parent.project.flowchart.updateFlowchart();
 }
 
 
@@ -88,25 +65,8 @@ function addConditionalBlockHandler(block, parent) {
  * TODO: Adjust rendering
  */
 function addWhileBlockHandler(block, parent) {
-  const node = new NodeBlock();
-  const whileBlock = new ConditionalBlock(node);
-  const insertBlock = new InsertBlock();
-  block.insert(node);
-  node.insert(whileBlock);
-  node.setSecondaryPreviousBlock(insertBlock);
-  whileBlock.secondaryBrenchWidth = 0;
-  whileBlock.brenchWidth = 1;
-  whileBlock.branchID = block.branchID;
-  insertBlock.branchID = block.branchID + 1;
-  node.branchID = block.branchID;
-  insertBlock.setPreviousBlock(whileBlock);
-  insertBlock.setNextBlock(node);
-  whileBlock.setSecondaryNextBlock(insertBlock);
-  whileBlock.insert(new InsertBlock());
-  insertBlock.posX = whileBlock.posX;
-  insertBlock.posY = whileBlock.posY + 50 + whileBlock.height;
+  parent.project.flowchart.createWhile(block);
   parent.render();
-  parent.project.flowchart.updateFlowchart();
 }
 
 /**
@@ -114,18 +74,8 @@ function addWhileBlockHandler(block, parent) {
  * @param {*} parent
  */
 function addDoWhileBlockHandler(block, parent) {
-  const node = new NodeBlock();
-  const whileBlock = new ConditionalBlock(node);
-  block.insert(node);
-  node.insert(whileBlock);
-  node.insert(new InsertBlock());
-  whileBlock.secondaryBrenchWidth = 0;
-  whileBlock.insert(new InsertBlock());
-  whileBlock.setSecondaryNextBlock(node);
-  node.setSecondaryPreviousBlock(whileBlock);
-  whileBlock.branchID = block.branchID;
+  parent.project.flowchart.createDoWhile(block);
   parent.render();
-  parent.project.flowchart.updateFlowchart();
 }
 
 /**
@@ -133,12 +83,24 @@ function addDoWhileBlockHandler(block, parent) {
  * @param {*} parent
  */
 function addCommentHandler(block, parent) {
-  const comment = new CommentBlock();
-  comment.setPreviousBlock(block);
-  comment.posY = block.posY - 20;
-  comment.posX = block.posX + 300;
-  parent.project.flowchart.comments.push(comment);
+  parent.project.flowchart.createComment(block);
   parent.render();
+}
+
+/**
+ * @param {*} block
+ * @param {*} parent
+ */
+function pasteBlock(block, parent) {
+  if (parent.clipboard) {
+    if (parent.clipboard.type != 'comment') {
+      const {_content, hasErrors}=parent.clipboard;
+      block.insert(Object.assign(new parent.clipboard.constructor(parent.project.flowchart.memory), {_content, hasErrors} ));
+      block.nextBlock.insert(new InsertBlock(parent.project.flowchart.memory));
+    }
+    parent.render();
+    parent.project.flowchart.updateFlowchart();
+  }
 }
 
 /* --------------- CLIPBOARD CONTEXT MENU --------------- */
@@ -157,7 +119,7 @@ function copyBlockHandler(block, parent) {
  */
 function cutBlockHandler(block, parent) {
   if (block.type != 'comment') {
-    block.delete();
+    parent.project.flowchart.delete(block);
     parent.clipboard = parent.project.flowchart.copy(block);
     parent.clipboard.isSelected = true;
     parent.project.flowchart.updateFlowchart();
@@ -176,11 +138,10 @@ function cutBlockHandler(block, parent) {
  */
 function deleteBlock(block, parent) {
   if (block.type != 'comment') {
-    block.delete();
+    parent.project.flowchart.delete(block);
     parent.project.flowchart.updateFlowchart();
   } else {
-    const commentIndex = parent.project.flowchart.comments.indexOf(block);
-    parent.project.flowchart.comments.splice(commentIndex, 1);
+    parent.project.flowchart.comments.delete(block.id);
   }
 
   if (block == parent.project.flowchart.selected) {
@@ -194,14 +155,12 @@ function deleteBlock(block, parent) {
  * @param {*} block
  * @param {*} parent
  */
-function pasteBlock(block, parent) {
+function pasteCommentHandler(block, parent) {
   if (parent.clipboard) {
-    if (parent.clipboard.type != 'comment') {
-      block.insert(parent.clipboard);
-      block.nextBlock.insert(new InsertBlock());
-    } else {
-      parent.clipboard.previousBlock = block;
-      parent.project.flowchart.comments.push(parent.clipboard);
+    if (parent.clipboard.type == 'comment') {
+      const {_content}=parent.clipboard;
+      const comment = Object.assign(new parent.clipboard.constructor(parent.project.flowchart.memory), {_content});
+      comment.setPreviousBlock(block);
     }
     parent.render();
     parent.project.flowchart.updateFlowchart();
@@ -215,4 +174,57 @@ function pasteBlock(block, parent) {
 function reorderHandler(block, parent) {
   parent.project.flowchart.reorder();
   parent.render();
+}
+
+
+/* --------------- CHECK FUNCTIONS --------------- */
+
+/**
+ * If there is somenthing copyed and different
+ * from a comment returns true
+ *
+ * This function is used to check if is possible to use
+ * the paste function in the context menu
+ * @param {*} parent the related parent object
+ * @param  {...any} args
+ * @return {bool}
+ */
+function canPasteBlock(parent, ...args) {
+  if (parent.clipboard) {
+    if (parent.clipboard.type != 'comment') {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * If there is a comment copyed returns true
+ *
+ * This function is used to check if is possible to use
+ * the paste comment function in the context menu
+ * @param {*} parent
+ * @param  {...any} args
+ * @return {bool}
+ */
+function canPasteComment(parent, ...args) {
+  if (parent.clipboard) {
+    if (parent.clipboard.type == 'comment') {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * If the block can be copyed returns true
+ *
+ * This function is used to check if is possible to use
+ * clipboard functions in the context menu
+ * @param {*} parent
+ * @param {*} block
+ * @return {bool}
+ */
+function canExecuteClipboardAction(parent, block) {
+  return block.type != 'condition';
 }
