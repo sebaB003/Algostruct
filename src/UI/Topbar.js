@@ -162,61 +162,16 @@ export class Topbar {
    * Create a new project and clear the work area
    */
   _createNewProject() {
-    this.appComponents.builder.newProject();
     this.appComponents.init();
     this.updateTopbarElements();
     this.appComponents.updateView();
     this.modalManager._forceClose();
   }
 
-  /**
-   * Save the whole project settings and flowchart as a json file
-   * File structure:
-   * {
-   *   title: '',
-   *   preferences: {},
-   *   flowchart: {
-   *     startBlock: undefined,
-   *     endBlock: undefined,
-   *     blocks: {},
-   *     commentes: {},
-   *   }
-   * }
-   */
+  /** */
   _saveProject() {
     this.appComponents.showLoadingScreen();
-
-    const file = {
-      title: this.appComponents.project.title,
-      preferences: this.appComponents.project.preferences,
-      flowchart: {
-        _startBlockID: this.appComponents.project.flowchart._startBlockID,
-        _endBlockID: this.appComponents.project.flowchart._endBlockID,
-        blocks: [],
-        comments: [],
-      },
-    };
-
-    for (const block of this.appComponents.project.flowchart.memory) {
-      if (block) {
-        const newBlock = Object.assign({}, {...block});
-        newBlock.memoryReference = undefined;
-        file.flowchart.blocks.push(newBlock);
-      }
-    }
-
-    for (const comment of this.appComponents.project.flowchart.comments) {
-      if (comment) {
-        const newComment= Object.assign({}, {...comment});
-        newComment.memoryReference = undefined;
-        file.flowchart.comments.push(newComment);
-      }
-    }
-
-    const jsonFile = JSON.stringify(file);
-
-
-    downloadJSON(jsonFile, file.title);
+    this.appComponents.projectManager.saveProject();
     this.appComponents.hideLoadingScreen();
   }
 
@@ -300,7 +255,7 @@ export class Topbar {
    */
   _renameProject(newTitle, errorMessageEl) {
     if (newTitle != '') {
-      this.appComponents.project.title = newTitle;
+      this.appComponents.projectManager.setProjectTitle(newTitle);
       this.updateProjectName();
       this.modalManager._forceClose();
     } else {

@@ -6,13 +6,18 @@ export class Toolbar {
    * The class constructor get the elements of the toolbar
    * and setup the event handlers
    *
+   * @param {*} appComponents
    * @param {boolean} isToolbarOpen: Set the toolbar status on creation
   */
-  constructor(isToolbarOpen=false) {
+  constructor(appComponents, isToolbarOpen=false) {
+    this.appComponents = appComponents;
     this.isToolbarOpen = isToolbarOpen;
 
     this.toolbarEl = document.getElementById('builder-interface__tools');
     this.reduceToolbarButton = document.getElementById('reduce-toolBar');
+
+    this.newPojectBtn = document.getElementById('new-project');
+    this.savePojectBtn = document.getElementById('save-project');
 
     this.init();
   }

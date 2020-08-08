@@ -8,6 +8,7 @@ import {OutputView} from './UI/OutputView';
 import {WatchesView} from './UI/WatchesView';
 import {readFile, checkFile, stringToObject} from './Core/Utils/FileActions';
 import {View} from './UI/View';
+import { ProjectManager } from './Core/ProjectManager';
 
 /**
  * This class contains is the core of Algostruct
@@ -20,8 +21,8 @@ class App {
   constructor() {
     this.loadingScreen = document.querySelector('.loading-wrapper');
 
-    this.toolbar = new Toolbar();
     this.topbar = new Topbar(this);
+    this.toolbar = new Toolbar(this, false);
     this.editor = new Editor();
     this.builder = new Builder();
     this.statusbar = new Statusbar();
@@ -35,13 +36,16 @@ class App {
         this.watchesView);
 
     this.project = undefined;
+    this.projectManager = new ProjectManager();
   }
 
   /**
    * Create a new project and setup the environment
   */
   init() {
-    this.project = this.builder.project;
+    this.projectManager.newProject(this.builder.screen);
+    this.project = this.projectManager.project;
+    this.builder.project = this.project;
     this.editor.setRenderCallback(this.render.bind(this));
     this.editor.setVariablePool(this.project.flowchart.variablePool);
     this.builder.setSelectCallback(this.updateSelection.bind(this));

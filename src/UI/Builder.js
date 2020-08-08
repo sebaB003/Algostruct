@@ -38,8 +38,6 @@ export class Builder {
   /** */
   init() {
     this.setupEventHandlers();
-    this.newProject();
-    this.render();
   }
 
   /**
@@ -47,17 +45,6 @@ export class Builder {
   setupEventHandlers() {
     this.screen.SVGScreenEl.addEventListener('contextmenu',
         (event) => this.contextMenu.open(event, undefined, viewContextMenu));
-  }
-
-  /**
-   * Create a new project
-   * @param {string} title
-   */
-  newProject(title='Untitled') {
-    this.project = new Project();
-    this.project.title = title;
-    this.project.flowchart.init(this.screen.getWidth() / 3);
-    this.project.flowchart.reorder();
   }
 
   /**
@@ -196,15 +183,4 @@ export class Builder {
   setSelectCallback(callback) {
     this.selectCallback = callback;
   }
-}
-
-/** */
-function Project() {
-  this.title = 'Untitled';
-  this.preferences = {
-    showComments: true,
-    singleMove: false,
-    view: 0,
-  },
-  this.flowchart = new Flowchart();
 }
