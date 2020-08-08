@@ -48,11 +48,22 @@ export class ModalManager {
     return eventHandler;
   }
 
-  /** */
+  /**
+   * Close the modal
+   * @param {Event} event
+  */
   closeModal(event) {
     if (event.target == this.modal) {
       this._forceClose();
     }
+  }
+
+  /**
+   * Returns the modal element
+   * @return {*} modal
+   */
+  getModal() {
+    return this.modal;
   }
 
   /** */

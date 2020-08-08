@@ -1,4 +1,4 @@
-import {checkDefinitonRegex} from './Utils/Regex';
+import {checkDefinitonRegex, checkVariable, checkFloat, checkBoolean, checkString, checkNumber} from './Utils/Regex';
 import {Memory} from './Memory';
 import {StartBlock} from './Blocks/StartBlock';
 import {EndBlock} from './Blocks/EndBlock';
@@ -9,6 +9,7 @@ import {DefineBlock} from './Blocks/DefineBlock';
 import {NodeBlock} from './Blocks/NodeBlock';
 import {ConditionalBlock} from './Blocks/ConditionalBlock';
 import {CommentBlock} from './Blocks/CommentBlock';
+import { BaseBlock } from './Blocks/BaseBlock';
 
 /**
  * Flowchart
@@ -24,7 +25,7 @@ export class Flowchart {
     this._endBlockID = undefined;
     this.comments = new Memory();
     this.selected = undefined;
-    this.variablePool = new Set();
+    this.variablePool = [];
     this.instructions = 0;
     this.errors = 0;
   }
@@ -56,8 +57,8 @@ export class Flowchart {
   }
 
   /** */
-  init() {
-    const startBlock = new StartBlock(100, 100, this.memory);
+  init(screenCenterX) {
+    const startBlock = new StartBlock(screenCenterX, 100, this.memory);
     const endBlock = new EndBlock(startBlock, this.memory);
     startBlock.setNextBlock(endBlock);
     this.startBlock = startBlock;
@@ -153,15 +154,62 @@ export class Flowchart {
 
   /**
    * @param {*} block
+   * @param {String} content
    */
-  createComment(block) {
+  createComment(block, content='comment') {
     const comment = new CommentBlock(this.memory);
+    comment.content = content;
     this.comments.add(comment);
     comment.setPreviousBlock(block);
     comment.posY = block.posY - 20;
     comment.posX = block.posX + 300;
-    console.log(this.comments);
     this.updateFlowchart();
+  }
+
+  /** */
+  loadFlowchart(flowchart) {
+    const memory = new Memory();
+    const comments = new Memory();
+
+    this.memory = memory;
+    this.comments = comments;
+
+    this._startBlockID = flowchart._startBlockID;
+    this._endBlockID = flowchart._endBlockID;
+
+    for (const block of flowchart.blocks) {
+      switch (block.type) {
+        case 'start':
+          Object.assign(new StartBlock(100, 100, memory), block);
+          console.log(memory);
+          break;
+        case 'end':
+          Object.assign(new EndBlock(new BaseBlock(), memory), block);
+          break;
+        case 'insert':
+          Object.assign(new InsertBlock(memory), block);
+          break;
+        case 'define':
+          Object.assign(new DefineBlock(memory), block);
+          break;
+        case 'output':
+          Object.assign(new OutputBlock(memory), block);
+          break;
+        case 'input':
+          Object.assign(new InputBlock(memory), block);
+          break;
+        case 'node':
+          Object.assign(new NodeBlock(memory), block);
+          break;
+        case 'condition':
+          Object.assign(new ConditionalBlock(new BaseBlock(), memory), block);
+      }
+    }
+
+    for (const comment of flowchart.comments) {
+      const loadedComment = Object.assign(new CommentBlock(memory), comment);
+      comments.add(loadedComment);
+    }
   }
 
   /**
@@ -199,7 +247,11 @@ export class Flowchart {
 
     // Apply deletion to the flowchart structure
     previousBlock.nextBlock = nextBlock;
-    nextBlock.previousBlock = previousBlock;
+    if (block.branchID > nextBlock.branchID) {
+      nextBlock.previousBlock2 = previousBlock;
+    } else {
+      nextBlock.previousBlock = previousBlock;
+    }
 
     previousBlock.updateStructure();
   }
@@ -214,7 +266,7 @@ export class Flowchart {
    */
   _deleteBlocksFromMemory(startBlock, endBlock) {
     const _toDeleteIDs = new Set;
-    this._parse(startBlock.nextBlock, (p) => p != endBlock.previousBlock,
+    this._parse(startBlock.nextBlock, (p) => p != endBlock.previousBlock && p != endBlock.previousBlock2,
         function(block) {
           _toDeleteIDs.add(block.id);
         });
@@ -265,8 +317,8 @@ export class Flowchart {
   copy(block) {
     if (block.type != 'condition') {
       const constructor = block.constructor;
-      const {_content, hasErrors} = block;
-      const blockData = {constructor, _content, hasErrors};
+      const {_content, hasErrors, type} = block;
+      const blockData = {constructor, _content, hasErrors, type};
       return blockData;
     }
 
@@ -323,10 +375,9 @@ export class Flowchart {
   updateFlowchart() {
     this.errors = 0;
     this.instructions = 0;
+    this.variablePool = [];
     this.apply(this._updateFlowchart.bind(this));
     this.instructions -= 2;
-    console.log(this.instructions);
-    console.log(this.variablePool);
   }
 
   /**
@@ -343,11 +394,51 @@ export class Flowchart {
     }
 
     if (block.type == 'define') {
-      for (const definition of block.content.split(';')) {
-        if (checkDefinitonRegex.test(definition)) {
-          this.variablePool.add(checkDefinitonRegex.exec(definition)[1]);
+      for (const definition of block.content.split('; ')) {
+        if (checkDefinitonRegex.test(definition.trim())) {
+          const variableName = checkDefinitonRegex.exec(definition)[1];
+          let value = checkDefinitonRegex.exec(definition)[3];
+          let found = false;
+          if (checkVariable.test(value.trim())) {
+            for (const variable of this.variablePool) {
+              if (variable.variableName == value) {
+                value = variable.value;
+                found = true;
+                break;
+              }
+            }
+          } else {
+            found = true;
+          }
+
+          if (!found) {
+            value = 'undefined';
+          }
+          this.variablePool.push({variableName, value, variableType: getVariableType(value)});
         }
       }
     }
   }
+}
+
+
+/**
+ * Returns the type of a variable
+ * @param {*} value the value of the variable to find the type
+ * @return {String} type
+ */
+function getVariableType(value) {
+  let type = '';
+  if (checkFloat.test(value)) {
+    type = 'Float';
+  } else if (checkBoolean.test(value)) {
+    type = 'Bool';
+  } else if (checkString.test(value)) {
+    type = 'String';
+  } else if (checkNumber.test(value)) {
+    type = 'Interger';
+  } else {
+    type = 'Undefined';
+  }
+  return type;
 }

@@ -24,6 +24,10 @@
   width: 10px;
 }
 
+.tool-image:hover {
+  cursor: pointer;
+}
+
 #reduce-toolBar {
   cursor: pointer;
   border: 0;

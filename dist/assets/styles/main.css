@@ -172,6 +172,12 @@ a:not(.active):not(.btn):not(.drop-down__link):hover {
   border: 1px solid #00a651;
 }
 
+.text-btn {
+  border: none;
+  color: #00A651;
+  padding: 5px;
+}
+
 .round {
   border-radius: 50px;
 }
@@ -292,6 +298,24 @@ nav {
 .autocomplete-box-hints button {
   display: block;
 }
+
+.grabbable {
+  width: 10px;
+  min-width: 10px;
+  height: 100%;
+}
+
+.g--horizzontal:hover {
+  cursor: ew-resize;
+}
+
+.drop-area {
+  border: 2px dashed #00A651;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+}
+
 /* LAYOUT */
 .flex-group {
   display: flex;
@@ -342,13 +366,20 @@ nav {
   justify-content: center;
 }
 
+.modal--box .big {
+  height: 150px !important; 
+}
+
+.modal--box:not(.big) {
+  height: 100px;
+}
+
 .modal--box {
   top: 50%;
   position: absolute;
   display: block;
   width: 600px;
   transform: translateY(-50%);
-  height: 100px;
   background-color: #FFF;
   border-radius: 20px;
   box-shadow: 1px 1px 4px 1px rgba(0, 0, 0, 0.2);
@@ -382,10 +413,7 @@ input[type="text"] {
   font-size: 100%;
 }
 
-input[type="text"]:focus {
-
-  width: 100%;
-}
+input[type="text"]:focus { width: 80%; }
 
 .loading-wrapper {
   z-index: 100;

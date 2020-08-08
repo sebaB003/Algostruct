@@ -1,3 +1,5 @@
+import {moveBuilderView} from '../Utils/MoveBehaviour';
+
 /**
  * Manage the svg element
 */
@@ -17,9 +19,18 @@ export class SVGScreen {
     this.zoomOutButtonEl = document.getElementById(zoomOutButtonId);
     this.resetViewButtonEl = document.getElementById(resetViewButtonId);
 
+    this.renderCallback = null;
     this.screenData = {};
 
     this.init();
+  }
+
+  /**
+   * Allow to set a render callback
+   * @param {*} callback the callback function
+   */
+  setRenderCallback(callback) {
+    this.renderCallback = callback;
   }
 
   /**
@@ -51,9 +62,10 @@ export class SVGScreen {
   */
   setupEventListeners() {
     this.SVGScreenEl.addEventListener('mousedown',
-        (event) => this.moveBuilderView(event));
+        (event) => moveBuilderView(event, this, {once: true}));
 
-    this.SVGScreenEl.addEventListener('wheel', (event) => this.wheelHandler(event));
+    this.SVGScreenEl.addEventListener('wheel',
+        (event) => this.wheelHandler(event));
 
     // Prevent to open contextmenu
     this.SVGScreenEl.addEventListener('contextmenu',
@@ -119,6 +131,9 @@ export class SVGScreen {
     this.centerView(false);
     this.screenData.zoom = 1000;
     this.applyViewTransforms();
+    if (this.renderCallback) {
+      this.renderCallback();
+    }
   }
 
   /**
@@ -130,66 +145,70 @@ export class SVGScreen {
     if (apply) {
       this.applyViewTransforms();
     }
+    if (this.renderCallback) {
+      this.renderCallback();
+    }
   }
 
   /**
    * Increase the zoom of the screen
   */
   zoomIn() {
-    this.screenData.zoom -= 50;
-    this.applyViewTransforms();
+    if ((this.screenData.zoom - 50) > 0) {
+      this.screenData.zoom -= 50;
+      this.applyViewTransforms();
+    }
+    if (this.renderCallback) {
+      this.renderCallback();
+    }
   }
 
   /**
    * Decrease the zoom of the screen
    */
   zoomOut() {
-    this.screenData.zoom += 50;
-    this.applyViewTransforms();
-  }
-
-  /**
-   * Attach the mousemove handler
-   * @param {Event} event
-   */
-  moveBuilderView(event) {
-    let lastX = 0;
-    let lastY = 0;
-    const screen = this;
-    if (event.button == 0) {
-      lastX = event.clientX;
-      lastY = event.clientY;
-      screen.SVGScreenEl.addEventListener('mousemove', moveView);
-      event.preventDefault();
+    if (this.screenData.zoom + 50 < 4000) {
+      this.screenData.zoom += 50;
+      this.applyViewTransforms();
     }
-
-    /**
-     * Calculate the x and y change in the axis
-     * and apply it to the view
-     * @param {Event} event
-     */
-    function moveView(event) {
-      screen.SVGScreenEl.style.cursor = 'grabbing';
-      if (event.buttons == 0) {
-        screen.SVGScreenEl.style.cursor = 'default';
-        screen.SVGScreenEl.removeEventListener('mousemove', moveView);
-      } else {
-        const panX = lastX - event.clientX;
-        const panY = lastY - event.clientY;
-        screen.applyPan(panX, panY);
-        lastX = event.clientX;
-        lastY = event.clientY;
-      }
+    if (this.renderCallback) {
+      this.renderCallback();
     }
   }
 
   /**
    * Returns svg element width
-   * @return {number} width:
+   * @return {number} width
   */
   getWidth() {
     const width = this.SVGScreenEl.getBoundingClientRect().width;
     return width;
+  }
+
+  /**
+   * Returns svg element height
+   * @return {number} height
+  */
+  getHeight() {
+    const height = this.SVGScreenEl.getBoundingClientRect().height;
+    return height;
+  }
+
+  /**
+   * Returns svg element width computed with the zoom
+   * @return {number} computed width
+  */
+  getComputedWidth() {
+    return (this.getWidth() * this.screenData.zoom) / 700;
+  }
+
+  /**
+   * Returns svg element height computed with the zoom
+   * @return {number} computed height
+  */
+  getComputedHeight() {
+    console.log( this.screenData.zoom, this.getHeight());
+    return (this.getHeight() * this.screenData.zoom) / 600;
   }
 
   /**

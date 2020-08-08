@@ -215,16 +215,23 @@ export class BaseBlock {
    * @param {*} condition
    */
   moveStructure(x, y, pointer=this, condition=(p) => p.nextBlock != undefined && p.branchID == p.nextBlock.branchID) {
+    let nodeReached = false;
+
     while (condition(pointer)) {
       pointer.posY += y;
       if (pointer.type == 'node') {
+        nodeReached = true;
         if (pointer.nextBlock == pointer.previousBlock2) {
           pointer.posX = pointer.previousBlock.posX;
         } else {
           pointer.posX = (pointer.previousBlock.posX + pointer.previousBlock2.posX) / 2;
         }
       } else {
-        pointer.posX += x;
+        if (!nodeReached) {
+          pointer.posX += x;
+        } else {
+          pointer.posX = pointer.previousBlock.posX;
+        }
       }
 
       if (pointer.type == 'condition' && pointer.nextBlock2) {
@@ -238,8 +245,13 @@ export class BaseBlock {
     pointer.posY += y;
     if (pointer.type == 'node' && pointer.previousBlock2.type == 'condition') {
       pointer.posX = pointer.previousBlock.posX;
+      nodeReached = true;
     } else {
-      pointer.posX += x;
+      if (!nodeReached) {
+        pointer.posX += x;
+      } else {
+        pointer.posX = pointer.previousBlock.posX;
+      }
     }
   }
 }

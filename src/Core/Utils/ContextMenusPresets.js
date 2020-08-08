@@ -111,6 +111,7 @@ function pasteBlock(block, parent) {
  */
 function copyBlockHandler(block, parent) {
   parent.clipboard = parent.project.flowchart.copy(block);
+  console.log(parent.clipboard);
 }
 
 /**
@@ -159,8 +160,7 @@ function pasteCommentHandler(block, parent) {
   if (parent.clipboard) {
     if (parent.clipboard.type == 'comment') {
       const {_content}=parent.clipboard;
-      const comment = Object.assign(new parent.clipboard.constructor(parent.project.flowchart.memory), {_content});
-      comment.setPreviousBlock(block);
+      parent.project.flowchart.createComment(block, _content);
     }
     parent.render();
     parent.project.flowchart.updateFlowchart();
@@ -226,5 +226,5 @@ function canPasteComment(parent, ...args) {
  * @return {bool}
  */
 function canExecuteClipboardAction(parent, block) {
-  return block.type != 'condition';
+  return block.type!= 'condition';
 }

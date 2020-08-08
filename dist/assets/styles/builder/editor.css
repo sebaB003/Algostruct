@@ -11,7 +11,7 @@
   text-align: center;
 }
 
-#builder-interface__editor > div {
+#builder-interface__editor > div:not(.grabbable) {
   width: 100%;
   padding: 20px;
 }

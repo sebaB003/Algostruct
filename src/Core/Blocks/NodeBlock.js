@@ -13,10 +13,12 @@ export class NodeBlock extends BaseBlock {
     memoryReference.add(this);
   }
 
+  /** */
   set previousBlock2(value) {
     this._previousBlock2ID = value.id;
   }
 
+  /** */
   get previousBlock2() {
     return this.memoryReference.get(this._previousBlock2ID);
   }

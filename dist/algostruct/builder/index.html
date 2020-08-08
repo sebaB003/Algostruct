@@ -36,19 +36,49 @@
 
     <template id="createVariableModal">
       <div class="modal--box">  
-      <p class="error"></p>
-      <div class="button-bar">
-        <div>
-          <label for="variableName">Variable name: </label>
-          <div class="autocomplete-box">
-            <input type="text" name="variableName">
-            <div class="autocomplete-box-hints contextmenu">
+        <p class="error"></p>
+        <div class="button-bar">
+          <div>
+            <label for="variableName">Variable name: </label>
+            <div class="autocomplete-box">
+              <input type="text" name="variableName">
+              <div class="autocomplete-box-hints contextmenu">
+              </div>
             </div>
           </div>
+          <button class='btn btn-small full round'>Create</button>
         </div>
-        <button class='btn btn-small full round'>Create</button>
+        <p class="error"></p>
       </div>
-      <p class="error"></p>
+    </template>
+
+    <template id="renameProjectModal">
+      <div class="modal--box">  
+        <div class="button-bar">
+        <div>
+          <label for="projectName">Project name: </label>
+          <input type="text" autocomplete="off" name="projectName">
+        </div>
+          <button class='btn btn-small full round'>Rename</button>
+          <p class="error"></p>
+        </div>
+      </div>  
+    </template>
+    
+    <template id="openProjectModal">
+      <div class="modal--box big">  
+        <div class="drop-area">
+          <p>Drop file here or click to open.</p>
+        </div>
+      </div>  
+    </template>
+
+    <template id="confirmationModal">
+      <div class="modal--box">
+      <div class="button-bar">
+        <p id="confirmationModal-message"></p>
+        <button id="confirmationModal-button2" class='btn btn-small full round'></button>
+      </div>
     </div>  
     </template>
 
@@ -83,16 +113,14 @@
           <div class="drop-down-container">
             <a href="#" class="drop-down__link" id="js--dropdown-copy">Copy</a>
             <a href="#" class="drop-down__link" id="js--dropdown-cut">Cut</a>
-            <a href="#" class="drop-down__link" id="js--dropdown-delete"
-              >Delete</a
-            >
+            <a href="#" class="drop-down__link" id="js--dropdown-delete">Delete</a>
           </div>
         </li>
         <li class="drop-down">
           <p>Preferences</p>
           <div class="drop-down-container">
-            <a href="#" class="drop-down__link" id="js--dropdown-">P1</a>
-            <a href="#" class="drop-down__link" id="js--dropdown-">P2</a>
+            <a href="#" class="drop-down__link" id="js--dropdown-show-comments">Hide comments</a>
+            <a href="#" class="drop-down__link" id="js--dropdown-move-mode">Top down move</a>
             <a href="#" class="drop-down__link" id="js--dropdown-">P3</a>
           </div>
         </li>
@@ -100,16 +128,19 @@
           <p>View</p>
           <div class="drop-down-container">
             <a href="#" class="drop-down__link" id="js--dropdown-reset-default"
-              >Reset default</a
+              >Default view</a
+            >
+            <a href="#" class="drop-down__link" id="js--dropdown-execution"
+              >Execution view</a
             >
             <a href="#" class="drop-down__link" id="js--dropdown-only-editor"
-              >Only editor</a
+              >Editor view</a
             >
             <a href="#" class="drop-down__link" id="js--dropdown-all-tools"
-              >All tools</a
+              >All tools view</a
             >
             <a href="#" class="drop-down__link" id="js--dropdown-debug"
-              >Debug</a
+              >Debug view</a
             >
           </div>
         </li>
@@ -120,12 +151,15 @@
               >Reorder</a
             >
             <a href="#" class="drop-down__link" id="js--dropdown-logs">Logs</a>
+            <a href="#" class="drop-down__link" id="js--dropdown-output">Output</a>
             <a href="#" class="drop-down__link" id="js--dropdown-watches"
               >Watches</a
             >
+            <!--
             <a href="#" class="drop-down__link" id="js--dropdown-flow-control"
               >Flow control</a
             >
+            -->
           </div>
         </li>
         <li class="drop-down">
@@ -140,41 +174,41 @@
           </div>
         </li>
       </ul>
-      <h2>Untitled</h2>
+      <h2 id="project-title">Untitled</h2>
     </nav>
 
     <section id="builder-interface">
       <div id="builder-interface__tools">
         <div class="tools-list">
-          <div class="tool-container">
+          <div class="tool-container" id="run-flowchart">
             <img class="tool-image" src="../../assets/icons/run_full.svg" />
             <p class="tool-label">Run</p>
           </div>
-          <div class="tool-container">
+          <div class="tool-container" id="step-flowchart">
             <img class="tool-image" src="../../assets/icons/run.svg" />
             <p class="tool-label">Step</p>
           </div>
-          <div class="tool-container">
+          <div class="tool-container" id="pause-execution">
             <img class="tool-image" src="../../assets/icons/pause.svg" />
             <p class="tool-label">Pause</p>
           </div>
-          <div class="tool-container">
+          <div class="tool-container" id="stop-execution">
             <img class="tool-image" src="../../assets/icons/stop.svg" />
             <p class="tool-label">Stop</p>
           </div>
-          <div class="tool-container">
+          <!-- <div class="tool-container" id="undo">
             <img class="tool-image" src="../../assets/icons/back.svg" />
             <p class="tool-label">Undo</p>
           </div>
-          <div class="tool-container">
+          <div class="tool-container" id="redo">
             <img class="tool-image" src="../../assets/icons/forward.svg" />
             <p class="tool-label">Redo</p>
-          </div>
-          <div class="tool-container">
+          </div> -->
+          <div class="tool-container" id="new">
             <img class="tool-image" src="../../assets/icons/new.svg" />
             <p class="tool-label">New</p>
           </div>
-          <div class="tool-container">
+          <div class="tool-container" id="save">
             <img class="tool-image" src="../../assets/icons/save.svg" />
             <p class="tool-label">Save</p>
           </div>
@@ -201,6 +235,7 @@
       </svg>
       </div>
       <div id="builder-interface__editor">
+        <div class="grabbable g--horizzontal"></div>
         <div>
           <h2>Content</h2>
         </div>
@@ -208,25 +243,37 @@
     </section>
     <section id="tools-container">
       <div id="logs">
-        <h4>Logs</h4>
+        <div class="grabbable g--horizzontal"></div>
+        <div>
+          <h4 style="display: inline;">Logs</h4>
+          <button class="btn text-btn" style="float: right;">x</button>
+        </div>
       </div>
       <div id="output">
-        <h4>Output</h4>
+        <div class="grabbable g--horizzontal"></div>
+        <div>
+          <h4 style="display: inline;">Output</h4>
+          <button class="btn text-btn" style="float: right;">x</button>
+        </div>
       </div>
       <div id="watches">
-        <h4>Watches</h4>
-        <table class="watches-container">
-          <thead>
-            <tr>
-              <th>Identificator</th>
-              <th>Type</th>
-              <th>Flag</th>
-              <th>Value</th>
-            </tr>
-          </thead>
-          <tbody class="watches-list">
-          </tbody>
-        </table>
+        <div class="grabbable g--horizzontal"></div>
+        <div>
+          <h4 style="display: inline;">Watches</h4>
+          <button class="btn text-btn" style="float: right;">x</button>
+          <table class="watches-container">
+            <thead>
+              <tr>
+                <th>Identificator</th>
+                <th>Type</th>
+                <th>Flag</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody class="watches-list">
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 

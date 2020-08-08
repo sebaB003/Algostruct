@@ -2,7 +2,7 @@ import {AssignEditor} from './EditorComponents/AssignEditor';
 import {OperationEditor} from './EditorComponents/OperationEditor';
 import {ModalManager} from './EditorComponents/ModalManager';
 import {checkAssignRegex} from '../Core/Utils/Regex';
-import { ContentEditor } from './EditorComponents/ContentEditor';
+import {ContentEditor} from './EditorComponents/ContentEditor';
 
 /**
  * Generate the editor section of Algostruct
@@ -13,8 +13,10 @@ export class Editor {
    * and some variables
   */
   constructor() {
-    this.editorEl = document.querySelector(
-        '#builder-interface__editor div');
+    this.editorEl = document.querySelectorAll(
+        '#builder-interface__editor div')[1];
+    this.grabbableEl = document.querySelector(
+        '#builder-interface__editor .grabbable');
     this.operationsContainer = document.createElement('div');
 
     this.blockOperations = [];
@@ -28,6 +30,9 @@ export class Editor {
     this.variablePool = undefined;
 
     this.mode = TEXT;
+
+    this._state = OPEN;
+    this.state = OPEN;
 
     this.init();
   }
@@ -47,7 +52,7 @@ export class Editor {
 
   /** */
   setupEventHandlers() {
-    // this.editorEl.parentElement.addEventListener('mousedown', (event) => this.resize(event));
+    this.grabbableEl.addEventListener('mousedown', (event) => this.resize(event));
   }
 
   /**
@@ -89,15 +94,31 @@ export class Editor {
   */
   updateUI() {
     this.resetContent();
+    // this.showBlockType();
+    this.showOperationsList();
+
+    this.showMode();
+  }
+
+  /**
+   * Create a DOM element to show the block type
+  */
+  showBlockType() {
+    const blockType = document.createElement('p');
+    blockType.textContent = `${this.currentSelected.type} block`;
+    this.editorEl.append(blockType);
+  }
+
+  /**
+   * Create a DOM element to show the operations list
+   */
+  showOperationsList() {
     const title = document.createElement('p');
     title.innerHTML = 'Operations';
     this.editorEl.appendChild(title);
     this.operationsContainer.innerHTML = '';
     this.editorEl.appendChild(this.operationsContainer);
-
-    this.showMode();
   }
-
   /**
    * Check the editor mode and switch
    * render the correct UI
@@ -114,7 +135,7 @@ export class Editor {
    * Render the text mode UI
    */
   renderTextMode() {
-    const contentEditor = new ContentEditor(this.currentSelected, this.renderCallback);
+    const contentEditor = new ContentEditor(this.currentSelected, this.variablePool, this.renderCallback);
     this.operationsContainer.append(contentEditor.contentEditor);
   }
 
@@ -264,19 +285,54 @@ export class Editor {
     }
   }
 
+  /** */
+  close() {
+    const resizable = this.grabbableEl.parentElement;
+    resizable.style.display = 'none';
+  }
+
+  /** */
+  open() {
+    const resizable = this.grabbableEl.parentElement;
+    resizable.style.display = 'flex';
+    resizable.style.width = '25%';
+  }
+
+  /** */
+  setOpen() {
+    this.state = OPEN;
+  }
+
+  /** */
+  setClose() {
+    this.state = HIDDEN;
+  }
+
+  /** */
+  set state(value) {
+    this._state = value;
+    if (value == OPEN) {
+      this.open();
+    } else if (value == HIDDEN) {
+      this.close();
+    }
+  }
+
   /**
    * Attach the mousemove handler
    * @param {Event} event
    */
   resize(event) {
-    const resizable = this.editorEl.parentElement;
+    const resizable = this.grabbableEl.parentElement;
+    const editor = this;
 
     let oldWidth = 0;
     let newWidth = resizable.getBoundingClientRect().width;
 
     if (event.button == 0) {
-      window.addEventListener('mousemove', resizeX);
       event.preventDefault();
+      event.stopPropagation();
+      window.addEventListener('mousemove', resizeX);
     }
 
     /**
@@ -287,7 +343,7 @@ export class Editor {
     function resizeX(event) {
       if (event.buttons == 0) {
         if (newWidth <= 10) {
-          resizable.style.display = 'none';
+          editor.setClose();
         }
         window.removeEventListener('mousemove', resizeX);
       } else {
@@ -302,3 +358,5 @@ export class Editor {
 
 const TEXT = Symbol('text');
 const VISUAL = Symbol('visual');
+const OPEN = Symbol('open');
+const HIDDEN = Symbol('hidden');

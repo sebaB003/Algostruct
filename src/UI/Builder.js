@@ -12,7 +12,7 @@ import {addBlocksContextMenu,
   viewContextMenu} from '../Core/Utils/ContextMenusPresets';
 
 import {clipboardContextMenu} from '../Core/Utils/ContextMenusPresets';
-import {moveBlockHandler} from '../Core/Utils/BlockBehaviour';
+import {moveBlockHandler} from '../Core/Utils/MoveBehaviour';
 
 /** */
 export class Builder {
@@ -23,6 +23,8 @@ export class Builder {
         'js--zoom-in',
         'js--zoom-out',
         'js--reset-view');
+
+    this.screen.setRenderCallback(() => this.render());
 
     this.selectCallback = undefined;
 
@@ -51,10 +53,10 @@ export class Builder {
    * Create a new project
    * @param {string} title
    */
-  newProject(title='untitled') {
+  newProject(title='Untitled') {
     this.project = new Project();
     this.project.title = title;
-    this.project.flowchart.init();
+    this.project.flowchart.init(this.screen.getWidth() / 3);
     this.project.flowchart.reorder();
   }
 
@@ -71,62 +73,78 @@ export class Builder {
    */
   render() {
     this.screen.clean();
-    this.renderComments();
+    if (this.project.preferences.showComments) {
+      this.renderComments();
+    }
     this.project.flowchart.apply(this.generateBlock.bind(this));
   }
 
   /**
    * @param {BaseBlock} block
+   * TODO: Update
    */
   generateBlock(block) {
-    if (block.posY < 1000 && block.posY > -100) {
+    if ((block.posY - this.screen.screenData.panY) < this.screen.getComputedHeight() && (block.posY - this.screen.screenData.panY) > -100 && (block.posX - this.screen.screenData.panX) < this.screen.getComputedWidth() && (block.posX - this.screen.screenData.panX) > (-200 * this.screen.screenData.zoom) / 600) {
       let element = undefined;
       switch (block.type) {
         case 'start':
         case 'end':
           element = generateCRect(this.screen.SVGScreenEl, block);
-          element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
+          element.addEventListener('mousedown',
+              (event) => moveBlockHandler(event, this, block,
+                  this.screen.screenData.zoom));
           break;
         case 'insert':
         case 'node':
           element = generateCircle(this.screen.SVGScreenEl, block);
           if (element) {
-            element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
+            element.addEventListener('mousedown',
+                (event) => moveBlockHandler(event, this, block,
+                    this.screen.screenData.zoom));
             if (block.type == 'insert') {
               element.addEventListener('click',
-                  ()=>this.contextMenu.open(event, block, addBlocksContextMenu));
+                  ()=>this.contextMenu.open(event, block,
+                      addBlocksContextMenu));
             }
           }
           break;
         case 'define':
         case 'action':
           element = generateRect(this.screen.SVGScreenEl, block);
-          element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
+          element.addEventListener('mousedown',
+              (event) => moveBlockHandler(event, this, block,
+                  this.screen.screenData.zoom));
           element.addEventListener('contextmenu',
               ()=>this.contextMenu.open(event, block, clipboardContextMenu));
-          element.addEventListener('click', (event) => this._select(event, block));
+          element.addEventListener('click',
+              (event) => this._select(event, block));
           break;
         case 'input':
         case 'output':
           element = generateORect(this.screen.SVGScreenEl, block);
-          element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
+          element.addEventListener('mousedown',
+              (event) => moveBlockHandler(event, this, block,
+                  this.screen.screenData.zoom));
           element.addEventListener('contextmenu',
               ()=>this.contextMenu.open(event, block, clipboardContextMenu));
-          element.addEventListener('click', (event) => this._select(event, block));
+          element.addEventListener('click',
+              (event) => this._select(event, block));
           break;
         case 'condition':
           element = generateDiamond(this.screen.SVGScreenEl, block);
-          element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, block));
+          element.addEventListener('mousedown',
+              (event) => moveBlockHandler(event, this, block,
+                  this.screen.screenData.zoom));
           element.addEventListener('contextmenu',
               ()=>this.contextMenu.open(event, block, clipboardContextMenu));
-          element.addEventListener('click', (event) => this._select(event, block));
+          element.addEventListener('click',
+              (event) => this._select(event, block));
           break;
       }
     }
   }
 
   /**
-   * TODO: Create a function checkParent existence
   */
   renderComments() {
     for (const comment of this.project.flowchart.comments) {
@@ -134,10 +152,12 @@ export class Builder {
         comment.posY = comment.previousBlock.posY - 70 + comment.offsetY;
         comment.posX = comment.previousBlock.posX + 300 + comment.offsetX;
         const element = generateComment(this.screen.SVGScreenEl, comment);
-        element.addEventListener('mousedown', (event) => moveBlockHandler(event, this, comment));
+        element.addEventListener('mousedown',
+            (event) => moveBlockHandler(event, this, comment, this.screen.screenData.zoom));
         element.addEventListener('contextmenu',
             ()=>this.contextMenu.open(event, comment, clipboardContextMenu));
-        element.addEventListener('click', (event) => this._select(event, comment));
+        element.addEventListener('click',
+            (event) => this._select(event, comment));
       } else {
         this.project.flowchart.comments.delete(comment.id);
       }
@@ -180,6 +200,11 @@ export class Builder {
 
 /** */
 function Project() {
-  this.title = '';
+  this.title = 'Untitled';
+  this.preferences = {
+    showComments: true,
+    singleMove: false,
+    view: 0,
+  },
   this.flowchart = new Flowchart();
 }

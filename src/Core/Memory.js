@@ -9,22 +9,22 @@ export class Memory {
   }
 
   /**
-   * Returns the block of blockID ID
-   * @param {number} blockID the block ID
-   * @return {*} block
+   * Returns the value of valueID ID
+   * @param {number} valueID the value ID
+   * @return {*} value
    */
-  get(blockID) {
-    const block = this._memory.get(blockID);
-    return block;
+  get(valueID) {
+    const value = this._memory.get(valueID);
+    return value;
   }
 
   /**
-   * Delete the block of blockID ID
-   * @param {number} blockID the block ID
+   * Delete the value of valueID ID
+   * @param {number} valueID the value ID
    */
-  delete(blockID) {
-    this._idsBuffer.add(blockID);
-    this._memory.delete(blockID);
+  delete(valueID) {
+    this._idsBuffer.add(valueID);
+    this._memory.delete(valueID);
   }
 
   /**
@@ -71,14 +71,14 @@ export class Memory {
   }
 
   /**
-   * Add a block to the memory and
+   * Add a value to the memory and
    * generate an unique ID
-   * @param {*} block
+   * @param {*} value
   */
-  add(block) {
+  add(value) {
     const ID = this.generateID();
-    block.id = ID;
-    this._memory.set(ID, block);
+    value.id = ID;
+    this._memory.set(ID, value);
   }
 
   /**
