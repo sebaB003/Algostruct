@@ -16,10 +16,14 @@
   padding: 20px;
 }
 
+#builder-interface__editor__content {
+  display: flex;
+  flex-direction: column;
+}
+
 .operation-container {
   height: 30px;
   display: flex;
-  align-content: center;
   margin: 10px 0 10px 0;
 }
 
@@ -68,4 +72,24 @@
 
 .add-button p {
   padding: 5px;
+}
+
+.block-description-box {
+  margin-top: auto;
+}
+
+.block-description-box__header {
+  display: flex;
+}
+
+.block-description-box__header__title {
+  font-size: 100%;
+  color: #00a651;
+  margin-left: 10px;
+}
+
+.block-description-box__description {
+  font-size: 90% !important;
+  color: #000;
+  margin-top: 5px;
 }

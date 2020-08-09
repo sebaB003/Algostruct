@@ -95,8 +95,7 @@ export class Builder {
             }
           }
           break;
-        case 'define':
-        case 'action':
+        case 'statement':
           element = generateRect(this.screen.SVGScreenEl, block);
           element.addEventListener('mousedown',
               (event) => moveBlockHandler(event, this, block,

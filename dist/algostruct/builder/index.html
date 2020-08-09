@@ -89,6 +89,16 @@
       </button>
     </template>
 
+    <template id="block-description">
+      <div class="block-description-box">
+        <div class="block-description-box__header">
+          <img src="../../assets/icons/Info.svg">
+          <p class="block-description-box__header__title"></p>
+        </div>
+        <p class="block-description-box__description"></p>
+      </div>
+    </template>
+
     <div class="loading-wrapper">
       <div class="loader"></div>
       <h1>Algostruct</h1>
@@ -121,7 +131,7 @@
           <div class="drop-down-container">
             <a href="#" class="drop-down__link" id="js--dropdown-show-comments">Hide comments</a>
             <a href="#" class="drop-down__link" id="js--dropdown-move-mode">Top down move</a>
-            <a href="#" class="drop-down__link" id="js--dropdown-">P3</a>
+            <a href="#" class="drop-down__link" id="js--dropdown-show-block-description">Show block description</a>
           </div>
         </li>
         <li class="drop-down">
@@ -236,7 +246,7 @@
       </div>
       <div id="builder-interface__editor">
         <div class="grabbable g--horizzontal"></div>
-        <div>
+        <div id="builder-interface__editor__content">
           <h2>Content</h2>
         </div>
       </div>

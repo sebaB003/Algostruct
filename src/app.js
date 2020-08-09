@@ -6,9 +6,8 @@ import {Statusbar} from './UI/statusbar';
 import {LogsView} from './UI/LogsView';
 import {OutputView} from './UI/OutputView';
 import {WatchesView} from './UI/WatchesView';
-import {readFile, checkFile, stringToObject} from './Core/Utils/FileActions';
 import {View} from './UI/View';
-import { ProjectManager } from './Core/ProjectManager';
+import {ProjectManager} from './Core/ProjectManager';
 
 /**
  * This class contains is the core of Algostruct
@@ -46,10 +45,13 @@ class App {
     this.projectManager.newProject(this.builder.screen);
     this.project = this.projectManager.project;
     this.builder.project = this.project;
+    this.editor.project = this.project;
     this.editor.setRenderCallback(this.render.bind(this));
     this.editor.setVariablePool(this.project.flowchart.variablePool);
     this.builder.setSelectCallback(this.updateSelection.bind(this));
     this.statusbar.display(this.retrieveStatus());
+    this.builder._deselect();
+    this.editor.checkSelection();
     this.render();
   }
 
@@ -67,9 +69,9 @@ class App {
   /** */
   render() {
     this.project.flowchart.updateFlowchart.call(this.project.flowchart);
-    this.editor.setVariablePool(this.project.flowchart.variablePool);
     this.builder.render.call(this.builder);
     this.statusbar.display(this.retrieveStatus());
+    this.editor.setVariablePool(this.project.flowchart.variablePool);
     this.watchesView.showWatches(this.project.flowchart.variablePool);
   }
 
@@ -87,46 +89,19 @@ class App {
   /** */
   async loadFile(file) {
     this.showLoadingScreen();
-    try {
-      const fileContent = await readFile(file);
-      const fileContentO = stringToObject(fileContent);
 
-      if (checkFile(fileContentO)) {
-        this.loadProject(fileContentO);
-      } else {
-        console.log('Invalid file content');
-      }
+    try {
+      await this.projectManager.loadFile(file);
     } catch (error) {
       console.log('An error occured while loading the project');
       console.log(`${error}`);
       this.topbar._createNewProject();
     }
 
-    this.render();
-    this.hideLoadingScreen();
-  }
-
-  /** */
-  loadProject(fileContentO) {
-    this._loadTitle(fileContentO.title);
-    this._loadPreferences(fileContentO.preferences);
-
-    this.project.flowchart.loadFlowchart(fileContentO.flowchart);
-
     this.topbar.updateTopbarElements();
     this.updateView();
-  }
-
-  /** */
-  _loadTitle(title) {
-    this.project.title = title;
-  }
-
-  /** */
-  _loadPreferences(preferences) {
-    this.project.preferences.showComments = preferences.showComments;
-    this.project.preferences.singleMove = preferences.singleMove;
-    this.project.preferences.view = preferences.view;
+    this.render();
+    this.hideLoadingScreen();
   }
 
   /** */

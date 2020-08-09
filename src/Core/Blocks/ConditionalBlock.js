@@ -9,6 +9,7 @@ export class ConditionalBlock extends BaseBlock {
   constructor(node, memoryReference) {
     super('condition', memoryReference);
     super.content = 'Condition';
+    super.blockDescription = 'Conditional blocks are used to add the logic to the program';
     super.height = 100;
     this._nodeID = node.id;
     this._nextBlock2ID;

@@ -1,5 +1,5 @@
 import {Flowchart} from "./Flowchart";
-import {downloadJSON} from "./Utils/FileActions";
+import {downloadJSON, readFile, checkFile, stringToObject} from "./Utils/FileActions";
 
 /** */
 export class ProjectManager {
@@ -76,6 +76,39 @@ export class ProjectManager {
 
     downloadJSON(jsonFile, file.title);
   }
+
+  /** */
+  async loadFile(file) {
+    const fileContent = await readFile(file);
+    const fileContentO = stringToObject(fileContent);
+
+    if (checkFile(fileContentO)) {
+      this.loadProject(fileContentO);
+    } else {
+      console.log('Invalid file content');
+    }
+  }
+
+  /** */
+  loadProject(fileContentO) {
+    this._loadTitle(fileContentO.title);
+    this._loadPreferences(fileContentO.preferences);
+
+    this.project.flowchart.loadFlowchart(fileContentO.flowchart);
+  }
+
+  /** */
+  _loadTitle(title) {
+    this.project.title = title;
+  }
+
+  /** */
+  _loadPreferences(preferences) {
+    this.project.preferences.showComments = preferences.showComments;
+    this.project.preferences.singleMove = preferences.singleMove;
+    this.project.preferences.view = preferences.view;
+    this.project.preferences.showBlockDescription = preferences.showBlockDescription;
+  }
 }
 
 /** */
@@ -85,6 +118,7 @@ function Project() {
     showComments: true,
     singleMove: false,
     view: 0,
+    showProjectDescription: false,
   },
   this.flowchart = new Flowchart();
 }

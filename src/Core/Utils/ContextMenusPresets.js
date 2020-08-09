@@ -1,7 +1,7 @@
 import {InsertBlock} from '../Blocks/InsertBlock';
 
 export const addBlocksContextMenu = {
-  'Define': addDefineBlockHandler,
+  'Statement': addStatementBlockHandler,
   'Input': addInputBlockHandler,
   'Output': addOutputBlockHandler,
   'Condition': addConditionalBlockHandler,
@@ -26,8 +26,8 @@ export const viewContextMenu = {
  * @param {*} block
  * @param {*} parent
  */
-function addDefineBlockHandler(block, parent) {
-  parent.project.flowchart.createDefine(block);
+function addStatementBlockHandler(block, parent) {
+  parent.project.flowchart.createStatement(block);
   parent.render();
 }
 

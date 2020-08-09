@@ -35,6 +35,9 @@ export class ContentEditor {
    * Create a DOM element to contain the content input
   */
   setupContentInput() {
+    const title = document.createElement('p');
+    title.innerHTML = 'Operations';
+    this.contentEditor.appendChild(title);
     this.contentInput = document.createElement('input');
     this.contentInput.setAttribute('type', 'text');
     this.contentInput.value = this.block.content;

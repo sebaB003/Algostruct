@@ -13,8 +13,8 @@ export class SyntaxChecker {
     let result = false;
 
     switch (block.type) {
-      case 'define':
-        result = SyntaxChecker._checkDefineSyntax(block.content);
+      case 'statement':
+        result = SyntaxChecker._checkStatementSyntax(block.content);
         break;
       case 'input':
         result = SyntaxChecker._checkInputSyntax(block.content);
@@ -37,7 +37,7 @@ export class SyntaxChecker {
    * @param {string} content the block content to check
    * @return {boolean} isSyntaxCorrect
   */
-  static _checkDefineSyntax(content) {
+  static _checkStatementSyntax(content) {
     const statements = content.split(';');
     let isSyntaxCorrect = false;
 

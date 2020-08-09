@@ -25,11 +25,14 @@ export class Editor {
 
     this.renderCallback = undefined;
 
+    this.project;
+
     // Initialize a modalManager
     this.modalManager = new ModalManager();
     this.variablePool = undefined;
 
     this.mode = TEXT;
+
 
     this._state = OPEN;
     this.state = OPEN;
@@ -94,8 +97,12 @@ export class Editor {
   */
   updateUI() {
     this.resetContent();
-    // this.showBlockType();
+
     this.showOperationsList();
+
+    if (this.project.preferences.showBlockDescription) {
+      this.showBlockDescription();
+    }
 
     this.showMode();
   }
@@ -103,19 +110,23 @@ export class Editor {
   /**
    * Create a DOM element to show the block type
   */
-  showBlockType() {
-    const blockType = document.createElement('p');
-    blockType.textContent = `${this.currentSelected.type} block`;
-    this.editorEl.append(blockType);
+  showBlockDescription() {
+    const blockDescriptionTemplate = document.getElementById('block-description');
+    const blockDescriptionContent = document.importNode(blockDescriptionTemplate.content, true);
+
+    const titleEl = blockDescriptionContent.querySelector('.block-description-box__header__title');
+    titleEl.innerHTML = this.currentSelected.type[0].toUpperCase() + this.currentSelected.type.slice(1);
+
+    const descriptionEl = blockDescriptionContent.querySelector('.block-description-box__description');
+    descriptionEl.innerHTML = this.currentSelected.blockDescription;
+
+    this.editorEl.append(blockDescriptionContent);
   }
 
   /**
    * Create a DOM element to show the operations list
    */
   showOperationsList() {
-    const title = document.createElement('p');
-    title.innerHTML = 'Operations';
-    this.editorEl.appendChild(title);
     this.operationsContainer.innerHTML = '';
     this.editorEl.appendChild(this.operationsContainer);
   }

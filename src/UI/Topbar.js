@@ -20,6 +20,7 @@ export class Topbar {
 
     this.showCommentsBtn = document.getElementById('js--dropdown-show-comments');
     this.moveModeBtn = document.getElementById('js--dropdown-move-mode');
+    this.showBlockDescBtn = document.getElementById('js--dropdown-show-block-description');
 
     this.resetDefaultViewBtn = document.getElementById('js--dropdown-reset-default');
     this.editorViewBtn = document.getElementById('js--dropdown-only-editor');
@@ -97,6 +98,8 @@ export class Topbar {
         () => this._showHideComments());
     this.moveModeBtn.addEventListener('click',
         () => this._changeMovementMode());
+    this.showBlockDescBtn.addEventListener('click',
+        () => this._showHideBlockDesc());
   }
 
   /**
@@ -340,7 +343,7 @@ export class Topbar {
   */
   _showHideComments() {
     this.appComponents.project.preferences.showComments = !this.appComponents.project.preferences.showComments;
-    this.showCommentsBtn.innerHTML = this.appComponents.project.preferences.showComments ? 'Hide comments' : 'Show comments';
+    this.updateButtons();
     this.appComponents.render();
   }
 
@@ -351,13 +354,24 @@ export class Topbar {
   */
   _changeMovementMode() {
     this.appComponents.project.preferences.singleMove = !this.appComponents.project.preferences.singleMove;
-    this.moveModeBtn.innerHTML = this.appComponents.project.preferences.singleMove ? 'Single move' : 'Top down move';
+    this.updateButtons();
+  }
+
+  /** 
+   * Allow to hide and show the block description
+  */
+  _showHideBlockDesc() {
+    this.appComponents.project.preferences.showBlockDescription = !this.appComponents.project.preferences.showBlockDescription;
+    this.updateButtons();
+    this.appComponents.editor.checkSelection();
+    this.appComponents.render();
   }
 
   /** */
   updateButtons() {
     this.showCommentsBtn.innerHTML = this.appComponents.project.preferences.showComments ? 'Hide comments' : 'Show comments';
     this.moveModeBtn.innerHTML = this.appComponents.project.preferences.singleMove ? 'Single move' : 'Top down move';
+    this.showBlockDescBtn.innerHTML = this.appComponents.project.preferences.showBlockDescription ? 'Hide blocks description' : 'Show blocks description';
   }
 
   // VIEW DROPDOWN FUNCTIONS

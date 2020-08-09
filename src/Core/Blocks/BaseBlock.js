@@ -12,6 +12,7 @@ export class BaseBlock {
     this.memoryReference = memoryReference;
     this.id = undefined;
     this.type = type;
+    this.blockDescription = '';
     this._nextBlockID;
     this._previousBlockID;
     this.posX = 0;

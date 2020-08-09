@@ -5,7 +5,7 @@ import {EndBlock} from './Blocks/EndBlock';
 import {InsertBlock} from './Blocks/InsertBlock';
 import {InputBlock} from './Blocks/InputBlock';
 import {OutputBlock} from './Blocks/OutputBlock';
-import {DefineBlock} from './Blocks/DefineBlock';
+import {StatementBlock} from './Blocks/StatementBlock';
 import {NodeBlock} from './Blocks/NodeBlock';
 import {ConditionalBlock} from './Blocks/ConditionalBlock';
 import {CommentBlock} from './Blocks/CommentBlock';
@@ -88,8 +88,8 @@ export class Flowchart {
   /**
    * @param {*} block
    */
-  createDefine(block) {
-    block.insert(new DefineBlock(this.memory));
+  createStatement(block) {
+    block.insert(new StatementBlock(this.memory));
     block.nextBlock.insert(new InsertBlock(this.memory));
     this.updateFlowchart();
   }
@@ -189,8 +189,8 @@ export class Flowchart {
         case 'insert':
           Object.assign(new InsertBlock(memory), block);
           break;
-        case 'define':
-          Object.assign(new DefineBlock(memory), block);
+        case 'statement':
+          Object.assign(new StatementBlock(memory), block);
           break;
         case 'output':
           Object.assign(new OutputBlock(memory), block);
@@ -226,7 +226,7 @@ export class Flowchart {
     switch (block.type) {
       case 'input':
       case 'output':
-      case 'define':
+      case 'statement':
         previousBlock = block.previousBlock;
         nextBlock = block.nextBlock.nextBlock;
         break;
@@ -393,7 +393,7 @@ export class Flowchart {
       this.errors += 1;
     }
 
-    if (block.type == 'define') {
+    if (block.type == 'statement') {
       for (const definition of block.content.split('; ')) {
         if (checkDefinitonRegex.test(definition.trim())) {
           const variableName = checkDefinitonRegex.exec(definition)[1];
