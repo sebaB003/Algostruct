@@ -54,12 +54,12 @@ export class Lexer {
       this.peekBlock().type == 'node'
     ) {
       this.current_block = peekBlock;
-      this.text = ' EOB ';
+      this.text = ' ';
       this.pos = 0;
       this.current_character = this.text[this.pos];
     } else {
       this.current_block = peekBlock;
-      this.text = this.current_block.content;
+      this.text = this.current_block.content + ' EOB';
       this.pos = 0;
       this.current_character = this.text[this.pos];
     }

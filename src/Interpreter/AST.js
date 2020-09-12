@@ -1,30 +1,23 @@
 /** */
+export class Flow {
+  /**
+   * @param {*} blocks
+   */
+  constructor(blocks) {
+    this.blocks = blocks;
+  }
+}
+
+/** */
 export class Block {
   /**
-   * @param {*} declarations
    * @param {*} statements
    */
-  constructor(declarations, statements) {
-    this.declarations = declarations;
+  constructor(statements) {
     this.statements = statements;
   }
 }
 
-/** */
-export class Flow {
-  /** */
-  constructor() {
-    self.blocks = [];
-  }
-}
-
-/** */
-export class Statements {
-  /** */
-  constructor() {
-    self.statements = [];
-  }
-}
 
 /** */
 export class VarDecl {

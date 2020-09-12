@@ -57,10 +57,6 @@ import { lex } from './Interpreter';
   --------------------------------------------
 */
 
-
-// TODO: add step mode
-// TODO: fix rules to generate less none statements
-
 /**
  * Parser follow BNFM grammar to parse the code and generate an AST.
  */
@@ -84,24 +80,13 @@ export class Parser {
       this.currentToken = this.lexer.getNextToken();
     } else {
       console.log(this.currentToken);
-      throw new Error(`Invalid token: ${tokenType}`);
+      throw new Error(`Invalid token:${this.currentToken}\n\tExpected: ${tokenType}`);
     }
   }
 
   /** */
   flowchart() {
     this.match('START');
-
-    if (this.mode == 'step') {
-      const statement = this.statement();
-      if (this.currentToken.type == 'SEMICOLON' || this.currentToken.type == 'EOB') {
-        this.match('SEMICOLON');
-      } else {
-        this.match('END');
-      }
-      return statement;
-    }
-
     const result = this.flow();
     this.match('END');
 
@@ -110,18 +95,28 @@ export class Parser {
 
   /** */
   flow() {
-    let statements = [this.statement()];
+    const blocks = [];
 
-    while (['SEMICOLON', 'EOB'].includes(this.currentToken.type)) {
-      if (this.currentToken.type == 'SEMICOLON') {
-        this.match('SEMICOLON');
-      } else {
-        this.match('EOB');
-      }
+    while (this.currentToken.type != 'END') {
+      blocks.push(this.block());
+    }
+
+    console.log(blocks);
+    return new ASTComponents.Flow(blocks);
+  }
+
+  /** */
+  block() {
+    let statements = [].concat(this.statement());
+
+    while (this.currentToken.type == 'SEMICOLON') {
+      this.match('SEMICOLON');
       statements = statements.concat(this.statement());
     }
 
-    return statements;
+    this.match('EOB');
+
+    return new ASTComponents.Block(statements);
   }
 
   /** */
