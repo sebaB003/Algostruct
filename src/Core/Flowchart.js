@@ -9,7 +9,7 @@ import {StatementBlock} from './Blocks/StatementBlock';
 import {NodeBlock} from './Blocks/NodeBlock';
 import {ConditionalBlock} from './Blocks/ConditionalBlock';
 import {CommentBlock} from './Blocks/CommentBlock';
-import { BaseBlock } from './Blocks/BaseBlock';
+import {BaseBlock} from './Blocks/BaseBlock';
 
 /**
  * Flowchart

@@ -13,7 +13,7 @@ export class EndBlock extends BaseBlock {
     super.previousBlock = previousBlock;
     super.posX = previousBlock.posX;
     super.posY = previousBlock.posY + 100;
-    super.content = 'End';
+    super.content = 'END';
     super.height = 50;
     memoryReference.add(this);
   }

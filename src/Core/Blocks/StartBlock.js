@@ -14,7 +14,7 @@ export class StartBlock extends BaseBlock {
     super('start', memoryReference);
     super.posX = posx;
     super.posY = posy;
-    super.content = 'Start';
+    super.content = 'START';
     super.height = 50;
     memoryReference.add(this);
   }

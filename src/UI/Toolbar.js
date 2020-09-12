@@ -1,3 +1,4 @@
+import {lex} from '../Interpreter/Interpreter';
 /**
  * This class manage the toolbar of the builder interface
 */
@@ -16,6 +17,7 @@ export class Toolbar {
     this.toolbarEl = document.getElementById('builder-interface__tools');
     this.reduceToolbarButton = document.getElementById('reduce-toolBar');
 
+    this.runFlowchartBtn = document.getElementById('run-flowchart');
     this.newPojectBtn = document.getElementById('new-project');
     this.savePojectBtn = document.getElementById('save-project');
 
@@ -39,6 +41,9 @@ export class Toolbar {
     this.reduceToolbarButton.addEventListener(
         'click',
         () => this.reduceToolbarHandler());
+    this.runFlowchartBtn.addEventListener(
+        'click',
+        () => lex(this.appComponents.project.flowchart.startBlock));
   }
 
 
