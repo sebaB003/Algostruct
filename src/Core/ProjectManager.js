@@ -3,8 +3,11 @@ import {downloadJSON, readFile, checkFile, stringToObject} from "./Utils/FileAct
 
 /** */
 export class ProjectManager {
-  /** */
-  constructor() {
+  /**
+   * @param {*} logView
+  */
+  constructor(logView) {
+    this.logView = logView;
     this.project;
   }
 
@@ -75,6 +78,7 @@ export class ProjectManager {
 
 
     downloadJSON(jsonFile, file.title);
+    this.logView.console.log('Project saved');
   }
 
   /** */
@@ -84,8 +88,9 @@ export class ProjectManager {
 
     if (checkFile(fileContentO)) {
       this.loadProject(fileContentO);
+      this.logView.console.log('Project loaded');
     } else {
-      console.log('Invalid file content');
+      this.logView.console.error('Invalid file content', false);
     }
   }
 
@@ -108,6 +113,7 @@ export class ProjectManager {
     this.project.preferences.singleMove = preferences.singleMove;
     this.project.preferences.view = preferences.view;
     this.project.preferences.showBlockDescription = preferences.showBlockDescription;
+    this.project.preferences.showInterpreterLogs = preferences.showInterpreterLogs;
   }
 }
 
@@ -119,6 +125,7 @@ function Project() {
     singleMove: false,
     view: 0,
     showProjectDescription: false,
+    showInterpreterLogs: false,
   },
   this.flowchart = new Flowchart();
 }

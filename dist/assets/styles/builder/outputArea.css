@@ -1,0 +1,41 @@
+.header-container {
+  padding: 10px 0 10px 0;
+  background-color: #fff;
+  display: block;
+  position: sticky;
+  top: 0;
+}
+
+.output-area {
+  margin-top: 10px;
+}
+
+.output-area p {
+  padding: 3px;
+}
+.output-area>*:nth-child(even) {
+  background-color: #fff;
+}
+
+.output-area>*:nth-child(odd) {
+  background-color: #f7f7f7;
+}
+
+.cell {
+  animation: cascade 0.6s ease;
+  transition: all 0.6s ease;
+  height: auto;
+  overflow: hidden;
+}
+
+@keyframes cascade {
+  0% {
+      transform-origin: top;
+      transform: scaleY(0);
+      width: 0;
+  }
+  100% {
+      transform: scaleY(1);
+      width: 100%;
+  }
+}

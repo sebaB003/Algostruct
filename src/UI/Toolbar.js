@@ -43,7 +43,11 @@ export class Toolbar {
         () => this.reduceToolbarHandler());
     this.runFlowchartBtn.addEventListener(
         'click',
-        () => lex(this.appComponents.project.flowchart.startBlock));
+        () => {
+          const showLogs = this.appComponents.project.preferences.showInterpreterLogs;
+          const logsView = showLogs ? this.appComponents.logsView : undefined;
+          lex(this.appComponents.project.flowchart.startBlock, logsView, this.appComponents.outputView);
+        });
   }
 
 

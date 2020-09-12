@@ -35,7 +35,7 @@ class App {
         this.watchesView);
 
     this.project = undefined;
-    this.projectManager = new ProjectManager();
+    this.projectManager = new ProjectManager(this.logsView);
   }
 
   /**
@@ -53,6 +53,9 @@ class App {
     this.builder._deselect();
     this.editor.checkSelection();
     this.render();
+
+    this.logsView.console.clear();
+    this.logsView.console.log('(!) Algostruct successfully initialized');
   }
 
   /** */
@@ -88,13 +91,17 @@ class App {
 
   /** */
   async loadFile(file) {
+    this.logsView.console.clear();
+    this.outputView.console.clear();
+
     this.showLoadingScreen();
 
     try {
       await this.projectManager.loadFile(file);
     } catch (error) {
-      console.log('An error occured while loading the project');
-      console.log(`${error}`);
+      this.logsView.console.error('An error occured while loading the project');
+      this.logsView.console.error(`${error}`);
+      this.logsView.console.log('Creating a new project...');
       this.topbar._createNewProject();
     }
 

@@ -21,6 +21,7 @@ export class Topbar {
     this.showCommentsBtn = document.getElementById('js--dropdown-show-comments');
     this.moveModeBtn = document.getElementById('js--dropdown-move-mode');
     this.showBlockDescBtn = document.getElementById('js--dropdown-show-block-description');
+    this.showInterpreterLogsBtn = document.getElementById('js--dropdown-show-interpreter-logs');
 
     this.resetDefaultViewBtn = document.getElementById('js--dropdown-reset-default');
     this.editorViewBtn = document.getElementById('js--dropdown-only-editor');
@@ -100,6 +101,8 @@ export class Topbar {
         () => this._changeMovementMode());
     this.showBlockDescBtn.addEventListener('click',
         () => this._showHideBlockDesc());
+    this.showInterpreterLogsBtn.addEventListener('click',
+        () => this._showInterpreterLogs());
   }
 
   /**
@@ -367,11 +370,22 @@ export class Topbar {
     this.appComponents.render();
   }
 
+  /** 
+   * Allow to hide and show the block description
+  */
+ _showInterpreterLogs() {
+    this.appComponents.project.preferences.showInterpreterLogs = !this.appComponents.project.preferences.showInterpreterLogs;
+    this.updateButtons();
+    this.appComponents.editor.checkSelection();
+    this.appComponents.render();
+  }
+
   /** */
   updateButtons() {
     this.showCommentsBtn.innerHTML = this.appComponents.project.preferences.showComments ? 'Hide comments' : 'Show comments';
     this.moveModeBtn.innerHTML = this.appComponents.project.preferences.singleMove ? 'Single move' : 'Top down move';
     this.showBlockDescBtn.innerHTML = this.appComponents.project.preferences.showBlockDescription ? 'Hide blocks description' : 'Show blocks description';
+    this.showInterpreterLogsBtn.innerHTML = this.appComponents.project.preferences.showInterpreterLogs ? 'Hide interpreter logs' : 'Show interpreter logs';
   }
 
   // VIEW DROPDOWN FUNCTIONS

@@ -63,11 +63,36 @@ import { lex } from './Interpreter';
 export class Parser {
   /**
    * @param {Lexer} lexer
+   * @param {*} logsView
+   * @param {*} outputView
   */
-  constructor(lexer) {
+  constructor(lexer, logsView, outputView) {
     this.lexer = lexer;
+
+    this.logsView = logsView;
+    this.outputView = outputView;
+
     this.currentToken = lexer.getNextToken();
     this.mode = 'normal';
+  }
+
+
+  /**
+   * @param {*} message
+   */
+  log(message) {
+    if (this.logsView) {
+      this.logsView.console.log(message);
+    }
+  }
+
+  /**
+   * @param {*} message
+   */
+  error(message) {
+    if (this.logsView) {
+      this.logsView.console.error(message, false);
+    }
   }
 
   /**
@@ -77,9 +102,10 @@ export class Parser {
    */
   match(tokenType) {
     if (this.currentToken.type == tokenType) {
+      this.log(`${this.currentToken }`);
       this.currentToken = this.lexer.getNextToken();
     } else {
-      console.log(this.currentToken);
+      this.error(`Invalid token:${this.currentToken}\n\tExpected: ${tokenType}`);
       throw new Error(`Invalid token:${this.currentToken}\n\tExpected: ${tokenType}`);
     }
   }
@@ -101,7 +127,6 @@ export class Parser {
       blocks.push(this.block());
     }
 
-    console.log(blocks);
     return new ASTComponents.Flow(blocks);
   }
 

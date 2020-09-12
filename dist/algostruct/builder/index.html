@@ -30,6 +30,11 @@
       type="text/css"
       href="../../assets/styles/builder/editor.css"
     />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="../../assets/styles/builder/outputArea.css"
+    />
     <script src="../../assets/scripts/app.js" defer></script>
   </head>
   <body>
@@ -132,6 +137,7 @@
             <a href="#" class="drop-down__link" id="js--dropdown-show-comments">Hide comments</a>
             <a href="#" class="drop-down__link" id="js--dropdown-move-mode">Top down move</a>
             <a href="#" class="drop-down__link" id="js--dropdown-show-block-description">Show block description</a>
+            <a href="#" class="drop-down__link" id="js--dropdown-show-interpreter-logs">Show interpreter logs</a>
           </div>
         </li>
         <li class="drop-down">
@@ -255,22 +261,30 @@
       <div id="logs">
         <div class="grabbable g--horizzontal"></div>
         <div>
-          <h4 style="display: inline;">Logs</h4>
-          <button class="btn text-btn" style="float: right;">x</button>
+          <div class="header-container">
+            <h4 style="display: inline;">Logs</h4>
+            <button class="btn text-btn" style="float: right;">x</button>
+          </div>
+          <div class="output-area"></div>
         </div>
       </div>
       <div id="output">
         <div class="grabbable g--horizzontal"></div>
         <div>
-          <h4 style="display: inline;">Output</h4>
-          <button class="btn text-btn" style="float: right;">x</button>
+          <div class="header-container">
+            <h4 style="display: inline;">Output</h4>
+            <button class="btn text-btn" style="float: right;">x</button>
+          </div>
+          <div class="output-area"></div>
         </div>
       </div>
       <div id="watches">
         <div class="grabbable g--horizzontal"></div>
         <div>
-          <h4 style="display: inline;">Watches</h4>
-          <button class="btn text-btn" style="float: right;">x</button>
+          <div class="header-container">
+            <h4 style="display: inline;">Watches</h4>
+            <button class="btn text-btn" style="float: right;">x</button>
+          </div>
           <table class="watches-container">
             <thead>
               <tr>

@@ -6,14 +6,28 @@ import {RESERVED_KEY} from './ReservedKey';
 export class Lexer {
   /**
    * @param {*} block
+   * @param {*} logsView
+   * @param {*} outputView
    */
-  constructor(block) {
+  constructor(block, logsView, outputView) {
     this.current_block = block;
+
+    this.logsView = logsView;
+    this.outputView = outputView;
+
     this.text = block.content;
     this.pos = 0;
     this.current_character = this.text[this.pos];
   }
 
+  /**
+   * @param {*} message
+   */
+  error(message) {
+    if (this.logsView) {
+      this.logsView.console.error(message, false);
+    }
+  }
   /**
    * Returns the next flowchart block
    * @return {BaseBlock}
@@ -226,6 +240,9 @@ export class Lexer {
         this.advance();
         return new Token(token.RPAREN, ')', tokenBlockId, tokenStartPos);
       }
+
+      this.error(`Invalid character '${this.current_character}' at [Block ID: ${tokenBlockId}:${tokenStartPos}]`);
+      throw new Error('Invalid character');
     }
 
     return new Token(token.EOF, null);

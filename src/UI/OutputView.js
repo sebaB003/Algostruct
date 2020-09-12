@@ -1,3 +1,5 @@
+import { Console } from "./Console";
+
 /** */
 export class OutputView {
   /**
@@ -6,6 +8,9 @@ export class OutputView {
   constructor() {
     this.outputEl = document.getElementById('output');
     this.grabbableEl = this.outputEl.querySelector('.grabbable');
+
+    this.consoleArea = this.outputEl.querySelector('.output-area');
+    this.console = new Console(this.consoleArea);
 
     this._state = OPEN;
     this.state = OPEN;
