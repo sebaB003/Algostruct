@@ -7,8 +7,6 @@ export const EOB = 'EOB';
 export const IN = 'IN';
 export const OUT = 'OUT';
 
-export const VAR = 'VAR';
-
 export const INTEGER = 'INTEGER';
 export const INTEGER_CONST = 'INTEGER_CONST';
 export const FLOAT = 'FLOAT';
@@ -19,7 +17,7 @@ export const PLUS = 'PLUS';
 export const MINUS = 'MINUS';
 export const MUL = 'MUL';
 export const DIV = 'DIV';
-export const EXP = 'EXP';
+export const POW = 'POW';
 
 export const ASSIGN = 'ASSIGN';
 export const COMMA = 'COMMA';

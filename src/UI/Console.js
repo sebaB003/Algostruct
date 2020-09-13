@@ -56,6 +56,28 @@ export class Console {
     p.scrollIntoView();
   }
 
+  /** */
+  input(message='') {
+    const template = document.getElementById('input-entry');
+    const inputEntryEl = document.importNode(template.content, true);
+
+    const cellEl = inputEntryEl.querySelector('.cell');
+    const labelEl = inputEntryEl.querySelector('label');
+    const form = inputEntryEl.querySelector('form');
+
+    let inputValue;
+    form.addEventListener('submit', (event)=> {
+      event.preventDefault();
+      inputValue = event.srcElement[0].value;
+      cellEl.textContent = `${message}${inputValue}`;
+    });
+
+    labelEl.textContent = message;
+    this.consoleEl.appendChild(inputEntryEl);
+
+    return inputValue;
+  }
+
   /**
    * Clears the output area
   */

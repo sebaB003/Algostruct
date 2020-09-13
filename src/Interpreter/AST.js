@@ -27,7 +27,7 @@ export class VarDecl {
    */
   constructor(variableNode, typeNode) {
     this.variableNode = variableNode;
-    this.valueNode = typeNode;
+    this.typeNode = typeNode;
   }
 }
 
@@ -100,6 +100,26 @@ export class Var {
   constructor(token) {
     this.token = token;
     this.value = token.value;
+  }
+}
+
+/** */
+export class Output {
+  /**
+   * @param {*} node
+   */
+  constructor(node) {
+    this.node = node;
+  }
+}
+
+/** */
+export class Input {
+  /**
+   * @param {*} message
+   */
+  constructor(message) {
+    this.message = message;
   }
 }
 

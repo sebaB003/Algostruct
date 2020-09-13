@@ -8,6 +8,7 @@ import {OutputView} from './UI/OutputView';
 import {WatchesView} from './UI/WatchesView';
 import {View} from './UI/View';
 import {ProjectManager} from './Core/ProjectManager';
+import { Interpreter } from './Interpreter/Interpreter';
 
 /**
  * This class contains is the core of Algostruct
@@ -36,12 +37,15 @@ class App {
 
     this.project = undefined;
     this.projectManager = new ProjectManager(this.logsView);
+    this.interpreter;
   }
 
   /**
    * Create a new project and setup the environment
   */
   init() {
+    this.interpreter = new Interpreter(this.logsView, this.outputView);
+    this.toolbar.setInterpreter(this.interpreter);
     this.projectManager.newProject(this.builder.screen);
     this.project = this.projectManager.project;
     this.builder.project = this.project;
@@ -75,7 +79,6 @@ class App {
     this.builder.render.call(this.builder);
     this.statusbar.display(this.retrieveStatus());
     this.editor.setVariablePool(this.project.flowchart.variablePool);
-    this.watchesView.showWatches(this.project.flowchart.variablePool);
   }
 
   /** */

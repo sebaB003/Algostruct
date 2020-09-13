@@ -73,6 +73,7 @@ h2 {
 }
 
 #status-bar {
+  z-index: 9999;
   height: 30px;
   padding: 2px;
   box-shadow: 0 -1px 4px 1px rgba(0, 0, 0, 0.2);

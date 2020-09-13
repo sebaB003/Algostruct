@@ -34,9 +34,10 @@ export class WatchesView {
   showWatches(variables) {
     this.watchesListEl.innerHTML = '';
 
-    if (variables.length) {
-      for (const variable of variables) {
+    if (variables.size) {
+      for (const variable of variables.entries()) {
         if (variable) {
+          console.log(variable);
           this.generateTableRow(variable);
         }
       }
@@ -51,11 +52,13 @@ export class WatchesView {
   generateTableRow(variable) {
     const row = document.createElement('tr');
 
-    const {variableName, variableType='Unknown', variableUsage='Unknown', value=undefined} = variable;
+    console.log(variable);
+    const variableName = variable[0];
+    const {type: variableType, value} = variable[1];
     row.innerHTML = `
     <td>${variableName}</td>
     <td>${variableType}</td>
-    <td>${variableUsage}</td>
+    <td>${'global'}</td>
     <td>${value}</td>`;
 
     this.watchesListEl.appendChild(row);

@@ -1,4 +1,4 @@
-import {lex} from '../Interpreter/Interpreter';
+import {Interpreter, lex} from '../Interpreter/Interpreter';
 /**
  * This class manage the toolbar of the builder interface
 */
@@ -21,6 +21,8 @@ export class Toolbar {
     this.newPojectBtn = document.getElementById('new-project');
     this.savePojectBtn = document.getElementById('save-project');
 
+    this.interpreter;
+
     this.init();
   }
 
@@ -34,6 +36,14 @@ export class Toolbar {
       this.reduceToolbarHandler();
     }
   }
+
+  /**
+   * @param {*} interpreter
+   */
+  setInterpreter(interpreter) {
+    this.interpreter = interpreter;
+  }
+
   /**
    * Setup the event handlers for the tools
   */
@@ -46,7 +56,8 @@ export class Toolbar {
         () => {
           const showLogs = this.appComponents.project.preferences.showInterpreterLogs;
           const logsView = showLogs ? this.appComponents.logsView : undefined;
-          lex(this.appComponents.project.flowchart.startBlock, logsView, this.appComponents.outputView);
+          const interpreter = new Interpreter(logsView, this.appComponents.outputView, this.appComponents.watchesView);
+          interpreter.interpret(this.appComponents.project.flowchart.startBlock);
         });
   }
 

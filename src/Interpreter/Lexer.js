@@ -71,6 +71,16 @@ export class Lexer {
       this.text = ' ';
       this.pos = 0;
       this.current_character = this.text[this.pos];
+    } else if (this.peekBlock().type == 'output') {
+      this.current_block = peekBlock;
+      this.text = 'OUT ' + this.current_block.content + ' EOB';
+      this.pos = 0;
+      this.current_character = this.text[this.pos];
+    } else if (this.peekBlock().type == 'input') {
+      this.current_block = peekBlock;
+      this.text = 'IN ' + this.current_block.content + ' EOB';
+      this.pos = 0;
+      this.current_character = this.text[this.pos];
     } else {
       this.current_block = peekBlock;
       this.text = this.current_block.content + ' EOB';
@@ -204,11 +214,6 @@ export class Lexer {
       if (this.current_character == '/') {
         this.advance();
         return new Token(token.DIV, '/', tokenBlockId, tokenStartPos);
-      }
-
-      if (this.current_character == '^') {
-        this.advance();
-        return new Token(token.EXP, '^', tokenBlockId, tokenStartPos);
       }
 
       if (this.current_character == ',') {

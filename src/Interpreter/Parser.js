@@ -1,6 +1,7 @@
 import * as tokens from './Tokens';
 import * as ASTComponents from './AST';
 import { lex } from './Interpreter';
+import { Token } from './Token';
 
 /*
   flowchart : 'START' flow 'END'
@@ -10,12 +11,21 @@ import { lex } from './Interpreter';
        ;
 
   statement : declaration
+            | outputExpr
+            | inputExpr
             | exec
             | ''
             | ';'
             ;
 
+  outputExpr : 'OUT' expr
+             ;
+
+  inputExpr : 'IN' var
+            ;
+
   declaration : typeDef identifier (',' identifier)* ';'
+              ;
 
   typeDef : 'int'
           | 'float'
@@ -23,6 +33,7 @@ import { lex } from './Interpreter';
           ;
 
   identifier : /[_a-zA-Z][_a-zA-Z0-9]/
+             ;
 
   exec : identifier '=' expr;
        ;
@@ -42,8 +53,10 @@ import { lex } from './Interpreter';
        ;
 
   integer_const : [0-9]*
+                ;
 
   float_const : / [0-9]*.[0-9]* /
+              ;
 
   PRECEDENCE TABLE
   ____________________________________________
@@ -149,6 +162,10 @@ export class Parser {
     let statement;
     if (this.currentToken.type == 'ID') {
       statement = this.exec();
+    } else if (this.currentToken.type == 'OUT') {
+      statement = this.outputExpr();
+    } else if (this.currentToken.type == 'IN') {
+      statement = this.inputExpr();
     } else if (['INTEGER', 'FLOAT', 'AUTO'].includes(this.currentToken.type)) {
       statement = this.declaration();
     } else {
@@ -166,11 +183,8 @@ export class Parser {
   /** */
   exec() {
     const identifier = this.identifier();
-
     const token = this.currentToken;
-
     this.match('ASSIGN');
-
     const expr = this.expr();
 
     return new ASTComponents.Assign(identifier, token, expr);
@@ -188,15 +202,13 @@ export class Parser {
   expr() {
     let node = this.term();
 
-    while (['MUL', 'DIV', 'EXP'].includes(this.currentToken.type)) {
+    while (['PLUS', 'MINUS'].includes(this.currentToken.type)) {
       const operator = this.currentToken;
 
-      if (this.currentToken.type == 'MUL') {
-        this.match('MUL');
-      } else if (this.currentToken.type == 'DIV') {
-        this.match('DIV');
+      if (this.currentToken.type == 'PLUS') {
+        this.match('PLUS');
       } else {
-        this.match('EXP');
+        this.match('MINUS');
       }
 
       node = new ASTComponents.BinaryOperator(node, operator, this.term());
@@ -209,13 +221,15 @@ export class Parser {
   term() {
     let node = this.fact();
 
-    while (['PLUS', 'MINUS'].includes(this.currentToken.type)) {
+    while (['MUL', 'DIV', 'POW'].includes(this.currentToken.type)) {
       const operator = this.currentToken;
 
-      if (this.currentToken.type == 'PLUS') {
-        this.match('PLUS');
+      if (this.currentToken.type == 'MUL') {
+        this.match('MUL');
+      } else if (this.currentToken.type == 'DIV') {
+        this.match('DIV');
       } else {
-        this.match('MINUS');
+        this.match('POW');
       }
 
       node = new ASTComponents.BinaryOperator(node, operator, this.fact());
@@ -247,6 +261,22 @@ export class Parser {
     } else {
       return this.identifier();
     }
+  }
+
+  /** */
+  outputExpr() {
+    this.match('OUT');
+    const expr = this.expr();
+
+    return new ASTComponents.Output(expr);
+  }
+
+  /** */
+  inputExpr() {
+    this.match('IN');
+    const id = this.identifier();
+
+    return new ASTComponents.Assign(id, new Token('ASSIGN', '='), new ASTComponents.Input(''));
   }
 
   /** */
