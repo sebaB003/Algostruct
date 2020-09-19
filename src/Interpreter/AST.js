@@ -82,6 +82,17 @@ export class Number {
 }
 
 /** */
+export class BoolVal {
+  /**
+   * @param {*} token
+   */
+  constructor(token) {
+    this.token = token;
+    this.value = token.value;
+  }
+}
+
+/** */
 export class Type {
   /**
    * @param {*} token
@@ -123,6 +134,34 @@ export class Input {
   }
 }
 
+/** */
+export class Condition {
+  /**
+   * @param {*} node
+   * @param {*} trueBranch
+   * @param {*} falseBranch
+   */
+  constructor(node, trueBranch, falseBranch) {
+    this.node = node;
+    this.trueBranch = trueBranch;
+    this.falseBranch = falseBranch;
+  }
+}
+
+/**
+ */
+export class Loop {
+  /**
+   * @param {*} condition
+   * @param {*} loopBranch
+   * @param {*} firstExec
+   */
+  constructor(condition, loopBranch, firstExec) {
+    this.condition = condition;
+    this.loopBranch = loopBranch;
+    this.firstExec = firstExec;
+  }
+}
 /** */
 export class None {
   /** */

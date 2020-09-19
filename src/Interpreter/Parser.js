@@ -1,25 +1,24 @@
-import * as tokens from './Tokens';
 import * as ASTComponents from './AST';
-import { lex } from './Interpreter';
-import { Token } from './Token';
+import {Token} from './Token';
 
 /*
   flowchart : 'START' flow 'END'
             ;
 
-  flow : statement*
+  flow : block* EOB
        ;
 
-  statement : declaration
+  block : statement (SEMICOLON statement)*
+
+  statement : ifExpr
+            | loopExpr
+            | declaration
             | outputExpr
             | inputExpr
-            | exec
+            | assignmentExpr
             | ''
             | ';'
             ;
-
-  outputExpr : 'OUT' expr
-             ;
 
   inputExpr : 'IN' var
             ;
@@ -29,28 +28,58 @@ import { Token } from './Token';
 
   typeDef : 'int'
           | 'float'
+          | 'bool'
           | 'auto'
           ;
 
   identifier : /[_a-zA-Z][_a-zA-Z0-9]/
              ;
 
-  exec : identifier '=' expr;
+  ifExpr : 'IF' conditionalExpr 'EOB' flow 'ELSE' flow 'ENDIF'
+         ;
+
+  loopExpr : 'DO' flow 'LOOP' conditionExpr 'ENDLOOP'
+           | 'LOOP' conditionExpr 'EOB' flow 'ENDLOOP'
+           ;
+
+  assignmentExpr : identifier '=' conditionalExpr
+
+  conditionalExpr: logicalOrExpr
+                 ;
+
+  logicalOrExpr : logicalAndExpr ('||' logicalOrExpr)*
+                ;
+
+  logicalAndExpr : equealityExpr ('||' logicalAndExpr)*
+                 ;
+
+  equalityExpr : relationalExpr ('==' | '!=' equalityExpr)*
+               ;
+
+  relationalExpr : additionalExpr ('<' | '<=' | '>' | '>=' relationalExpr)*
+                 ;
+
+  additionalExpr : multiplicativeExpr ('+' | '-' additionalExpr)*
+                 ;
+
+  multiplicativeExpr : unaryExpr ('*' | '/' | '%' multiplicativeExpr)*
+                     ;
+
+  unaryExpr : powerExpr ('+' | '-' | '!' unaryExpr)*
+
+  powerExpr : expr ('pow' poerExpr)
+
+  expr : indetifier
+       | constant
+       | '(' expression ')'
        ;
 
-  expr : term ('+' | '-' term)*
-       ;
+  constant : integer_const
+           | float_const
+           ;
 
-  term : fact ('*' | '-' | '^' term)
-       ;
-
-  fact : integer_const
-       | float_const
-       | '-' fact
-       | '+' fact
-       | '(' expr ')'
-       | identifier
-       ;
+  outputExpr : 'OUT' expr
+             ;
 
   integer_const : [0-9]*
                 ;
@@ -58,9 +87,21 @@ import { Token } from './Token';
   float_const : / [0-9]*.[0-9]* /
               ;
 
+  true_const : 'true'
+
+  false_const : 'false'
+
   PRECEDENCE TABLE
   ____________________________________________
   | PREC LEVEL | ASSOCIATIVITY | OPERATORS   |
+  |------------|---------------|-------------|
+  |      7     | left-right    | ||          |
+  |------------|---------------|-------------|
+  |      6     | left-right    | &&          |
+  |------------|---------------|-------------|
+  |      5     | left-right    | == !=       |
+  |------------|---------------|-------------|
+  |      4     | left-right    | < <= > >=   |
   |------------|---------------|-------------|
   |      3     | left-right    | + - / * ^ = |
   |------------|---------------|-------------|
@@ -136,7 +177,8 @@ export class Parser {
   flow() {
     const blocks = [];
 
-    while (this.currentToken.type != 'END') {
+    console.log(this.currentToken);
+    while (this.currentToken.type != 'END' && this.currentToken.type != 'ELSE' && this.currentToken.type != 'ENDIF' && this.currentToken.type != 'ENDLOOP'&& this.currentToken.type != 'LOOP') {
       blocks.push(this.block());
     }
 
@@ -152,7 +194,9 @@ export class Parser {
       statements = statements.concat(this.statement());
     }
 
-    this.match('EOB');
+    try {
+      this.match('EOB');
+    } catch (e) {}
 
     return new ASTComponents.Block(statements);
   }
@@ -160,16 +204,23 @@ export class Parser {
   /** */
   statement() {
     let statement;
-    if (this.currentToken.type == 'ID') {
-      statement = this.exec();
+    if (this.currentToken.type == 'IF') {
+      statement = this.ifExpr();
+    } else if (['DO', 'LOOP'].includes(this.currentToken.type)) {
+      statement = this.loopExpr();
+    } else if (this.currentToken.type == 'ID') {
+      statement = this.assigmentExpr();
     } else if (this.currentToken.type == 'OUT') {
       statement = this.outputExpr();
     } else if (this.currentToken.type == 'IN') {
       statement = this.inputExpr();
-    } else if (['INTEGER', 'FLOAT', 'AUTO'].includes(this.currentToken.type)) {
+    } else if (['INTEGER', 'FLOAT', 'AUTO', 'BOOL'].includes(this.currentToken.type)) {
       statement = this.declaration();
-    } else {
+    } else if (this.currentToken.type == 'EOB') {
       statement = this.none();
+    } else {
+      this.logsView.console.error('Invalid statement');
+      throw new Error('Invalid statement');
     }
 
     return statement;
@@ -181,13 +232,203 @@ export class Parser {
   }
 
   /** */
-  exec() {
+  ifExpr() {
+    this.match('IF');
+    const condition = this.conditionalExpr();
+    const trueBranch = this.flow();
+    this.match('ELSE');
+    const falseBranch = this.flow();
+    this.match('ENDIF');
+    return new ASTComponents.Condition(condition, trueBranch, falseBranch);
+  }
+
+  /** */
+  loopExpr() {
+    if (this.currentToken.type == 'DO') {
+      this.match('DO');
+      const loopBranch = this.flow();
+      this.match('LOOP');
+      const condition = this.conditionalExpr();
+      this.match('EOB');
+      this.match('ENDLOOP');
+
+      return new ASTComponents.Loop(condition, loopBranch, true);
+    } else {
+      this.match('LOOP');
+      const condition = this.conditionalExpr();
+      const loopBranch = this.flow();
+      this.match('ENDLOOP');
+
+      return new ASTComponents.Loop(condition, loopBranch, false);
+    }
+  }
+
+  /** */
+  assigmentExpr() {
     const identifier = this.identifier();
     const token = this.currentToken;
     this.match('ASSIGN');
-    const expr = this.expr();
+    const node = this.conditionalExpr();
 
-    return new ASTComponents.Assign(identifier, token, expr);
+    return new ASTComponents.Assign(identifier, token, node);
+  }
+
+  /** */
+  conditionalExpr() {
+    return this.logicalAndExpr();
+  }
+  
+  /** */
+  logicalOrExpr() {
+    let node = this.logicalAndExpr();
+
+    while (this.currentToken.type == 'LOR') {
+      const operator = this.currentToken;
+      this.match('LOR');
+      node = new ASTComponents.BinaryOperator(node, operator, this.logicalOrExpr());
+    }
+
+    return node;
+  }
+
+  /** */
+  logicalAndExpr() {
+    let node = this.equalityExpr();
+
+    while (this.currentToken.type == 'LAND') {
+      const operator = this.currentToken;
+      this.match('LAND');
+      node = new ASTComponents.BinaryOperator(node, operator, this.logicalAndExpr());
+    }
+
+    return node;
+  }
+
+  /** */
+  equalityExpr() {
+    let node = this.relationalExpr();
+
+    while (['EQ', 'NEQ'].includes(this.currentToken.type)) {
+      const operator = this.currentToken;
+      if (operator.type == 'EQ') {
+        this.match('EQ');
+      } else {
+        this.match('NEQ');
+      }
+      node = new ASTComponents.BinaryOperator(node, operator, this.equalityExpr());
+    }
+
+    return node;
+  }
+  
+  /** */
+  relationalExpr() {
+    let node = this.additiveExpr();
+
+    while (['LT', 'LTET', 'GT', 'GTET'].includes(this.currentToken.type)) {
+      const operator = this.currentToken;
+      if (operator.type == 'LT') {
+        this.match('LT');
+      } else if (operator.type == 'LTET') {
+        this.match('LTET');
+      } else if (operator.type == 'GT') {
+        this.match('GT');
+      } else {
+        this.match('GTET');
+      }
+      node = new ASTComponents.BinaryOperator(node, operator, this.relationalExpr());
+    }
+
+    return node;
+  }
+
+  /** */
+  additiveExpr() {
+    let node = this.multiplicativeExpr();
+
+    while (['PLUS', 'MINUS'].includes(this.currentToken.type)) {
+      const operator = this.currentToken;
+      if (operator.type == 'PLUS') {
+        this.match('PLUS');
+      } else {
+        this.match('MINUS');
+      }
+
+      node = new ASTComponents.BinaryOperator(node, operator, this.additiveExpr());
+    }
+
+    return node;
+  }
+
+  /** */
+  multiplicativeExpr() {
+    let node = this.powerExpr();
+
+    while (['MUL', 'DIV', 'MOD'].includes(this.currentToken.type)) {
+      const operator = this.currentToken;
+      if (operator.type == 'MUL') {
+        this.match('MUL');
+      } else if (operator.type == 'DIV') {
+        this.match('DIV');
+      } else {
+        this.match('MOD');
+      }
+      node = new ASTComponents.BinaryOperator(node, operator, this.multiplicativeExpr());
+    }
+
+    return node;
+  }
+
+  /** */
+  powerExpr() {
+    let node = this.expr();
+
+    while (this.currentToken.type == 'POW') {
+      const operator = this.currentToken;
+      this.match('POW');
+      node = new ASTComponents.BinaryOperator(node, operator, this.powerExpr());
+    }
+
+    return node;
+  }
+
+  /** */
+  expr() {
+    const token = this.currentToken;
+    if (token.type == 'ID') {
+      return this.identifier();
+    } else if (token.type == 'PLUS') {
+      this.match('PLUS');
+      return new ASTComponents.UnaryOperator(token, this.expr());
+    } else if (token.type == 'MINUS') {
+      this.match('MINUS');
+      return new ASTComponents.UnaryOperator(token, this.expr());
+    } else if (token.type == 'NOT') {
+      this.match('NOT');
+      return new ASTComponents.UnaryOperator(token, this.expr());
+    } else if (token.type == 'LPAREN') {
+      this.match('LPAREN');
+      const node = this.conditionalExpr();
+      this.match('RPAREN');
+      return node;
+    } else {
+      return this.constant();
+    }
+  }
+
+  /** */
+  constant() {
+    const token = this.currentToken;
+    if (token.type == 'INTEGER_CONST') {
+      this.match('INTEGER_CONST');
+      return new ASTComponents.Number(token);
+    } else if (token.type == 'FLOAT_CONST') {
+      this.match('FLOAT_CONST');
+      return new ASTComponents.Number(token);
+    } else if (token.type == 'FALSE_CONST' || token.type == 'TRUE_CONST') {
+      this.match(token.type);
+      return new ASTComponents.BoolVal(token);
+    }
   }
 
   /** */
@@ -199,74 +440,9 @@ export class Parser {
   }
 
   /** */
-  expr() {
-    let node = this.term();
-
-    while (['PLUS', 'MINUS'].includes(this.currentToken.type)) {
-      const operator = this.currentToken;
-
-      if (this.currentToken.type == 'PLUS') {
-        this.match('PLUS');
-      } else {
-        this.match('MINUS');
-      }
-
-      node = new ASTComponents.BinaryOperator(node, operator, this.term());
-    }
-
-    return node;
-  }
-
-  /** */
-  term() {
-    let node = this.fact();
-
-    while (['MUL', 'DIV', 'POW'].includes(this.currentToken.type)) {
-      const operator = this.currentToken;
-
-      if (this.currentToken.type == 'MUL') {
-        this.match('MUL');
-      } else if (this.currentToken.type == 'DIV') {
-        this.match('DIV');
-      } else {
-        this.match('POW');
-      }
-
-      node = new ASTComponents.BinaryOperator(node, operator, this.fact());
-    }
-
-    return node;
-  }
-
-  /** */
-  fact() {
-    const token = this.currentToken;
-    if (this.currentToken.type == 'PLUS') {
-      this.match('PLUS');
-      return new ASTComponents.UnaryOperator(token, this.fact());
-    } else if (this.currentToken.type == 'MINUS') {
-      this.match('MINUS');
-      return new ASTComponents.UnaryOperator(token, this.fact());
-    } else if (this.currentToken.type == 'INTEGER_CONST') {
-      this.match('INTEGER_CONST');
-      return new ASTComponents.Number(token);
-    } else if (this.currentToken.type == 'FLOAT_CONST') {
-      this.match('FLOAT_CONST');
-      return new ASTComponents.Number(token);
-    } else if (this.currentToken.type == 'LPAREN') {
-      this.match('LPAREN');
-      const node = this.expr();
-      this.match('RPAREN');
-      return node;
-    } else {
-      return this.identifier();
-    }
-  }
-
-  /** */
   outputExpr() {
     this.match('OUT');
-    const expr = this.expr();
+    const expr = this.conditionalExpr();
 
     return new ASTComponents.Output(expr);
   }
@@ -305,6 +481,8 @@ export class Parser {
       this.match('INTEGER');
     } else if (token.type == 'FLOAT') {
       this.match('FLOAT');
+    } else if (token.type == 'BOOL') {
+      this.match('BOOL');
     } else {
       this.match('AUTO');
     }

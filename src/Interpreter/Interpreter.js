@@ -1,4 +1,3 @@
-import { Memory } from '../Core/Memory';
 import {Lexer} from './Lexer';
 import {Parser} from './Parser';
 
@@ -14,6 +13,7 @@ export class Interpreter {
     this.outputsView = outputsView;
     this.watchesView = watchesView;
 
+    this.parser = null;
     this.memory = new Map();
   }
 
@@ -30,13 +30,18 @@ export class Interpreter {
    * @param {*} tree
    */
   visit(tree) {
-    const visitorName = `visit${tree.constructor.name}`;
-    const visitor = this[visitorName];
-    if (visitor) {
-      return visitor.call(this, tree);
+    if (tree) {
+      const visitorName = `visit${tree.constructor.name}`;
+      const visitor = this[visitorName];
+      if (visitor) {
+        return visitor.call(this, tree);
+      } else {
+        this.error('Unexpected token');
+        throw new Error('Unexpected token');
+      }
     } else {
-      this.error('Unexpected token');
-      throw new Error('Unexpected token');
+      this.error('Invalid statement');
+      throw new Error('Invalid statement');
     }
   }
 
@@ -53,8 +58,34 @@ export class Interpreter {
    * @param {*} node
    */
   visitBlock(node) {
+    console.log(node);
     for (const statement of node.statements) {
       this.visit(statement);
+    }
+  }
+
+  /** */
+  visitCondition(node) {
+    const result = this.visit(node.node);
+    this.logsView.console.log(`Condition solved as: ${result}`);
+    if (result) {
+      this.visit(node.trueBranch);
+    } else {
+      this.visit(node.falseBranch);
+    }
+  }
+
+  /** */
+  async visitLoop(node) {
+    if (node.firstExec) {
+      this.visit(node.loopBranch);
+    }
+
+    let result = this.visit(node.condition);
+    this.logsView.console.log(`Condition solved as: ${result}`);
+    while (result) {
+      result = this.visit(node.condition);
+      this.logsView.console.log(`Condition solved as: ${result}`);
     }
   }
 
@@ -107,6 +138,8 @@ export class Interpreter {
       return 'float';
     } else if (/\d+/.test(value)) {
       return 'int';
+    } else if (value == true || value == false) {
+      return 'bool';
     }
 
     this.error(`Unexpected value: '${value}'`);
@@ -115,10 +148,13 @@ export class Interpreter {
 
   /** */
   parseValue(value) {
-    if (this.getValueType(value) == 'int') {
+    const valueType = this.getValueType(value);
+    if (valueType == 'int') {
       return parseInt(value);
-    } else {
+    } else if (valueType == 'float') {
       return parseFloat(value);
+    } else {
+      return value;
     }
   }
 
@@ -130,6 +166,8 @@ export class Interpreter {
       return + this.visit(node.node);
     } else if (node.token.type == 'MINUS') {
       return - this.visit(node.node);
+    } else if (node.token.type == 'NOT') {
+      return !this.visit(node.node);
     }
   }
 
@@ -141,12 +179,30 @@ export class Interpreter {
       return this.visit(node.leftNode) * this.visit(node.rightNode);
     } else if (node.operator.type == 'DIV') {
       return this.visit(node.leftNode) / this.visit(node.rightNode);
+    } else if (node.operator.type == 'MOD') {
+      return this.visit(node.leftNode) % this.visit(node.rightNode);
     } else if (node.operator.type == 'POW') {
       return Math.pow(this.visit(node.leftNode), this.visit(node.rightNode));
     } else if (node.operator.type == 'PLUS') {
       return this.visit(node.leftNode) + this.visit(node.rightNode);
     } else if (node.operator.type == 'MINUS') {
       return this.visit(node.leftNode) - this.visit(node.rightNode);
+    } else if (node.operator.type == 'LAND') {
+      return this.visit(node.leftNode) && this.visit(node.rightNode);
+    } else if (node.operator.type == 'LOR') {
+      return this.visit(node.leftNode) || this.visit(node.rightNode);
+    } else if (node.operator.type == 'LT') {
+      return this.visit(node.leftNode) < this.visit(node.rightNode);
+    } else if (node.operator.type == 'LTET') {
+      return this.visit(node.leftNode) <= this.visit(node.rightNode);
+    } else if (node.operator.type == 'GT') {
+      return this.visit(node.leftNode) > this.visit(node.rightNode);
+    } else if (node.operator.type == 'GTET') {
+      return this.visit(node.leftNode) >= this.visit(node.rightNode);
+    } else if (node.operator.type == 'EQ') {
+      return this.visit(node.leftNode) == this.visit(node.rightNode);
+    } else if (node.operator.type == 'NEQ') {
+      return this.visit(node.leftNode) != this.visit(node.rightNode);
     }
   }
 
@@ -199,22 +255,57 @@ export class Interpreter {
     return node.value;
   }
 
+  /**
+   * @param {*} node 
+   */
+  visitBoolVal(node) {
+    return node.value;
+  }
+
+  /** */
+  stepInterpret(startBlock) {
+    if (!this.parser) {
+      console.log('a');
+      this.outputsView.console.clear();
+      this.memory = new Map();
+      const lexer = new Lexer(startBlock, this.logsView, this.outputsView);
+      this.parser = new Parser(lexer, this.logsView, this.outputsView);
+    }
+    if (this.parser.currentToken.type == 'START') {
+      this.parser.match('START');
+    } else if (this.parser.currentToken.type == 'END') {
+      this.parser.match('END');
+      this.parser = null;
+    } else {
+      this.visit(this.parser.block());
+    }
+  }
+
   /** */
   interpret(startBlock) {
     this.outputsView.console.clear();
     this.memory = new Map();
     const lexer = new Lexer(startBlock, this.logsView, this.outputsView);
-    const parser = new Parser(lexer, this.logsView, this.outputsView);
+    this.parser = new Parser(lexer, this.logsView, this.outputsView);
 
-    const tree = parser.flowchart();
-
-    this.logsView.console.log('Generated AST');
-
-    this.logsView.console.log('Starting execution...');
-
-    console.log(tree);
-    this.visit(tree);
+    // let token;
+    // token = lexer.getNextToken();
+    // while(token.type != 'END') {
+    //   console.log(token);
+    //   token = lexer.getNextToken();
+    // }
+    // console.log(token);
+    this.parser.match('START');
+    while (this.parser.currentToken.type != 'END') {
+      this.visit(this.parser.block());
+    }
+    this.parser.match('END');
 
     console.log(this.memory);
   }
 }
+
+// Generate new Interpeter on file loading
+// Fix loops saving / loading
+// Add step and stop interpreter
+// Try to make async

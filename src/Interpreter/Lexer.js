@@ -15,6 +15,9 @@ export class Lexer {
     this.logsView = logsView;
     this.outputView = outputView;
 
+    this.conditionStack = [];
+    this.nodeStack = [];
+
     this.text = block.content;
     this.pos = 0;
     this.current_character = this.text[this.pos];
@@ -64,26 +67,79 @@ export class Lexer {
 
     if (!peekBlock) {
       this.current_block = null;
-    } else if (this.peekBlock().type == 'insert' ||
-      this.peekBlock().type == 'node'
-    ) {
+    } else if (peekBlock.type == 'insert') {
       this.current_block = peekBlock;
       this.text = ' ';
       this.pos = 0;
       this.current_character = this.text[this.pos];
-    } else if (this.peekBlock().type == 'output') {
-      this.current_block = peekBlock;
-      this.text = 'OUT ' + this.current_block.content + ' EOB';
+    } else if (peekBlock.type == 'node') {
+      if (peekBlock.nType == 'if') {
+        if (this.conditionStack.length) {
+          if (this.conditionStack[this.conditionStack.length-1].node == peekBlock) {
+            this.current_block = this.conditionStack[this.conditionStack.length-1].nextBlock2;
+            this.text = ' ELSE ';
+            this.conditionStack.pop();
+          } else {
+            this.current_block = peekBlock;
+            this.text = 'ENDIF EOB';
+          }
+        } else {
+          this.current_block = peekBlock;
+          this.text = 'ENDIF EOB';
+        }
+      } else if (peekBlock.nType == 'dl') {
+        this.current_block = peekBlock;
+        this.nodeStack.push(peekBlock);
+        this.text = 'DO ';
+      } else if (peekBlock.nType == 'lo') {
+        if (this.conditionStack.length) {
+          if (this.conditionStack[this.conditionStack.length-1].node == peekBlock) {
+            this.conditionStack.pop();
+            this.current_block = peekBlock.nextBlock.nextBlock;
+            this.text = ' ENDLOOP EOB ';
+          } else {
+            this.current_block = peekBlock;
+            this.text = ' ';
+          }
+        } else {
+          this.current_block = peekBlock;
+          this.text = ' ';
+        }
+      } else {
+        this.current_block = peekBlock;
+        this.text = ' ';
+      }
+
       this.pos = 0;
       this.current_character = this.text[this.pos];
-    } else if (this.peekBlock().type == 'input') {
+    } else if (peekBlock.type == 'output') {
       this.current_block = peekBlock;
-      this.text = 'IN ' + this.current_block.content + ' EOB';
+      this.text = 'OUT ' + this.current_block.content + ' EOB ';
+      this.pos = 0;
+      this.current_character = this.text[this.pos];
+    } else if (peekBlock.type == 'input') {
+      this.current_block = peekBlock;
+      this.text = 'IN ' + this.current_block.content + ' EOB ';
+      this.pos = 0;
+      this.current_character = this.text[this.pos];
+    } else if (peekBlock.type == 'condition') {
+      this.current_block = peekBlock;
+      if (peekBlock.node == this.nodeStack[this.nodeStack.length-1]) {
+        this.nodeStack.pop();
+        this.text = 'LOOP ' + this.current_block.content + ' EOB ENDLOOP EOB ';
+      } else if (peekBlock.node.nType == 'lo') {
+        this.conditionStack.push(peekBlock);
+        this.current_block = peekBlock.nextBlock2;
+        this.text = 'LOOP ' + peekBlock.content + ' EOB ';
+      } else {
+        this.conditionStack.push(peekBlock);
+        this.text = 'IF ' + this.current_block.content + ' EOB ';
+      }
       this.pos = 0;
       this.current_character = this.text[this.pos];
     } else {
       this.current_block = peekBlock;
-      this.text = this.current_block.content + ' EOB';
+      this.text = this.current_block.content + ' EOB ';
       this.pos = 0;
       this.current_character = this.text[this.pos];
     }
@@ -196,6 +252,52 @@ export class Lexer {
         return token;
       }
 
+      if (this.current_character == '=' && this.peek() == '=') {
+        this.advance();
+        this.advance();
+        return new Token(token.EQ, '==', tokenBlockId, tokenStartPos);
+      }
+
+      if (this.current_character == '!' && this.peek() == '=') {
+        this.advance();
+        this.advance();
+        return new Token(token.NEQ, '!=', tokenBlockId, tokenStartPos);
+      }
+
+      if (this.current_character == '<' && this.peek() == '=') {
+        this.advance();
+        this.advance();
+        return new Token(token.LTET, '<=', tokenBlockId, tokenStartPos);
+      }
+
+      if (this.current_character == '>' && this.peek() == '=') {
+        this.advance();
+        this.advance();
+        return new Token(token.GTET, '>=', tokenBlockId, tokenStartPos);
+      }
+
+      if (this.current_character == '&' && this.peek() == '&') {
+        this.advance();
+        this.advance();
+        return new Token(token.LAND, '&&', tokenBlockId, tokenStartPos);
+      }
+
+      if (this.current_character == '|' && this.peek() == '|') {
+        this.advance();
+        this.advance();
+        return new Token(token.LOR, '||', tokenBlockId, tokenStartPos);
+      }
+
+      if (this.current_character == '<') {
+        this.advance();
+        return new Token(token.LT, '<', tokenBlockId, tokenStartPos);
+      }
+
+      if (this.current_character == '>') {
+        this.advance();
+        return new Token(token.GT, '>', tokenBlockId, tokenStartPos);
+      }
+
       if (this.current_character == '+') {
         this.advance();
         return new Token(token.PLUS, '+', tokenBlockId, tokenStartPos);
@@ -216,9 +318,19 @@ export class Lexer {
         return new Token(token.DIV, '/', tokenBlockId, tokenStartPos);
       }
 
+      if (this.current_character == '%') {
+        this.advance();
+        return new Token(token.MOD, '%', tokenBlockId, tokenStartPos);
+      }
+
       if (this.current_character == ',') {
         this.advance();
         return new Token(token.COMMA, ',', tokenBlockId, tokenStartPos);
+      }
+
+      if (this.current_character == '!') {
+        this.advance();
+        return new Token(token.NOT, '!', tokenBlockId, tokenStartPos);
       }
 
       if (this.current_character == ';') {

@@ -98,7 +98,7 @@ export class Flowchart {
    * @param {*} block
    */
   createCondition(block) {
-    const node = new NodeBlock(this.memory);
+    const node = new NodeBlock(this.memory, 'if');
     block.insert(new ConditionalBlock(node, this.memory));
     block.nextBlock.insert(node, this.memory);
     const leftBranchInsert = new InsertBlock(this.memory);
@@ -115,7 +115,7 @@ export class Flowchart {
    * @param {*} block
    */
   createDoWhile(block) {
-    const node = new NodeBlock(this.memory);
+    const node = new NodeBlock(this.memory, 'dl');
     const whileBlock = new ConditionalBlock(node, this.memory);
     block.insert(node);
     node.insert(whileBlock);
@@ -132,7 +132,7 @@ export class Flowchart {
    * @param {*} block
    */
   createWhile(block) {
-    const node = new NodeBlock(this.memory);
+    const node = new NodeBlock(this.memory, 'lo');
     const whileBlock = new ConditionalBlock(node, this.memory);
     const insertBlock = new InsertBlock(this.memory);
     block.insert(node);

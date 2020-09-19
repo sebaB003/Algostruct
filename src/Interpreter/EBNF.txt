@@ -1,0 +1,79 @@
+flowchart : 'START' flow 'END'
+            ;
+
+  flow : block* EOB
+       ;
+
+  block : statement (SEMICOLON statement)*
+
+  statement : ifExpr
+            | declaration
+            | outputExpr
+            | inputExpr
+            | assignmentExpr
+            | ''
+            | ';'
+            ;
+
+  inputExpr : 'IN' var
+            ;
+
+  declaration : typeDef identifier (',' identifier)* ';'
+              ;
+
+  typeDef : 'int'
+          | 'float'
+          | 'bool'
+          | 'auto'
+          ;
+
+  identifier : /[_a-zA-Z][_a-zA-Z0-9]/
+             ;
+
+  ifExpr : 'IF' conditionalExpr
+         ;
+
+  assignmentExpr : identifier '=' conditionalExpr
+
+  conditionalExpr: logicalOrExpr
+                 ;
+
+  logicalOrExpr : logicalAndExpr ('||' logicalOrExpr)*
+                ;
+
+  logicalAndExpr : equealityExpr ('&&' logicalAndExpr)*
+                 ;
+
+  equalityExpr : relationalExpr ('==' | '!=' equalityExpr)*
+               ;
+
+  relationalExpr : additiveExpr ('<' | '<=' | '>' | '>=' relationalExpr)*
+                 ;
+
+  additiveExpr : multiplicativeExpr ('+' | '-' additiveExpr)*
+                 ;
+
+  multiplicativeExpr : unaryExpr ('*' | '/' | '%' multiplicativeExpr)*
+                     ;
+
+  unaryExpr : powerExpr ('+' | '-' | '!' unaryExpr)*
+
+  powerExpr : expr ('pow' powerExpr)
+
+  expr : indetifier
+       | constant
+       | '(' conditionalExpr ')'
+       ;
+
+  constant : integer_const
+           | float_const
+           ;
+
+  outputExpr : 'OUT' expr
+             ;
+
+  integer_const : [0-9]*
+                ;
+
+  float_const : / [0-9]*.[0-9]* /
+              ;

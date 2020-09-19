@@ -5,9 +5,10 @@ export class NodeBlock extends BaseBlock {
   /**
    * @param {*} memoryReference
   */
-  constructor(memoryReference) {
+  constructor(memoryReference, nType='') {
     super('node', memoryReference);
     this._previousBlock2ID;
+    this.nType = nType;
     super.width = 10;
     super.height = 10;
     memoryReference.add(this);
