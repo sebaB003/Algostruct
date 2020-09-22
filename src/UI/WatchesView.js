@@ -34,12 +34,9 @@ export class WatchesView {
   showWatches(variables) {
     this.watchesListEl.innerHTML = '';
 
-    if (variables.size) {
-      for (const variable of variables.entries()) {
-        if (variable) {
-          console.log(variable);
-          this.generateTableRow(variable);
-        }
+    if (variables.length) {
+      for (const variable of variables) {
+        this.generateTableRow(variable);
       }
     } else {
       this.watchesListEl.innerHTML = '<tr><td>Void memory</td></tr>';
@@ -52,13 +49,14 @@ export class WatchesView {
   generateTableRow(variable) {
     const row = document.createElement('tr');
 
-    console.log(variable);
-    const variableName = variable[0];
-    const {type: variableType, value} = variable[1];
+    const variableName = Object.keys(variable)[0];
+    const varData = Object.values(variable)[0];
+    console.log(varData);
+    const {type: variableType, value, scope} = varData;
     row.innerHTML = `
     <td>${variableName}</td>
     <td>${variableType}</td>
-    <td>${'global'}</td>
+    <td>${scope}</td>
     <td>${value}</td>`;
 
     this.watchesListEl.appendChild(row);
@@ -93,6 +91,11 @@ export class WatchesView {
     } else if (value == HIDDEN) {
       this.close();
     }
+  }
+
+  /** */
+  get state() {
+    return this._state;
   }
 
   /**
@@ -132,5 +135,5 @@ export class WatchesView {
   }
 }
 
-const OPEN = Symbol('open');
-const HIDDEN = Symbol('hidden');
+const OPEN = 'open';
+const HIDDEN = 'hidden';

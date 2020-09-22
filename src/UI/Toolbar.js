@@ -18,6 +18,8 @@ export class Toolbar {
     this.reduceToolbarButton = document.getElementById('reduce-toolBar');
 
     this.runFlowchartBtn = document.getElementById('run-flowchart');
+    this.stepFlowchartBtn = document.getElementById('step-flowchart');
+    this.stopExecutionBtn = document.getElementById('stop-execution');
     this.newPojectBtn = document.getElementById('new-project');
     this.savePojectBtn = document.getElementById('save-project');
 
@@ -54,10 +56,39 @@ export class Toolbar {
     this.runFlowchartBtn.addEventListener(
         'click',
         () => {
-          const showLogs = this.appComponents.project.preferences.showInterpreterLogs;
-          const logsView = showLogs ? this.appComponents.logsView : undefined;
-          const interpreter = new Interpreter(logsView, this.appComponents.outputView, this.appComponents.watchesView);
-          interpreter.interpret(this.appComponents.project.flowchart.startBlock);
+          try {
+            const showLogs = this.appComponents.project.preferences.showInterpreterLogs;
+            const logsView = showLogs ? this.appComponents.logsView : undefined;
+            this.interpreter.reset(this.appComponents.project.flowchart.startBlock);
+            this.interpreter.setLogsView(logsView);
+            this.interpreter.interpret();
+            this.appComponents.logsView.console.log('Execution completed');
+          } catch (e) {
+            console.log(e);
+            this.appComponents.logsView.console.log('Execution stopped');
+          }
+        });
+    this.stepFlowchartBtn.addEventListener(
+        'click',
+        () => {
+          try {
+            const showLogs = this.appComponents.project.preferences.showInterpreterLogs;
+            const logsView = showLogs ? this.appComponents.logsView : undefined;
+            this.interpreter.stepInterpret(this.appComponents.project.flowchart.startBlock, logsView);
+            if (!this.interpreter.parser) {
+              this.appComponents.logsView.console.log('Execution completed');
+            }
+          } catch (e) {
+            this.appComponents.logsView.console.log('Execution stopped');
+          }
+        });
+    this.stopExecutionBtn.addEventListener(
+        'click',
+        () => {
+          if (this.interpreter.parser) {
+            this.interpreter.parser = null;
+          }
+          this.appComponents.logsView.console.log('Execution stopped');
         });
   }
 

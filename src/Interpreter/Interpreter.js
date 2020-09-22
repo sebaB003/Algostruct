@@ -2,6 +2,113 @@ import {Lexer} from './Lexer';
 import {Parser} from './Parser';
 
 /** */
+class Scope {
+  /**
+   * @param {*} scopeName
+   * @param {*} scopeLevel
+   * @param {*} encolsedScope
+   */
+  constructor(scopeName, scopeLevel, encolsedScope=null) {
+    this.memory = new Map();
+    this.scopeName = scopeName;
+    this.scopeLevel = scopeLevel;
+    this.encolsedScope = encolsedScope;
+  }
+
+  /**
+   * @param {*} key
+   * @param {*} value
+   * @return {*}
+   */
+  set(key, value) {
+    return this.memory.set(key, value);
+  }
+
+  /**
+   * @param {*} key
+   * @return {boolean}
+   */
+  has(key) {
+    return this.memory.has(key);
+  }
+
+  /**
+   * @param {*} key
+   * @return {*}
+   */
+  get(key) {
+    return this.memory.get(key);
+  }
+
+  /**
+   * @param {*} key
+   * @return {boolean}
+   */
+  hasDeep(key) {
+    if (this.has(key)) {
+      return true;
+    }
+
+    if (this.encolsedScope) {
+      return this.encolsedScope.hasDeep(key);
+    }
+
+    return false;
+  }
+
+  /**
+   * @param {*} key
+   * @return {*}
+   */
+  getDeep(key) {
+    const result = this.get(key);
+    if (result) {
+      return result;
+    }
+
+    if (this.encolsedScope) {
+      return this.encolsedScope.getDeep(key);
+    }
+
+    return null;
+  }
+
+  /**
+   * @param {*} key
+   * @param {*} value
+   * @return {boolean}
+   */
+  setDeep(key, value) {
+    if (this.has(key)) {
+      this.set(key, value);
+      return true;
+    }
+
+    if (this.encolsedScope) {
+      return this.encolsedScope.setDeep(key, value);
+    }
+
+    return false;
+  }
+
+  /** */
+  mem() {
+    const scopeName = `${this.scopeName}:${this.scopeLevel}`;
+    const keys = [];
+    for (const [key, content] of this.memory.entries()) {
+      const newContent = {...content, 'scope': scopeName};
+      keys.push({[key]: newContent});
+    }
+
+    if (this.encolsedScope) {
+      return keys.concat(this.encolsedScope.mem());
+    }
+
+    return keys;
+  }
+}
+
+/** */
 export class Interpreter {
   /**
    * @param {*} logsView
@@ -15,6 +122,30 @@ export class Interpreter {
 
     this.parser = null;
     this.memory = new Map();
+    this.scope = null;
+  }
+
+  /**
+   * Resets the interpreter
+   * @param {StartBlock} startBlock
+   */
+  reset(startBlock) {
+    const lexer = new Lexer(startBlock, this.logsView, this.outputsView);
+    this.parser = new Parser(lexer, this.logsView, this.outputsView);
+    this.memory = new Map();
+    this.scope = new Scope('global', 1);
+    if (this.watchesView.state == 'open') {
+      this.watchesView.showWatches(this.scope.mem());
+    }
+  }
+
+  /**
+   * @param {*} logsView
+   */
+  setLogsView(logsView) {
+    this.logsView = logsView;
+    this.parser.logsView = logsView;
+    this.parser.lexer.logsView = logsView;
   }
 
   /**
@@ -23,6 +154,16 @@ export class Interpreter {
   error(message) {
     if (this.logsView) {
       this.logsView.console.error(message, false);
+    }
+    throw new Error(message);
+  }
+
+  /**
+   * @param {string} message
+  */
+  log(message) {
+    if (this.logsView) {
+      this.logsView.console.log(`${message}`);
     }
   }
 
@@ -37,12 +178,21 @@ export class Interpreter {
         return visitor.call(this, tree);
       } else {
         this.error('Unexpected token');
-        throw new Error('Unexpected token');
       }
     } else {
       this.error('Invalid statement');
-      throw new Error('Invalid statement');
     }
+  }
+
+  /**
+   * @param {*} node
+   */
+  visitFlowchartAST(node) {
+    this.scope = new Scope('global', 1);
+    console.log('a');
+    this.visit(node.flow);
+
+    this.scope = this.scope.encolsedScope;
   }
 
   /**
@@ -58,7 +208,6 @@ export class Interpreter {
    * @param {*} node
    */
   visitBlock(node) {
-    console.log(node);
     for (const statement of node.statements) {
       this.visit(statement);
     }
@@ -66,26 +215,35 @@ export class Interpreter {
 
   /** */
   visitCondition(node) {
+    const newScope = new Scope('work', this.scope.scopeLevel + 1, this.scope);
+    this.scope = newScope;
     const result = this.visit(node.node);
-    this.logsView.console.log(`Condition solved as: ${result}`);
+    this.log(`Condition solved as: ${result}`);
     if (result) {
       this.visit(node.trueBranch);
     } else {
       this.visit(node.falseBranch);
     }
+
+    this.scope = this.scope.encolsedScope;
   }
 
   /** */
-  async visitLoop(node) {
+  visitLoop(node) {
     if (node.firstExec) {
       this.visit(node.loopBranch);
     }
 
     let result = this.visit(node.condition);
-    this.logsView.console.log(`Condition solved as: ${result}`);
+    this.log(`Condition solved as: ${result}`);
     while (result) {
+      const newScope = new Scope('work', this.scope.scopeLevel + 1, this.scope);
+      this.scope = newScope;
+      this.visit(node.loopBranch);
+      this.scope = this.scope.encolsedScope;
       result = this.visit(node.condition);
-      this.logsView.console.log(`Condition solved as: ${result}`);
+      console.log(this.scope.scopeLevel);
+      this.log(`Condition solved as: ${result}`);
     }
   }
 
@@ -95,14 +253,15 @@ export class Interpreter {
   visitVarDecl(node) {
     const variableName = node.variableNode.value;
     const variableType = this.visit(node.typeNode);
-
-    if (!this.memory.has(variableName)) {
-      this.memory.set(variableName, {type: variableType, value: undefined});
-      this.logsView.console.log(`Defined: ${variableType} '${variableName}'`);
-      this.watchesView.showWatches(this.memory);
+    console.log(this.scope);
+    if (!this.scope.has(variableName)) {
+      this.scope.set(variableName, {type: variableType, value: undefined});
+      this.log(`Defined: ${variableType} '${variableName}'`);
+      if (this.watchesView.state == 'open') {
+        this.watchesView.showWatches(this.scope.mem());
+      }
     } else {
       this.error(`Variable alrady defined: ${variableName}`);
-      throw new Error('Variable alrady defined');
     }
   }
 
@@ -111,22 +270,22 @@ export class Interpreter {
    */
   visitAssign(node) {
     const variableName = node.leftNode.value;
-    if (this.memory.has(variableName)) {
-      const content = this.memory.get(variableName);
+    if (this.scope.hasDeep(variableName)) {
+      const content = this.scope.getDeep(variableName);
       const value = this.visit(node.rightNode);
       const valueType = this.getValueType(value);
 
       if (valueType == content['type'] || content['type'] == 'auto') {
         content['value'] = this.parseValue(value);
-        this.memory.set(variableName, content);
-        this.watchesView.showWatches(this.memory);
+        this.scope.setDeep(variableName, content);
+        if (this.watchesView.state == 'open') {
+          this.watchesView.showWatches(this.scope.mem());
+        }
       } else {
         this.error(`Unexpected variable type: '${valueType}'\nExpected:${content['type']}`);
-        throw new Error('Unexpected variable type');
       }
     } else {
       this.error(`Undefined variable '${variableName}'`);
-      throw new Error('Undefined variable');
     }
   }
 
@@ -143,7 +302,6 @@ export class Interpreter {
     }
 
     this.error(`Unexpected value: '${value}'`);
-    throw new Error('Unexpected value');
   }
 
   /** */
@@ -240,11 +398,10 @@ export class Interpreter {
   visitVar(node) {
     const variableName = node.value;
 
-    if (!this.memory.has(variableName)) {
+    if (!this.scope.hasDeep(variableName)) {
       this.error(`Undefined variable '${variableName}'`);
-      throw new Error('Undefined variable');
     } else {
-      return this.memory.get(variableName)['value'];
+      return this.scope.getDeep(variableName)['value'];
     }
   }
 
@@ -262,15 +419,18 @@ export class Interpreter {
     return node.value;
   }
 
-  /** */
-  stepInterpret(startBlock) {
+  /** 
+   * @param {StartBlock} startBlock
+   * @param {logsView} logsView
+  */
+  stepInterpret(startBlock, logsView) {
     if (!this.parser) {
-      console.log('a');
       this.outputsView.console.clear();
-      this.memory = new Map();
-      const lexer = new Lexer(startBlock, this.logsView, this.outputsView);
-      this.parser = new Parser(lexer, this.logsView, this.outputsView);
+      this.reset(startBlock);
     }
+
+    this.setLogsView(logsView);
+
     if (this.parser.currentToken.type == 'START') {
       this.parser.match('START');
     } else if (this.parser.currentToken.type == 'END') {
@@ -282,11 +442,8 @@ export class Interpreter {
   }
 
   /** */
-  interpret(startBlock) {
+  interpret() {
     this.outputsView.console.clear();
-    this.memory = new Map();
-    const lexer = new Lexer(startBlock, this.logsView, this.outputsView);
-    this.parser = new Parser(lexer, this.logsView, this.outputsView);
 
     // let token;
     // token = lexer.getNextToken();
@@ -300,6 +457,7 @@ export class Interpreter {
       this.visit(this.parser.block());
     }
     this.parser.match('END');
+    this.parser = null;
 
     console.log(this.memory);
   }

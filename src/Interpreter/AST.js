@@ -1,4 +1,14 @@
 /** */
+export class FlowchartAST {
+  /**
+   * @param {*} flow
+   */
+  constructor(flow) {
+    this.flow = flow;
+  }
+}
+
+/** */
 export class Flow {
   /**
    * @param {*} blocks

@@ -24,13 +24,24 @@ export class Lexer {
   }
 
   /**
-   * @param {*} message
-   */
+   * @param {string} message
+  */
   error(message) {
     if (this.logsView) {
       this.logsView.console.error(message, false);
     }
+    throw new Error(message);
   }
+
+  /**
+   * @param {string} message
+  */
+  log(message) {
+    if (this.logsView) {
+      this.logsView.console.log(`${message}`);
+    }
+  }
+
   /**
    * Returns the next flowchart block
    * @return {BaseBlock}
@@ -359,7 +370,6 @@ export class Lexer {
       }
 
       this.error(`Invalid character '${this.current_character}' at [Block ID: ${tokenBlockId}:${tokenStartPos}]`);
-      throw new Error('Invalid character');
     }
 
     return new Token(token.EOF, null);

@@ -44,7 +44,7 @@ class App {
    * Create a new project and setup the environment
   */
   init() {
-    this.interpreter = new Interpreter(this.logsView, this.outputView);
+    this.interpreter = new Interpreter(this.logsView, this.outputView, this.watchesView);
     this.toolbar.setInterpreter(this.interpreter);
     this.projectManager.newProject(this.builder.screen);
     this.project = this.projectManager.project;
@@ -79,6 +79,7 @@ class App {
     this.builder.render.call(this.builder);
     this.statusbar.display(this.retrieveStatus());
     this.editor.setVariablePool(this.project.flowchart.variablePool);
+    this.topbar.updateButtons();
   }
 
   /** */

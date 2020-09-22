@@ -130,22 +130,22 @@ export class Parser {
     this.mode = 'normal';
   }
 
-
   /**
-   * @param {*} message
-   */
-  log(message) {
-    if (this.logsView) {
-      this.logsView.console.log(message);
-    }
-  }
-
-  /**
-   * @param {*} message
-   */
+   * @param {string} message
+  */
   error(message) {
     if (this.logsView) {
       this.logsView.console.error(message, false);
+    }
+    throw new Error(message);
+  }
+
+  /**
+   * @param {string} message
+  */
+  log(message) {
+    if (this.logsView) {
+      this.logsView.console.log(`${message}`);
     }
   }
 
@@ -160,7 +160,6 @@ export class Parser {
       this.currentToken = this.lexer.getNextToken();
     } else {
       this.error(`Invalid token:${this.currentToken}\n\tExpected: ${tokenType}`);
-      throw new Error(`Invalid token:${this.currentToken}\n\tExpected: ${tokenType}`);
     }
   }
 
@@ -170,7 +169,7 @@ export class Parser {
     const result = this.flow();
     this.match('END');
 
-    return result;
+    return new ASTComponents.FlowchartAST(result);
   }
 
   /** */
@@ -219,8 +218,7 @@ export class Parser {
     } else if (this.currentToken.type == 'EOB') {
       statement = this.none();
     } else {
-      this.logsView.console.error('Invalid statement');
-      throw new Error('Invalid statement');
+      this.error('Invalid statement');
     }
 
     return statement;

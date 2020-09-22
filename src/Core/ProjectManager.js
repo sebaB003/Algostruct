@@ -125,7 +125,7 @@ function Project() {
     singleMove: false,
     view: 0,
     showProjectDescription: false,
-    showInterpreterLogs: true,
+    showInterpreterLogs: false,
   },
   this.flowchart = new Flowchart();
 }
