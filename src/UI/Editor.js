@@ -27,12 +27,15 @@ export class Editor {
 
     this.project;
 
+    this.contentEditor = undefined;
+
     // Initialize a modalManager
     this.modalManager = new ModalManager();
     this.variablePool = undefined;
 
     this.mode = TEXT;
 
+    this.syntaxCheckerState = true;
 
     this._state = OPEN;
     this.state = OPEN;
@@ -43,6 +46,17 @@ export class Editor {
   /** */
   init() {
     this.setupEventHandlers();
+  }
+
+  /**
+   * Allow to diable or enable the syntax checker
+   * @param {boolean} state
+   */
+  enableDisableSyntaxChecker(state) {
+    this.syntaxCheckerState = state;
+    if (this.contentEditor) {
+      this.contentEditor.isSyntaxCheckerEnabled = this.syntaxCheckerState;
+    }
   }
 
   /**
@@ -146,8 +160,8 @@ export class Editor {
    * Render the text mode UI
    */
   renderTextMode() {
-    const contentEditor = new ContentEditor(this.currentSelected, this.variablePool, this.renderCallback);
-    this.operationsContainer.append(contentEditor.contentEditor);
+    this.contentEditor = new ContentEditor(this.currentSelected, this.renderCallback);
+    this.operationsContainer.append(this.contentEditor.contentEditor);
   }
 
 

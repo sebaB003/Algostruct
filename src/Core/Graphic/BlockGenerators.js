@@ -24,6 +24,7 @@ export function generateDiamond(screen, block) {
 
   _generateText(svgEl, block);
 
+  svgEl.id = `block${block.id}`;
   screen.append(svgEl);
   return svgEl;
 }
@@ -45,6 +46,9 @@ export function generateCircle(screen, block) {
 
   _generateText(svgEl, block);
 
+  svgEl.id = `block${block.id}`;
+  screen.append(svgEl);
+
   screen.append(svgEl);
   return svgEl;
 }
@@ -65,6 +69,9 @@ export function generateCRect(screen, block) {
   setOutlineColor(block, svgEl);
 
   _generateText(svgEl, block);
+
+  svgEl.id = `block${block.id}`;
+  screen.append(svgEl);
 
   screen.append(svgEl);
   return svgEl;
@@ -88,6 +95,9 @@ export function generateRect(screen, block) {
 
   _generateText(svgEl, block);
 
+  svgEl.id = `block${block.id}`;
+  screen.append(svgEl);
+
   screen.append(svgEl);
   return svgEl;
 }
@@ -109,6 +119,9 @@ export function generateORect(screen, block) {
   setOutlineColor(block, svgEl);
 
   _generateText(svgEl, block);
+
+  svgEl.id = `block${block.id}`;
+  screen.append(svgEl);
 
   screen.append(svgEl);
   return svgEl;

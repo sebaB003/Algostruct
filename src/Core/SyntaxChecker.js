@@ -1,4 +1,4 @@
-import {checkVariable, checkNumber, checkString, checkOperationRegex, checkConditionRegex} from './Utils/Regex';
+import {checkVariable, checkStatementRegex, checkConditionRegex, checkOutputRegex} from './Utils/Regex';
 
 /**
  * Syntax Checker
@@ -39,10 +39,12 @@ export class SyntaxChecker {
   */
   static _checkStatementSyntax(content) {
     const statements = content.split(';');
+
     let isSyntaxCorrect = false;
 
     for (const statement of statements) {
-      if (checkOperationRegex.test(statement.trim()) &&
+      console.log(statement);
+      if (checkStatementRegex.test(statement.trim()) &&
           checkParenthesis(statement.trim())) {
         isSyntaxCorrect = true;
       } else {
@@ -76,10 +78,7 @@ export class SyntaxChecker {
     let isSyntaxCorrect = false;
 
     for (const statement of statements) {
-      if (checkVariable.test(statement.trim()) ||
-            checkNumber.test(statement.trim()) ||
-            checkString.test(statement.trim())
-      ) {
+      if (checkOutputRegex.test(statement)) {
         isSyntaxCorrect = true;
       } else {
         isSyntaxCorrect = false;

@@ -392,53 +392,5 @@ export class Flowchart {
     if (block.hasErrors) {
       this.errors += 1;
     }
-
-    if (block.type == 'statement') {
-      for (const definition of block.content.split('; ')) {
-        if (checkDefinitonRegex.test(definition.trim())) {
-          const variableName = checkDefinitonRegex.exec(definition)[1];
-          let value = checkDefinitonRegex.exec(definition)[3];
-          let found = false;
-          if (checkVariable.test(value.trim())) {
-            for (const variable of this.variablePool) {
-              if (variable.variableName == value) {
-                value = variable.value;
-                found = true;
-                break;
-              }
-            }
-          } else {
-            found = true;
-          }
-
-          if (!found) {
-            value = 'undefined';
-          }
-          this.variablePool.push({variableName, value, variableType: getVariableType(value)});
-        }
-      }
-    }
   }
-}
-
-
-/**
- * Returns the type of a variable
- * @param {*} value the value of the variable to find the type
- * @return {String} type
- */
-function getVariableType(value) {
-  let type = '';
-  if (checkFloat.test(value)) {
-    type = 'Float';
-  } else if (checkBoolean.test(value)) {
-    type = 'Bool';
-  } else if (checkString.test(value)) {
-    type = 'String';
-  } else if (checkNumber.test(value)) {
-    type = 'Interger';
-  } else {
-    type = 'Undefined';
-  }
-  return type;
 }

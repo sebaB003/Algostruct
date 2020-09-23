@@ -1,24 +1,23 @@
 import {SyntaxChecker} from '../../Core/SyntaxChecker';
-import {CodeAnalizer} from '../../Core/CodeAnalizer';
 
 /** */
 export class ContentEditor {
   /**
    * @param {*} block
-   * @param {*} variablePool
    * @param {*} renderCallback
    */
-  constructor(block, variablePool, renderCallback) {
+  constructor(block, renderCallback) {
     this.contentEditor = document.createElement('div');
 
     this.contentInput = undefined;
     this.errorMessage = undefined;
 
-    this.variablePool = variablePool;
-
     this.block = block;
+    this.blockEl = document.getElementById(`block${this.block.id}`);
     this.renderCallback = renderCallback;
     this.error = false;
+
+    this.isSyntaxCheckerEnabled = true;
 
     this.init();
   }
@@ -56,20 +55,21 @@ export class ContentEditor {
 
   /** */
   setupEventListeners() {
-    this.contentInput.onkeyup = async (event) => {
+    this.contentInput.onkeyup = (event) => {
       this.block.content = event.target.value;
-      if (!SyntaxChecker.checkBlockSyntax(this.block)) {
-        this.block.hasErrors = true;
-        this.createErrorMessage('Invalid syntax!');
-      } else {
-        const message = await CodeAnalizer.checkVariableExistence(
-            this.variablePool, this.block.content);
-        if (message !== 1) {
-          this.createErrorMessage(message);
+      if (this.isSyntaxCheckerEnabled) {
+        if (!SyntaxChecker.checkBlockSyntax(this.block)) {
+          this.block.hasErrors = true;
+          this.createErrorMessage('Invalid syntax!');
+        } else {
+          this.block.hasErrors = false;
+          this.hideErrorMessage();
         }
+      } else {
         this.block.hasErrors = false;
         this.hideErrorMessage();
       }
+
       this.renderCallback();
     };
   }

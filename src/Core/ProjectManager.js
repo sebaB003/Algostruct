@@ -114,6 +114,7 @@ export class ProjectManager {
     this.project.preferences.view = preferences.view;
     this.project.preferences.showBlockDescription = preferences.showBlockDescription;
     this.project.preferences.showInterpreterLogs = preferences.showInterpreterLogs;
+    this.project.preferences.syntaxChecker = preferences.syntaxChecker;
   }
 }
 
@@ -126,6 +127,7 @@ function Project() {
     view: 0,
     showProjectDescription: false,
     showInterpreterLogs: false,
+    syntaxChecker: true,
   },
   this.flowchart = new Flowchart();
 }

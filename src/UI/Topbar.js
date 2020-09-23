@@ -22,6 +22,7 @@ export class Topbar {
     this.moveModeBtn = document.getElementById('js--dropdown-move-mode');
     this.showBlockDescBtn = document.getElementById('js--dropdown-show-block-description');
     this.showInterpreterLogsBtn = document.getElementById('js--dropdown-show-interpreter-logs');
+    this.enableDisableSyntaxCheckerBtn = document.getElementById('js--dropdown-syntax-checker');
 
     this.resetDefaultViewBtn = document.getElementById('js--dropdown-reset-default');
     this.editorViewBtn = document.getElementById('js--dropdown-only-editor');
@@ -30,6 +31,7 @@ export class Topbar {
     this.executionViewBtn = document.getElementById('js--dropdown-execution');
 
     this.reorderBtn = document.getElementById('js--dropdown-reorder');
+    this.openEditorBtn = document.getElementById('js--dropdown-editor');
     this.openLogsViewBtn = document.getElementById('js--dropdown-logs');
     this.openOutputViewBtn = document.getElementById('js--dropdown-output');
     this.openWatchesViewBtn = document.getElementById('js--dropdown-watches');
@@ -103,6 +105,8 @@ export class Topbar {
         () => this._showHideBlockDesc());
     this.showInterpreterLogsBtn.addEventListener('click',
         () => this._showInterpreterLogs());
+    this.enableDisableSyntaxCheckerBtn.addEventListener('click',
+        () => this._enableDisableSyntaxChecker());
   }
 
   /**
@@ -127,6 +131,8 @@ export class Topbar {
   setupToolsDropdownEventHandlers() {
     this.reorderBtn.addEventListener('click',
         () => this._reorder());
+    this.openEditorBtn.addEventListener('click',
+        () => this._openEditor());
     this.openLogsViewBtn.addEventListener('click',
         () => this._openLogsView());
     this.openOutputViewBtn.addEventListener('click',
@@ -380,12 +386,26 @@ export class Topbar {
     this.appComponents.render();
   }
 
-  /** */
+  /**
+   * Allow to hide and show the block description
+  */
+  _enableDisableSyntaxChecker() {
+    this.appComponents.project.preferences.syntaxChecker = !this.appComponents.project.preferences.syntaxChecker;
+    this.updateButtons();
+    this.appComponents.editor.enableDisableSyntaxChecker(this.appComponents.project.preferences.syntaxChecker);
+    this.appComponents.editor.checkSelection();
+    this.appComponents.render();
+  }
+
+  /**
+   * Sets the button label to the correct state
+  */
   updateButtons() {
     this.showCommentsBtn.innerHTML = this.appComponents.project.preferences.showComments ? 'Hide comments' : 'Show comments';
     this.moveModeBtn.innerHTML = this.appComponents.project.preferences.singleMove ? 'Single move' : 'Top down move';
     this.showBlockDescBtn.innerHTML = this.appComponents.project.preferences.showBlockDescription ? 'Hide blocks description' : 'Show blocks description';
     this.showInterpreterLogsBtn.innerHTML = this.appComponents.project.preferences.showInterpreterLogs ? 'Hide interpreter logs' : 'Show interpreter logs';
+    this.enableDisableSyntaxCheckerBtn.innerHTML = this.appComponents.project.preferences.syntaxChecker ? 'Disable syntax checker' : 'Enable syntax checker';
   }
 
   // VIEW DROPDOWN FUNCTIONS
@@ -439,6 +459,13 @@ export class Topbar {
   _reorder() {
     this.appComponents.project.flowchart.reorder();
     this.appComponents.render();
+  }
+
+  /**
+   * Opens the editor view if closed
+  */
+  _openEditor() {
+    this.appComponents.editor.setOpen();
   }
 
   /**
