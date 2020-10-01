@@ -243,7 +243,6 @@ a:not(.active):not(.btn):not(.drop-down__link):hover {
 
 nav {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 10px 50px;
   box-shadow: 1px 0 4px 1px rgba(0, 0, 0, 0.2);
@@ -263,10 +262,11 @@ nav {
 
 .description-box {
   max-width: 400px;
+  word-spacing: 2px;
   margin: 0 auto;
 }
 
-.description-box p {font-size: 100%;}
+.description-box p {font-size: 90%;}
 
 .container {
   padding: 20px 0;
