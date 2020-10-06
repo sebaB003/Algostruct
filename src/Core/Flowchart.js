@@ -91,7 +91,6 @@ export class Flowchart {
   createStatement(block) {
     block.insert(new StatementBlock(this.memory));
     block.nextBlock.insert(new InsertBlock(this.memory));
-    this.updateFlowchart();
   }
 
   /**
@@ -107,7 +106,6 @@ export class Flowchart {
     block.nextBlock.createSecondaryBranch(leftBranchInsert);
     node.insert(new InsertBlock(this.memory));
     node.posX = (node.previousBlock.posX + node.previousBlock2.posX) / 2;
-    node.updateStructure();
     this.updateFlowchart();
   }
 
@@ -326,11 +324,41 @@ export class Flowchart {
   }
 
   /**
+   * Sets to the correct length the branches
+   * TOFIX: recursion error when set loops branch
+   * @param {BaseBlock} pointer
+   * @param {BaseBlock} condition
+   * @return {*}
+  */
+  updateBranchOffset(pointer, condition) {
+    if (!pointer) {
+      return true;
+    }
+
+    if (pointer.type == 'condition') {
+      const branchN = this.updateBranchOffset(pointer.nextBlock, pointer);
+      const branchN2 = this.updateBranchOffset(pointer.nextBlock2, pointer);
+      pointer.brenchWidth = branchN2;
+      pointer.secondaryBrenchWidth = branchN;
+      return (branchN + branchN2);
+    } else if (pointer.type == 'node' && condition) {
+      if (condition.node == pointer) {
+        this.updateBranchOffset(pointer.nextBlock);
+        return 1;
+      } else {
+        return this.updateBranchOffset(pointer.nextBlock, condition);
+      }
+    } else {
+      return this.updateBranchOffset(pointer.nextBlock, condition);
+    }
+  }
+
+  /**
    * Reorders the blocks and puts the blocks
    * at the same distance.
   */
   reorder() {
-    // TODO: find a way to render the branch with the right size
+    this.updateBranchOffset(this.startBlock);
     this._parse(this.startBlock, (p)=> p.type != 'end', function(block) {
       if (block.previousBlock) {
         if (block.type == 'node') {

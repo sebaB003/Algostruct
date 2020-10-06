@@ -96,9 +96,6 @@ export class BaseBlock {
     } else {
       previous.setPreviousBlock(block);
     }
-    // if (block.type == 'condition') {
-    //   this.updateBranchOffset(block);
-    // }
     this.updateStructure();
   }
 
@@ -114,45 +111,6 @@ export class BaseBlock {
     previousBlock.setSecondaryPreviousBlock(block);
     block.branchID = block.previousBlock.branchID + 1;
     this.updateStructure(this.nextBlock2);
-  }
-
-  /**
-   *
-   * @param {*} pointer
-   */
-  updateBranchOffset(pointer) {
-    let prevCond = pointer;
-    let leftBranchOffset = 1;
-    let rightBranchOffset = 1;
-    while (pointer.type != 'start') {
-      if (pointer.type == 'condition') {
-        if (prevCond.branchID == pointer.branchID) {
-          pointer.brenchWidth = rightBranchOffset;
-          rightBranchOffset += 1;
-        } else {
-          pointer.secondaryBrenchWidth = leftBranchOffset;
-          leftBranchOffset += 1;
-        }
-      }
-      prevCond = pointer;
-      pointer = pointer.previousBlock;
-    }
-  }
-
-  /**
-   *
-   * @param {*} pointer
-   */
-  static setBranchOffset(pointer) {
-    if (pointer.previousBlock) {
-      if (pointer.previousBlock.type == 'condition') {
-        if (pointer.branchID > pointer.previousBlock.branchID) {
-          pointer.posX -= pointer.previousBlock.secondaryBrenchWidth * 200;
-        } else {
-          pointer.posX += pointer.previousBlock.brenchWidth * 200;
-        }
-      }
-    }
   }
 
   /**
@@ -181,7 +139,6 @@ export class BaseBlock {
     if (pointer.previousBlock) {
       pointer.posX = pointer.previousBlock.posX;
     }
-    BaseBlock.setBranchOffset(pointer);
     BaseBlock.centerNode(pointer);
 
     while (condition(pointer)) {

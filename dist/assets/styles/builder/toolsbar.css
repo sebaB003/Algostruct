@@ -11,14 +11,16 @@
   display: inline-block;
   padding: 10px;
   margin-top: 10%;
+  width: 100%;
 }
 
-.tool-container * {
-  display: block;
-  float: left;
+.tool-container div {
+  display: flex;
+  align-items: center;
 }
 
 .tool-label {
+  display: inline-block;
   margin-left: 20px;
   font-size: 80%;
   width: 10px;
@@ -91,21 +93,29 @@
 }
 
 @media screen and (max-width: 1200px) {
-  .tool-container p{
-      margin-left: 10px;
-  }
 }
 
 @media screen and (max-width: 1080px) {
   .tool-container p{
+    margin-left: 0;
+  }
+  .tool-container p{
       float: none;
       margin: 5px 0 0 0;
+  }
+  .tool-container div {
+    flex-direction: column;
+    justify-content: left;
+    align-items: baseline;
   }
 }
 
 @media screen and (max-width: 700px) {
-  .tool-container p{
-      margin: 0;    }
+  .tool-container p {margin: 0;}
+
+  .tool-container div {
+    display: inline-block;
+  }
 }
 
 @media screen and (max-width: 450px) {
