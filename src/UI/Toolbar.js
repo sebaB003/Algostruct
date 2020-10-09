@@ -20,6 +20,7 @@ export class Toolbar {
     this.runFlowchartBtn = document.getElementById('run-flowchart');
     this.stepFlowchartBtn = document.getElementById('step-flowchart');
     this.stopExecutionBtn = document.getElementById('stop-execution');
+    this.pauseExecutionBtn = document.getElementById('pause-execution');
     this.newPojectBtn = document.getElementById('new-project');
     this.savePojectBtn = document.getElementById('save-project');
 
@@ -56,22 +57,31 @@ export class Toolbar {
     this.runFlowchartBtn.addEventListener(
         'click',
         () => {
-          try {
-            const showLogs = this.appComponents.project.preferences.showInterpreterLogs;
-            const logsView = showLogs ? this.appComponents.logsView : undefined;
-            this.interpreter.reset(this.appComponents.project.flowchart.startBlock);
-            this.interpreter.setLogsView(logsView);
-            this.interpreter.interpret();
-            this.appComponents.logsView.console.log('Execution completed');
-          } catch (e) {
-            console.log(e);
-            this.appComponents.logsView.console.log('Execution stopped');
+          const isPaused = this.interpreter.isPaused;
+          if (!isPaused) {
+            this.interpreter.stopExecution();
+            this.interpreter.startExecution();
+            try {
+              const showLogs = this.appComponents.project.preferences.showInterpreterLogs;
+              const logsView = showLogs ? this.appComponents.logsView : undefined;
+              this.interpreter.reset(this.appComponents.project.flowchart.startBlock);
+              this.interpreter.setLogsView(logsView);
+              this.interpreter.interpret();
+              this.appComponents.logsView.console.log('Execution completed');
+            } catch (e) {
+              console.log(e);
+              this.interpreter.stopExecution();
+              this.appComponents.logsView.console.log('Execution stopped');
+            }
+          } else {
+            this.interpreter.startExecution();
           }
         });
     this.stepFlowchartBtn.addEventListener(
         'click',
         () => {
           try {
+            this.interpreter.startExecution();
             const showLogs = this.appComponents.project.preferences.showInterpreterLogs;
             const logsView = showLogs ? this.appComponents.logsView : undefined;
             this.interpreter.stepInterpret(this.appComponents.project.flowchart.startBlock, logsView);
@@ -79,15 +89,20 @@ export class Toolbar {
               this.appComponents.logsView.console.log('Execution completed');
             }
           } catch (e) {
+            this.interpreter.stopExecution();
             this.appComponents.logsView.console.log('Execution stopped');
           }
+        });
+    this.pauseExecutionBtn.addEventListener(
+        'click',
+        () => {
+          this.interpreter.pauseExecution();
+          this.appComponents.logsView.console.log('Execution paused');
         });
     this.stopExecutionBtn.addEventListener(
         'click',
         () => {
-          if (this.interpreter.parser) {
-            this.interpreter.parser = null;
-          }
+          this.interpreter.stopExecution();
           this.appComponents.logsView.console.log('Execution stopped');
         });
   }

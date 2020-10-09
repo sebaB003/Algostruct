@@ -123,6 +123,27 @@ export class Interpreter {
     this.parser = null;
     this.memory = new Map();
     this.scope = null;
+
+    this.isStopped = false;
+    this.isPaused = false;
+    this.interval;
+  }
+
+  startExecution() {
+    this.isStopped = false;
+    this.isPaused = false;
+  }
+
+  stopExecution() {
+    clearInterval(this.interval);
+    this.isStopped = true;
+    this.isPaused = false;
+    this.parser = null;
+    console.log('stopped');
+  }
+
+  pauseExecution() {
+    this.isPaused = true;
   }
 
   /**
@@ -236,15 +257,23 @@ export class Interpreter {
 
     let result = this.visit(node.condition);
     this.log(`Condition solved as: ${result}`);
-    while (result) {
-      const newScope = new Scope('work', this.scope.scopeLevel + 1, this.scope);
-      this.scope = newScope;
-      this.visit(node.loopBranch);
-      this.scope = this.scope.encolsedScope;
-      result = this.visit(node.condition);
-      console.log(this.scope.scopeLevel);
-      this.log(`Condition solved as: ${result}`);
+
+    /** */
+    function loop(interpreter) {
+      if (result && !interpreter.isStopped) {
+        if (!interpreter.isPaused) {
+          const newScope = new Scope('work', interpreter.scope.scopeLevel + 1, interpreter.scope);
+          interpreter.scope = newScope;
+          interpreter.visit(node.loopBranch);
+          interpreter.scope = interpreter.scope.encolsedScope;
+          result = interpreter.visit(node.condition);
+        }
+      } else {
+        clearInterval(interpreter.interval);
+      }
+      interpreter.log(`Condition solved as: ${result}`);
     }
+    this.interval = setInterval(loop.bind(this, this), 1);
   }
 
   /**
@@ -376,7 +405,8 @@ export class Interpreter {
    * @param {*} node
    */
   visitInput(node) {
-    return prompt(node.message); //this.outputsView.console.input(node.message);
+    this.pauseExecution();
+    return this.outputsView.console.input(node.message);
   }
 
   /**
