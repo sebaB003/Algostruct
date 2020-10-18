@@ -1,5 +1,4 @@
 import {SVGScreen} from '../Core/Graphic/SVGScreen';
-import {Flowchart} from '../Core/Flowchart';
 import {generateCRect,
   generateCircle,
   generateRect,
@@ -97,37 +96,33 @@ export class Builder {
           break;
         case 'statement':
           element = generateRect(this.screen.SVGScreenEl, block);
-          element.addEventListener('mousedown',
-              (event) => moveBlockHandler(event, this, block,
-                  this.screen.screenData.zoom));
-          element.addEventListener('contextmenu',
-              ()=>this.contextMenu.open(event, block, clipboardContextMenu));
-          element.addEventListener('click',
-              (event) => this._select(event, block));
+          this.attachHandlers(element, block);
           break;
         case 'input':
         case 'output':
           element = generateORect(this.screen.SVGScreenEl, block);
-          element.addEventListener('mousedown',
-              (event) => moveBlockHandler(event, this, block,
-                  this.screen.screenData.zoom));
-          element.addEventListener('contextmenu',
-              ()=>this.contextMenu.open(event, block, clipboardContextMenu));
-          element.addEventListener('click',
-              (event) => this._select(event, block));
+          this.attachHandlers(element, block);
           break;
         case 'condition':
           element = generateDiamond(this.screen.SVGScreenEl, block);
-          element.addEventListener('mousedown',
-              (event) => moveBlockHandler(event, this, block,
-                  this.screen.screenData.zoom));
-          element.addEventListener('contextmenu',
-              ()=>this.contextMenu.open(event, block, clipboardContextMenu));
-          element.addEventListener('click',
-              (event) => this._select(event, block));
+          this.attachHandlers(element, block);
           break;
       }
     }
+  }
+
+  /**
+   * @param {*} element
+   * @param {BaseBlock} block
+   */
+  attachHandlers(element, block) {
+    element.addEventListener('mousedown',
+        (event) => moveBlockHandler(event, this, block,
+            this.screen.screenData.zoom));
+    element.addEventListener('contextmenu',
+        ()=>this.contextMenu.open(event, block, clipboardContextMenu));
+    element.addEventListener('click',
+        (event) => this._select(event, block));
   }
 
   /**

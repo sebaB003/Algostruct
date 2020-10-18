@@ -207,7 +207,6 @@ export class SVGScreen {
    * @return {number} computed height
   */
   getComputedHeight() {
-    console.log( this.screenData.zoom, this.getHeight());
     return (this.getHeight() * this.screenData.zoom) / 600;
   }
 

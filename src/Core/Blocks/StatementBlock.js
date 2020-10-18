@@ -7,7 +7,7 @@ export class StatementBlock extends BaseBlock {
     super('statement', memoryReference);
     super.content = 'Statement';
     super.blockDescription = 'Statement blocks are the instructions to be executed';
-    super.width = this.content.length * 28 + 80;
+    super.width = this.content.length * 22 + 80;
     super.height = 50;
     memoryReference.add(this);
   }

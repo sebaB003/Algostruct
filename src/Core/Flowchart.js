@@ -337,19 +337,26 @@ export class Flowchart {
 
     if (pointer.type == 'condition') {
       const branchN = this.updateBranchOffset(pointer.nextBlock, pointer);
-      const branchN2 = this.updateBranchOffset(pointer.nextBlock2, pointer);
-      pointer.brenchWidth = branchN2;
-      pointer.secondaryBrenchWidth = branchN;
-      return (branchN + branchN2);
+      let branchN2 = 1;
+      branchN2 = this.updateBranchOffset(pointer.nextBlock2, pointer);
+      pointer.brenchWidth = branchN2 + ((pointer.width / 2) / 150);
+      pointer.secondaryBrenchWidth = branchN + ((pointer.width / 2) / 150);
+      return (branchN + branchN2) + ((pointer.width / 2) / 150);
     } else if (pointer.type == 'node' && condition) {
       if (condition.node == pointer) {
-        this.updateBranchOffset(pointer.nextBlock);
-        return 1;
+        if (pointer.nType == 'if') {
+          this.updateBranchOffset(pointer.nextBlock);
+          return 1;
+        } else {
+          return 0;
+        }
       } else {
         return this.updateBranchOffset(pointer.nextBlock, condition);
       }
     } else {
-      return this.updateBranchOffset(pointer.nextBlock, condition);
+ 
+          return this.updateBranchOffset(pointer.nextBlock, condition);
+
     }
   }
 
@@ -358,7 +365,7 @@ export class Flowchart {
    * at the same distance.
   */
   reorder() {
-    this.updateBranchOffset(this.startBlock);
+    // this.updateBranchOffset(this.startBlock);
     this._parse(this.startBlock, (p)=> p.type != 'end', function(block) {
       if (block.previousBlock) {
         if (block.type == 'node') {
@@ -378,9 +385,9 @@ export class Flowchart {
         }
         if (block.previousBlock.type == 'condition') {
           if (block.branchID > block.previousBlock.branchID) {
-            block.posX -= block.previousBlock.secondaryBrenchWidth * 200;
+            block.posX -= (block.previousBlock.secondaryBrenchWidth * 150);
           } else {
-            block.posX += block.previousBlock.brenchWidth * 200;
+            block.posX += (block.previousBlock.brenchWidth * 150);
           }
         }
       }

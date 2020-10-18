@@ -153,9 +153,7 @@ export function generateComment(screen, block) {
  * @param {*} block
  */
 function _generateText(svgEl, block) {
-  const offsetX = block.width/2;
-  const textOffsetX = (block.width/4) + 20 - offsetX;
-  const textOffsetY = (block.height/2) + 10;
+  const textOffsetY = block.height / 2;
 
   let color = undefined;
   if (block.type == 'comment') {
@@ -165,10 +163,8 @@ function _generateText(svgEl, block) {
   }
   if (block.type == 'comment') {
     svgEl.innerHTML += `<text x=${block.posX} y=${block.posY} font-family="Verdana" font-size=28 fill=${color}>${block.content}</text>`;
-  } else if (block.type != 'insert') {
-    svgEl.innerHTML += `<text x=${block.posX + textOffsetX} y=${block.posY + textOffsetY} font-family="Verdana" font-size=28 fill=${color}>${block.content}</text>`;
   } else {
-    svgEl.innerHTML += `<text x=${block.posX + textOffsetX - 24} y=${block.posY+24} font-family="Verdana" font-size=28 fill="#00A651">${block.content}</text>`;
+    svgEl.innerHTML += `<text x=${block.posX} y=${block.posY + textOffsetY} font-family="Verdana" font-size=28 fill=${color} text-anchor="middle" alignment-baseline="middle">${block.content}</text>`;
   }
 }
 
