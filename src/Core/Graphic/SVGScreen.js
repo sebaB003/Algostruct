@@ -50,6 +50,17 @@ export class SVGScreen {
     this.setupEventListeners();
   }
 
+  updateData() {
+    this.screenData.width = this.getWidth();
+    this.screenData.height = this.getHeight();
+    this.screenData.computedWidth = this.getComputedWidth();
+    this.screenData.computedHeight = this.getComputedHeight();
+    if (this.screenData.zoom > 3000) {
+      this.screenData.optimizeText = true;
+    } else {
+      this.screenData.optimizeText = false;
+    }
+  }
   /**
    * Set the view to default values
    */
@@ -199,7 +210,7 @@ export class SVGScreen {
    * @return {number} computed width
   */
   getComputedWidth() {
-    return (this.getWidth() * this.screenData.zoom) / 700;
+    return (this.screenData.width * this.screenData.zoom) / 2100;
   }
 
   /**
@@ -207,7 +218,7 @@ export class SVGScreen {
    * @return {number} computed height
   */
   getComputedHeight() {
-    return (this.getHeight() * this.screenData.zoom) / 600;
+    return (this.screenData.height * this.screenData.zoom) / 2100;
   }
 
   /**

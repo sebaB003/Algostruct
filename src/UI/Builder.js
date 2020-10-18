@@ -1,10 +1,5 @@
 import {SVGScreen} from '../Core/Graphic/SVGScreen';
-import {generateCRect,
-  generateCircle,
-  generateRect,
-  generateORect,
-  generateDiamond,
-  generateComment} from '../Core/Graphic/BlockGenerators';
+import {BlockGenerator} from '../Core/Graphic/BlockGenerators';
 
 import {ContextMenuManager} from './ContextMenu';
 import {addBlocksContextMenu,
@@ -24,6 +19,7 @@ export class Builder {
         'js--reset-view');
 
     this.screen.setRenderCallback(() => this.render());
+    this.blockGenerator = new BlockGenerator(this.screen);
 
     this.selectCallback = undefined;
 
@@ -58,6 +54,7 @@ export class Builder {
    * Parse the flowchart and render the elements
    */
   render() {
+    this.screen.updateData();
     this.screen.clean();
     if (this.project.preferences.showComments) {
       this.renderComments();
@@ -70,44 +67,42 @@ export class Builder {
    * TODO: Update
    */
   generateBlock(block) {
-    if ((block.posY - this.screen.screenData.panY) < this.screen.getComputedHeight() && (block.posY - this.screen.screenData.panY) > -100 && (block.posX - this.screen.screenData.panX) < this.screen.getComputedWidth() && (block.posX - this.screen.screenData.panX) > (-200 * this.screen.screenData.zoom) / 600) {
-      let element = undefined;
-      switch (block.type) {
-        case 'start':
-        case 'end':
-          element = generateCRect(this.screen.SVGScreenEl, block);
+    let element = undefined;
+    switch (block.type) {
+      case 'start':
+      case 'end':
+        element = this.blockGenerator.generateCRect(block);
+        element.addEventListener('mousedown',
+            (event) => moveBlockHandler(event, this, block,
+                this.screen.screenData.zoom));
+        break;
+      case 'insert':
+      case 'node':
+        element = this.blockGenerator.generateCircle(block);
+        if (element) {
           element.addEventListener('mousedown',
               (event) => moveBlockHandler(event, this, block,
                   this.screen.screenData.zoom));
-          break;
-        case 'insert':
-        case 'node':
-          element = generateCircle(this.screen.SVGScreenEl, block);
-          if (element) {
-            element.addEventListener('mousedown',
-                (event) => moveBlockHandler(event, this, block,
-                    this.screen.screenData.zoom));
-            if (block.type == 'insert') {
-              element.addEventListener('click',
-                  ()=>this.contextMenu.open(event, block,
-                      addBlocksContextMenu));
-            }
+          if (block.type == 'insert') {
+            element.addEventListener('click',
+                ()=>this.contextMenu.open(event, block,
+                    addBlocksContextMenu));
           }
-          break;
-        case 'statement':
-          element = generateRect(this.screen.SVGScreenEl, block);
-          this.attachHandlers(element, block);
-          break;
-        case 'input':
-        case 'output':
-          element = generateORect(this.screen.SVGScreenEl, block);
-          this.attachHandlers(element, block);
-          break;
-        case 'condition':
-          element = generateDiamond(this.screen.SVGScreenEl, block);
-          this.attachHandlers(element, block);
-          break;
-      }
+        }
+        break;
+      case 'statement':
+        element = this.blockGenerator.generateRect(block);
+        this.attachHandlers(element, block);
+        break;
+      case 'input':
+      case 'output':
+        element = this.blockGenerator.generateORect(block);
+        this.attachHandlers(element, block);
+        break;
+      case 'condition':
+        element = this.blockGenerator.generateDiamond(block);
+        this.attachHandlers(element, block);
+        break;
     }
   }
 
