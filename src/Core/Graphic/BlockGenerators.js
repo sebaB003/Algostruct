@@ -182,7 +182,11 @@ export class BlockGenerator {
  * @param {*} block
  */
   _generateFakeText(svgEl, block) {
-    svgEl.innerHTML += `<rect x=${block.posX - (block.width / 2) + 80} y=${block.posY + 20} width=${Math.max(0, block.width - 160)} height=${15} style="fill:${this.textColor}"/>`;
+    if (block.type != 'comment') {
+      svgEl.innerHTML += `<rect x=${block.posX - (block.width / 2) + 80} y=${block.posY + block.height / 2 - 10} width=${Math.max(0, block.width - 160)} height=${15} style="fill:${this.textColor}"/>`;
+    } else {
+      svgEl.innerHTML += `<rect x=${block.posX} y=${block.posY - 20} width=${Math.max(0, block.width - 160)} height=${15} style="fill:#000"/>`;
+    }
   }
 
   /**

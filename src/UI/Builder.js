@@ -127,13 +127,8 @@ export class Builder {
       if (comment.previousBlock) {
         comment.posY = comment.previousBlock.posY - 70 + comment.offsetY;
         comment.posX = comment.previousBlock.posX + 300 + comment.offsetX;
-        const element = generateComment(this.screen.SVGScreenEl, comment);
-        element.addEventListener('mousedown',
-            (event) => moveBlockHandler(event, this, comment, this.screen.screenData.zoom));
-        element.addEventListener('contextmenu',
-            ()=>this.contextMenu.open(event, comment, clipboardContextMenu));
-        element.addEventListener('click',
-            (event) => this._select(event, comment));
+        const element = this.blockGenerator.generateComment(comment);
+        this.attachHandlers(element, comment);
       } else {
         this.project.flowchart.comments.delete(comment.id);
       }
