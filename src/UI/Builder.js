@@ -59,7 +59,7 @@ export class Builder {
     if (this.project.preferences.showComments) {
       this.renderComments();
     }
-    this.project.flowchart.apply(this.generateBlock.bind(this));
+    this.project.flowchart.render(this.generateBlock.bind(this));
   }
 
   /**
@@ -72,9 +72,11 @@ export class Builder {
       case 'start':
       case 'end':
         element = this.blockGenerator.generateCRect(block);
-        element.addEventListener('mousedown',
-            (event) => moveBlockHandler(event, this, block,
-                this.screen.screenData.zoom));
+        if (element) {
+          element.addEventListener('mousedown',
+              (event) => moveBlockHandler(event, this, block,
+                  this.screen.screenData.zoom));
+        }
         break;
       case 'insert':
       case 'node':
@@ -111,13 +113,15 @@ export class Builder {
    * @param {BaseBlock} block
    */
   attachHandlers(element, block) {
-    element.addEventListener('mousedown',
-        (event) => moveBlockHandler(event, this, block,
-            this.screen.screenData.zoom));
-    element.addEventListener('contextmenu',
-        ()=>this.contextMenu.open(event, block, clipboardContextMenu));
-    element.addEventListener('click',
-        (event) => this._select(event, block));
+    if (element) {
+      element.addEventListener('mousedown',
+          (event) => moveBlockHandler(event, this, block,
+              this.screen.screenData.zoom));
+      element.addEventListener('contextmenu',
+          ()=>this.contextMenu.open(event, block, clipboardContextMenu));
+      element.addEventListener('click',
+          (event) => this._select(event, block));
+    }
   }
 
   /**

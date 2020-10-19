@@ -79,6 +79,7 @@ export class Editor {
    * @param {*} block
   */
   loadBlock(block) {
+
     if (this.currentSelected != block) {
       this.blockOperations = [];
       this.currentSelected = block;
@@ -144,6 +145,7 @@ export class Editor {
     this.operationsContainer.innerHTML = '';
     this.editorEl.appendChild(this.operationsContainer);
   }
+
   /**
    * Check the editor mode and switch
    * render the correct UI

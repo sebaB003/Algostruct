@@ -37,19 +37,23 @@ export class BlockGenerator {
     if (block.nextBlock2) {
       this.generateConnector(block, block.nextBlock2);
     }
-    const svgEl = document.createElementNS(SVGNS, 'g');
-    const offsetX = block.width/2;
-    const centerY = block.height / 2;
-    const centerX = block.width / 2;
-  
-    svgEl.innerHTML = `<path transform="translate(${block.posX - offsetX}, ${block.posY})" d="M0,${centerY} L${centerX},0 L${block.width},${centerY} L${centerX},${block.height}z" style="${this.presets.rect}"/>`;
-    this.showSelected(block, svgEl);
-    this.setOutlineColor(block, svgEl);
-  
-    this.generateText(svgEl, block);
-  
-    svgEl.id = `block${block.id}`;
-    this.screen.SVGScreenEl.append(svgEl);
+
+    let svgEl;
+    if (this.isInView(block)) {
+      svgEl = document.createElementNS(SVGNS, 'g');
+      const offsetX = block.width/2;
+      const centerY = block.height / 2;
+      const centerX = block.width / 2;
+    
+      svgEl.innerHTML = `<path transform="translate(${block.posX - offsetX}, ${block.posY})" d="M0,${centerY} L${centerX},0 L${block.width},${centerY} L${centerX},${block.height}z" style="${this.presets.rect}"/>`;
+      this.showSelected(block, svgEl);
+      this.setOutlineColor(block, svgEl);
+    
+      this.generateText(svgEl, block);
+    
+      svgEl.id = `block${block.id}`;
+      this.screen.SVGScreenEl.append(svgEl);
+    }
     return svgEl;
   }
 
@@ -61,18 +65,22 @@ export class BlockGenerator {
     if (block.nextBlock) {
       this.generateConnector(block, block.nextBlock);
     }
-    const svgEl = document.createElementNS(SVGNS, 'g');
-    const offsetX = block.width/2;
-    svgEl.innerHTML = `<rect x=${block.posX - offsetX} y=${block.posY} width=${block.width} height=${block.height} style="${this.presets.circle}"/>`;
-    this.showSelected(block, svgEl);
-    this.setOutlineColor(block, svgEl);
 
-    this.generateText(svgEl, block);
+    let svgEl;
+    if (this.isInView(block)) {
+      svgEl = document.createElementNS(SVGNS, 'g');
+      const offsetX = block.width/2;
+      svgEl.innerHTML = `<rect x=${block.posX - offsetX} y=${block.posY} width=${block.width} height=${block.height} style="${this.presets.circle}"/>`;
+      this.showSelected(block, svgEl);
+      this.setOutlineColor(block, svgEl);
 
-    svgEl.id = `block${block.id}`;
-    this.screen.SVGScreenEl.append(svgEl);
+      this.generateText(svgEl, block);
 
-    this.screen.SVGScreenEl.append(svgEl);
+      svgEl.id = `block${block.id}`;
+      this.screen.SVGScreenEl.append(svgEl);
+
+      this.screen.SVGScreenEl.append(svgEl);
+    }
     return svgEl;
   }
   /**
@@ -83,18 +91,22 @@ export class BlockGenerator {
     if (block.nextBlock) {
       this.generateConnector(block, block.nextBlock);
     }
-    const svgEl = document.createElementNS(SVGNS, 'g');
-    const offsetX = block.width/2;
-    svgEl.innerHTML = `<rect x=${block.posX - offsetX} y=${block.posY} width=${block.width} height=${block.height} style="${this.presets.crect}"/>`;
-    this.showSelected(block, svgEl);
-    this.setOutlineColor(block, svgEl);
 
-    this.generateText(svgEl, block);
+    let svgEl;
+    if (this.isInView(block)) {
+      svgEl = document.createElementNS(SVGNS, 'g');
+      const offsetX = block.width/2;
+      svgEl.innerHTML = `<rect x=${block.posX - offsetX} y=${block.posY} width=${block.width} height=${block.height} style="${this.presets.crect}"/>`;
+      this.showSelected(block, svgEl);
+      this.setOutlineColor(block, svgEl);
 
-    svgEl.id = `block${block.id}`;
-    this.screen.SVGScreenEl.append(svgEl);
+      this.generateText(svgEl, block);
 
-    this.screen.SVGScreenEl.append(svgEl);
+      svgEl.id = `block${block.id}`;
+      this.screen.SVGScreenEl.append(svgEl);
+
+      this.screen.SVGScreenEl.append(svgEl);
+    }
     return svgEl;
   }
 
@@ -106,18 +118,22 @@ export class BlockGenerator {
     if (block.nextBlock) {
       this.generateConnector(block, block.nextBlock);
     }
-    const svgEl = document.createElementNS(SVGNS, 'g');
-    const offsetX = block.width/2;
-    svgEl.innerHTML = `<rect x=${block.posX - offsetX} y=${block.posY} width=${block.width} height=${block.height} style="${this.presets.rect}"/>`;
-    this.showSelected(block, svgEl);
-    this.setOutlineColor(block, svgEl);
+    let svgEl;
+    if (this.isInView(block)) {
+      svgEl = document.createElementNS(SVGNS, 'g');
+      const offsetX = block.width/2;
+      svgEl.innerHTML = `<rect x=${block.posX - offsetX} y=${block.posY} width=${block.width} height=${block.height} style="${this.presets.rect}"/>`;
+      this.showSelected(block, svgEl);
+      this.setOutlineColor(block, svgEl);
 
-    this.generateText(svgEl, block);
+      this.generateText(svgEl, block);
 
-    svgEl.id = `block${block.id}`;
-    this.screen.SVGScreenEl.append(svgEl);
+      svgEl.id = `block${block.id}`;
+      this.screen.SVGScreenEl.append(svgEl);
 
-    this.screen.SVGScreenEl.append(svgEl);
+      this.screen.SVGScreenEl.append(svgEl);
+    }
+
     return svgEl;
   }
 
@@ -129,19 +145,23 @@ export class BlockGenerator {
     if (block.nextBlock) {
       this.generateConnector(block, block.nextBlock);
     }
-    const svgEl = document.createElementNS(SVGNS, 'g');
-    const offsetX = block.width/2;
-    svgEl.innerHTML = `<path transform="translate(${block.posX - offsetX}, ${block.posY})" d="M10,0 L${block.width+10},0 L${block.width-10},${block.height} L-10,${block.height}z" style="${this.presets.rect}"/>`;
-    svgEl.innerHTML += `<text x=${block.posX + block.width/2} y=${block.posY + block.height} font-family=${this.fontFamily} font-size=28 fill=${this.textColor}>${block.type[0].toUpperCase()}</text>`;
-    this.showSelected(block, svgEl);
-    this.setOutlineColor(block, svgEl);
 
-    this.generateText(svgEl, block);
+    let svgEl;
+    if (this.isInView(block)) {
+      svgEl = document.createElementNS(SVGNS, 'g');
+      const offsetX = block.width/2;
+      svgEl.innerHTML = `<path transform="translate(${block.posX - offsetX}, ${block.posY})" d="M10,0 L${block.width+10},0 L${block.width-10},${block.height} L-10,${block.height}z" style="${this.presets.rect}"/>`;
+      svgEl.innerHTML += `<text x=${block.posX + block.width/2} y=${block.posY + block.height} font-family=${this.fontFamily} font-size=28 fill=${this.textColor}>${block.type[0].toUpperCase()}</text>`;
+      this.showSelected(block, svgEl);
+      this.setOutlineColor(block, svgEl);
 
-    svgEl.id = `block${block.id}`;
-    this.screen.SVGScreenEl.append(svgEl);
+      this.generateText(svgEl, block);
 
-    this.screen.SVGScreenEl.append(svgEl);
+      svgEl.id = `block${block.id}`;
+      this.screen.SVGScreenEl.append(svgEl);
+
+      this.screen.SVGScreenEl.append(svgEl);
+    }
     return svgEl;
   }
 
@@ -150,18 +170,22 @@ export class BlockGenerator {
    * @return {*} svgEl
    */
   generateComment(block) {
-    const svgEl = document.createElementNS(SVGNS, 'g');
-    this.generateText(svgEl, block);
+    let svgEl;
+    if (this.isInView(block)) {
+      svgEl = document.createElementNS(SVGNS, 'g');
+      this.generateText(svgEl, block);
 
-    const commentLine = document.createElementNS(SVGNS, 'polyline');
-    commentLine.setAttribute('style',
-        'stroke:#000;stroke-width:1;fill:none');
+      const commentLine = document.createElementNS(SVGNS, 'polyline');
+      commentLine.setAttribute('style',
+          'stroke:#000;stroke-width:1;fill:none');
 
-    commentLine.setAttribute('points',
-        `${block.previousBlock.posX + block.previousBlock.height/2}, ${block.previousBlock.posY + block.previousBlock.height / 2} ${block.posX}, ${block.posY + 5} ${block.posX + block.width}, ${block.posY + 5}`);
+      commentLine.setAttribute('points',
+          `${block.previousBlock.posX + block.previousBlock.height/2}, ${block.previousBlock.posY + block.previousBlock.height / 2} ${block.posX}, ${block.posY + 5} ${block.posX + block.width}, ${block.posY + 5}`);
 
-    this.screen.SVGScreenEl.append(svgEl);
-    this.screen.SVGScreenEl.append(commentLine);
+      this.screen.SVGScreenEl.append(svgEl);
+      this.screen.SVGScreenEl.append(commentLine);
+    }
+
     return svgEl;
   }
   
@@ -215,28 +239,30 @@ export class BlockGenerator {
  * TODO: divide in multiple functions
  */
   generateConnector(block1, block2) {
-    let svgEl = document.createElementNS(SVGNS, 'polyline');
-    svgEl.setAttribute('style', `stroke:${this.lineColor};stroke-width:${this.lineWidth};fill:none`);
-
-    if (block1.posY < block2.posY - block1.height) {
-      svgEl = this._verticalConnector(svgEl, block1, block2);
-    } else {
-      if (block1.nextBlock && block2.nextBlock) {
-        if (block1.type == 'condition' && block1.node == block2 ||
-          block2 == block2.nextBlock.node) {
-          svgEl = this._cShapeConnector(svgEl, block1, block2);
+    if (this.isInView(block1) || this.isInView(block2)) {
+      let svgEl = document.createElementNS(SVGNS, 'polyline');
+      svgEl.setAttribute('style', `stroke:${this.lineColor};stroke-width:${this.lineWidth};fill:none`);
+  
+      if (block1.posY < block2.posY - block1.height) {
+        svgEl = this._verticalConnector(svgEl, block1, block2);
+      } else {
+        if (block1.nextBlock && block2.nextBlock) {
+          if (block1.type == 'condition' && block1.node == block2 ||
+            block2 == block2.nextBlock.node) {
+            svgEl = this._cShapeConnector(svgEl, block1, block2);
+          } else {
+            svgEl = this._sShapeConnector(svgEl, block1, block2);
+          }
         } else {
           svgEl = this._sShapeConnector(svgEl, block1, block2);
         }
-      } else {
-        svgEl = this._sShapeConnector(svgEl, block1, block2);
       }
-    }
-    this.screen.SVGScreenEl.append(svgEl);
-
-    const centerX2 = block2.posX;
-    if (block2.type != 'insert' && block2.type != 'node') {
-      this.generateArrow(centerX2, block2.posY);
+      this.screen.SVGScreenEl.append(svgEl);
+  
+      const centerX2 = block2.posX;
+      if (block2.type != 'insert' && block2.type != 'node') {
+        this.generateArrow(centerX2, block2.posY);
+      }
     }
   }
 
@@ -344,5 +370,10 @@ export class BlockGenerator {
     } else {
       el.firstChild.setAttribute('stroke', this.lineColor);
     }
+  }
+
+  /** */
+  isInView(block) {
+    return block.posX + (block.width / 2) > this.screen.screenData.panX && block.posY + block.height > this.screen.screenData.panY;
   }
 }

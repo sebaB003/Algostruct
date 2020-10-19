@@ -306,6 +306,14 @@ export class Flowchart {
     this._parse(this.startBlock, (p)=> p.type != 'end', func);
   }
 
+  /**
+   * @param {*} generator
+   */
+  render(generator) {
+    for (const [id, block] of this.memory._memory) {
+      generator(block);
+    }
+  }
 
   /**
    * Extract block data to be copyed
@@ -354,9 +362,7 @@ export class Flowchart {
         return this.updateBranchOffset(pointer.nextBlock, condition);
       }
     } else {
- 
-          return this.updateBranchOffset(pointer.nextBlock, condition);
-
+      return this.updateBranchOffset(pointer.nextBlock, condition);
     }
   }
 

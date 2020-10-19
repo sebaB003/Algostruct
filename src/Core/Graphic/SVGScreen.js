@@ -50,6 +50,7 @@ export class SVGScreen {
     this.setupEventListeners();
   }
 
+  /** */
   updateData() {
     this.screenData.width = this.getWidth();
     this.screenData.height = this.getHeight();
@@ -61,6 +62,7 @@ export class SVGScreen {
       this.screenData.optimizeText = false;
     }
   }
+
   /**
    * Set the view to default values
    */
@@ -121,6 +123,9 @@ export class SVGScreen {
   */
   applyViewTransforms() {
     this.SVGScreenEl.setAttribute('viewBox', this.formattedScreenData);
+    if (this.renderCallback) {
+      this.renderCallback();
+    }
   }
 
   /**
@@ -165,12 +170,9 @@ export class SVGScreen {
    * Increase the zoom of the screen
   */
   zoomIn() {
-    if ((this.screenData.zoom - 50) > 0) {
-      this.screenData.zoom -= 50;
+    if ((this.screenData.zoom - 100) > 0) {
+      this.screenData.zoom -= 100;
       this.applyViewTransforms();
-    }
-    if (this.renderCallback) {
-      this.renderCallback();
     }
   }
 
@@ -178,12 +180,9 @@ export class SVGScreen {
    * Decrease the zoom of the screen
    */
   zoomOut() {
-    if (this.screenData.zoom + 50 < 4000) {
-      this.screenData.zoom += 50;
+    if (this.screenData.zoom + 100 < 4000) {
+      this.screenData.zoom += 100;
       this.applyViewTransforms();
-    }
-    if (this.renderCallback) {
-      this.renderCallback();
     }
   }
 
@@ -210,7 +209,7 @@ export class SVGScreen {
    * @return {number} computed width
   */
   getComputedWidth() {
-    return (this.screenData.width * this.screenData.zoom) / 2100;
+    return (this.getHeight() / this.screenData.zoom) / 2100;
   }
 
   /**
@@ -218,7 +217,7 @@ export class SVGScreen {
    * @return {number} computed height
   */
   getComputedHeight() {
-    return (this.screenData.height * this.screenData.zoom) / 2100;
+    return (this.getHeight() / this.screenData.zoom) / 2100;
   }
 
   /**
