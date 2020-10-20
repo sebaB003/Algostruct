@@ -75,7 +75,7 @@ export class Builder {
         if (element) {
           element.addEventListener('mousedown',
               (event) => moveBlockHandler(event, this, block,
-                  this.screen.screenData.zoom));
+                  this.screen.screenData));
         }
         break;
       case 'insert':
@@ -84,7 +84,7 @@ export class Builder {
         if (element) {
           element.addEventListener('mousedown',
               (event) => moveBlockHandler(event, this, block,
-                  this.screen.screenData.zoom));
+                  this.screen.screenData));
           if (block.type == 'insert') {
             element.addEventListener('click',
                 ()=>this.contextMenu.open(event, block,
@@ -116,7 +116,7 @@ export class Builder {
     if (element) {
       element.addEventListener('mousedown',
           (event) => moveBlockHandler(event, this, block,
-              this.screen.screenData.zoom));
+              this.screen.screenData));
       element.addEventListener('contextmenu',
           ()=>this.contextMenu.open(event, block, clipboardContextMenu));
       element.addEventListener('click',

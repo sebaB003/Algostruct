@@ -4,7 +4,7 @@
  * @param {*} element
  * @param {*} zoom
  */
-export function moveBlockHandler(event, parent, element, zoom) {
+export function moveBlockHandler(event, parent, element, screenData) {
   let lastX = 0;
   let lastY = 0;
 
@@ -35,8 +35,8 @@ export function moveBlockHandler(event, parent, element, zoom) {
         element.offsetX += applyZoomVariation(zoom, event.pageX - lastX);
         element.offsetY += applyZoomVariation(zoom, event.pageY - lastY);
       } else {
-        const newX = applyZoomVariation(zoom, event.pageX - lastX);
-        const newY = applyZoomVariation(zoom, event.pageY - lastY);
+        const newX = applyZoomVariation(screenData, event.pageX - lastX);
+        const newY = applyZoomVariation(screenData, event.pageY - lastY);
         element.moveStructure(newX, newY);
       }
       parent.render();
@@ -59,8 +59,8 @@ export function moveBlockHandler(event, parent, element, zoom) {
         element.offsetX += applyZoomVariation(zoom, event.pageX - lastX);
         element.offsetY += applyZoomVariation(zoom, event.pageY - lastY);
       } else {
-        const newX = applyZoomVariation(zoom, event.pageX - lastX);
-        const newY = applyZoomVariation(zoom, event.pageY - lastY);
+        const newX = applyZoomVariation(screenData, event.pageX - lastX);
+        const newY = applyZoomVariation(screenData, event.pageY - lastY);
         element.posX += newX;
         element.posY += newY;
       }
@@ -97,9 +97,9 @@ export function moveBuilderView(event, screen) {
       screen.SVGScreenEl.style.cursor = 'default';
       screen.SVGScreenEl.removeEventListener('mousemove', moveView);
     } else {
-      const panX = applyZoomVariation(screen.screenData.zoom,
+      const panX = applyZoomVariation(screen.screenData,
           lastX - event.clientX);
-      const panY = applyZoomVariation(screen.screenData.zoom,
+      const panY = applyZoomVariation(screen.screenData,
           lastY - event.clientY);
       screen.applyPan(panX, panY);
       lastX = event.clientX;
@@ -111,10 +111,10 @@ export function moveBuilderView(event, screen) {
 /**
  * Calculate the appropriate coordinate change
  * on the base of the scrren zoom
- * @param {*} zoom
+ * @param {*} screenData
  * @param {*} value
  * @return {float} value
  */
-function applyZoomVariation(zoom, value) {
-  return ((value * zoom) / 650);
+function applyZoomVariation(screenData, value) {
+  return (value * (screenData.zoom / screenData.width));
 }

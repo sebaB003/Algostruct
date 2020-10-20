@@ -372,8 +372,16 @@ export class BlockGenerator {
     }
   }
 
-  /** */
+  /** 
+   * Check if a block is visible in the viewbox
+   * @param {BaseBlock} block
+   * @return {boolean}
+   * 
+  */
   isInView(block) {
-    return block.posX + (block.width / 2) > this.screen.screenData.panX && block.posY + block.height > this.screen.screenData.panY;
+    return block.posX + (block.width / 2) > this.screen.screenData.panX &&
+    block.posX - (block.width / 2) < this.screen.screenData.zoom + this.screen.screenData.panX &&
+    block.posY + block.height > this.screen.screenData.panY &&
+    block.posY < this.screen.screenData.zoom + this.screen.screenData.panY; // Find the correct height
   }
 }

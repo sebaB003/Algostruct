@@ -54,8 +54,6 @@ export class SVGScreen {
   updateData() {
     this.screenData.width = this.getWidth();
     this.screenData.height = this.getHeight();
-    this.screenData.computedWidth = this.getComputedWidth();
-    this.screenData.computedHeight = this.getComputedHeight();
     if (this.screenData.zoom > 3000) {
       this.screenData.optimizeText = true;
     } else {
@@ -145,7 +143,7 @@ export class SVGScreen {
    */
   resetView() {
     this.centerView(false);
-    this.screenData.zoom = 1000;
+    this.screenData.zoom = 2000;
     this.applyViewTransforms();
     if (this.renderCallback) {
       this.renderCallback();
@@ -170,7 +168,7 @@ export class SVGScreen {
    * Increase the zoom of the screen
   */
   zoomIn() {
-    if ((this.screenData.zoom - 100) > 0) {
+    if ((this.screenData.zoom - 100) >= 500) {
       this.screenData.zoom -= 100;
       this.applyViewTransforms();
     }
@@ -180,7 +178,7 @@ export class SVGScreen {
    * Decrease the zoom of the screen
    */
   zoomOut() {
-    if (this.screenData.zoom + 100 < 4000) {
+    if (this.screenData.zoom + 100 < 4500) {
       this.screenData.zoom += 100;
       this.applyViewTransforms();
     }
@@ -202,22 +200,6 @@ export class SVGScreen {
   getHeight() {
     const height = this.SVGScreenEl.getBoundingClientRect().height;
     return height;
-  }
-
-  /**
-   * Returns svg element width computed with the zoom
-   * @return {number} computed width
-  */
-  getComputedWidth() {
-    return (this.getHeight() / this.screenData.zoom) / 2100;
-  }
-
-  /**
-   * Returns svg element height computed with the zoom
-   * @return {number} computed height
-  */
-  getComputedHeight() {
-    return (this.getHeight() / this.screenData.zoom) / 2100;
   }
 
   /**
