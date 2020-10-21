@@ -19,7 +19,7 @@ export class ProjectManager {
   newProject(screen, title='Untitled') {
     this.project = new Project();
     this.setProjectTitle(title);
-    this.project.flowchart.init(screen.getWidth() / 3);
+    this.project.flowchart.init(screen.screenData.zoom / 2);
     this.project.flowchart.reorder();
   }
 

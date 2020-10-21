@@ -229,7 +229,7 @@ export class BlockGenerator {
     if (block.type == 'comment') {
       svgEl.innerHTML += `<text x=${block.posX} y=${block.posY} font-family=${this.fontFamily} font-size=28 fill=${color}>${block.content}</text>`;
     } else {
-      svgEl.innerHTML += `<text x=${block.posX} y=${block.posY + textOffsetY} font-family=${this.fontFamily} font-size=28 fill=${color} text-anchor="middle" alignment-baseline="middle">${block.content}</text>`;
+      svgEl.innerHTML += `<text x=${block.posX} y=${block.posY + textOffsetY + 2} font-family=${this.fontFamily} font-size=28 fill=${color} text-anchor="middle" alignment-baseline="middle">${block.content}</text>`;
     }
   }
 

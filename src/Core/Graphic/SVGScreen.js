@@ -54,7 +54,7 @@ export class SVGScreen {
   updateData() {
     this.screenData.width = this.getWidth();
     this.screenData.height = this.getHeight();
-    if (this.screenData.zoom > 3000) {
+    if (this.screenData.zoom > 4000) {
       this.screenData.optimizeText = true;
     } else {
       this.screenData.optimizeText = false;
@@ -178,7 +178,7 @@ export class SVGScreen {
    * Decrease the zoom of the screen
    */
   zoomOut() {
-    if (this.screenData.zoom + 100 < 4500) {
+    if (this.screenData.zoom + 100 < 7000) {
       this.screenData.zoom += 100;
       this.applyViewTransforms();
     }

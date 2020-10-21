@@ -74,6 +74,7 @@ export class Flowchart {
     block.insert(new InputBlock(this.memory));
     block.nextBlock.insert(new InsertBlock(this.memory));
     this.updateFlowchart();
+    this.updateStructure();
   }
 
   /**
@@ -83,6 +84,7 @@ export class Flowchart {
     block.insert(new OutputBlock(this.memory));
     block.nextBlock.insert(new InsertBlock(this.memory));
     this.updateFlowchart();
+    this.updateStructure();
   }
 
   /**
@@ -91,6 +93,7 @@ export class Flowchart {
   createStatement(block) {
     block.insert(new StatementBlock(this.memory));
     block.nextBlock.insert(new InsertBlock(this.memory));
+    this.updateStructure();
   }
 
   /**
@@ -107,6 +110,7 @@ export class Flowchart {
     node.insert(new InsertBlock(this.memory));
     node.posX = (node.previousBlock.posX + node.previousBlock2.posX) / 2;
     this.updateFlowchart();
+    this.updateStructure();
   }
 
   /**
@@ -124,6 +128,7 @@ export class Flowchart {
     node.setSecondaryPreviousBlock(whileBlock);
     whileBlock.branchID = block.branchID;
     this.updateFlowchart();
+    this.updateStructure();
   }
 
   /**
@@ -148,6 +153,7 @@ export class Flowchart {
     insertBlock.posX = whileBlock.posX;
     insertBlock.posY = whileBlock.posY + 50 + whileBlock.height;
     this.updateFlowchart();
+    this.updateStructure();
   }
 
   /**
@@ -251,7 +257,7 @@ export class Flowchart {
       nextBlock.previousBlock = previousBlock;
     }
 
-    previousBlock.updateStructure();
+    this.updateStructure();
   }
 
   /**
@@ -366,12 +372,55 @@ export class Flowchart {
     }
   }
 
+  /** */
+  updateStructure() {
+    this.updateBranchOffset(this.startBlock);
+    let curX = this.startBlock.posX;
+    let prevX = this.startBlock.posX;
+    let curY = this.startBlock.posY;
+    let prevY = this.startBlock.posY;
+    this._parse(this.startBlock, (p)=> p.type != 'end', function(block) {
+      if (block.previousBlock) {
+        if (block.type == 'node') {
+          prevX = block.posX;
+          prevY = block.posY;
+          if (block != block.nextBlock.node &&
+            block.previousBlock2.type != 'condition') {
+            block.posY = Math.max(
+                block.previousBlock.posY + 50 + block.previousBlock.height,
+                block.previousBlock2.posY + 50 + block.previousBlock2.height);
+            block.posX = (block.previousBlock.posX + block.previousBlock2.posX) / 2;
+          } else {
+            block.posY = block.previousBlock.posY + 50 + block.previousBlock.height;
+            block.posX = block.previousBlock.posX;
+          }
+          curX = block.posX;
+          curY = block.posY;
+        } else {
+          prevY = block.posY;
+          block.posY = block.previousBlock.posY + 50 + block.previousBlock.height;
+          curY = block.posY;
+          if (block.previousBlock.type == 'condition') {
+            prevX = block.posX;
+            if (block.branchID > block.previousBlock.branchID) {
+              block.posX = block.previousBlock.posX - (block.previousBlock.secondaryBrenchWidth * 150);
+            } else {
+              block.posX = block.previousBlock.posX + (block.previousBlock.brenchWidth * 150);
+            }
+            curX = block.posX;
+          } else {
+            block.posX += curX - prevX;
+          }
+        }
+      }
+    });
+  }
   /**
    * Reorders the blocks and puts the blocks
    * at the same distance.
   */
   reorder() {
-    // this.updateBranchOffset(this.startBlock);
+    this.updateBranchOffset(this.startBlock);
     this._parse(this.startBlock, (p)=> p.type != 'end', function(block) {
       if (block.previousBlock) {
         if (block.type == 'node') {

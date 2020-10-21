@@ -96,7 +96,11 @@ export class BaseBlock {
     } else {
       previous.setPreviousBlock(block);
     }
-    this.updateStructure();
+
+    block.posY = this.posY + 50 + this.height;
+    previous.posY = block.posY + 50 + block.height;
+
+    this.nextBlock.posX = this.posX;
   }
 
   /**
@@ -110,59 +114,11 @@ export class BaseBlock {
     block.setNextBlock(previousBlock);
     previousBlock.setSecondaryPreviousBlock(block);
     block.branchID = block.previousBlock.branchID + 1;
-    this.updateStructure(this.nextBlock2);
-  }
 
-  /**
-   *
-   * @param {*} pointer
-   */
-  static centerNode(pointer) {
-    if (pointer.previousBlock && pointer.previousBlock2) {
-      if (pointer.type == 'node') {
-        pointer.posX = (pointer.previousBlock.posX +
-          pointer.previousBlock2.posX) / 2;
-        pointer.posY = Math.max(
-            pointer.previousBlock.posY + 50 + pointer.previousBlock.height,
-            pointer.previousBlock2.posY + 50 + pointer.previousBlock2.height);
-      }
-    }
-  }
+    block.posY = this.posY + 50 + this.height;
+    previousBlock.posY = block.posY + 50 + block.height;
 
-  /**
-   *
-   * @param {*} pointer
-   * @param {*} condition
-   */
-  updateStructure(pointer=this.nextBlock,
-      condition=(p) => p.type != 'end') {
-    if (pointer.previousBlock) {
-      pointer.posX = pointer.previousBlock.posX;
-    }
-    BaseBlock.centerNode(pointer);
-
-    while (condition(pointer)) {
-      if (pointer.previousBlock) {
-        pointer.posY = pointer.previousBlock.posY +
-        pointer.previousBlock.height + 50;
-        if (pointer.type == 'node' && pointer.previousBlock2) {
-          if (pointer != pointer.nextBlock.node && pointer.previousBlock2.type != 'condition') {
-            pointer.posY = Math.max(
-                pointer.previousBlock.posY + 50 + pointer.previousBlock.height,
-                pointer.previousBlock2.posY + 50 + pointer.previousBlock2.height);
-          }
-        }
-      }
-
-      if (pointer.type == 'condition' && pointer.nextBlock2) {
-        if (pointer.node != pointer.nextBlock2) {
-          this.updateStructure(pointer.nextBlock2, (p)=> p.branchID == p.nextBlock.branchID);
-        }
-      }
-      pointer = pointer.nextBlock;
-    }
-    pointer.posY = pointer.previousBlock.posY +
-    pointer.previousBlock.height + 50;
+    this.nextBlock2.posX = this.posX;
   }
 
   /**
@@ -193,11 +149,13 @@ export class BaseBlock {
       }
 
       if (pointer.type == 'condition' && pointer.nextBlock2) {
+        nodeReached = false;
         if (pointer.node != pointer.nextBlock2) {
           this.moveStructure(x, y, pointer.nextBlock2,
               (p)=> p.branchID == p.nextBlock.branchID);
         }
       }
+
       pointer = pointer.nextBlock;
     }
     pointer.posY += y;
