@@ -122,51 +122,39 @@ export class BaseBlock {
   }
 
   /**
-   *
-   * @param {*} x
-   * @param {*} y
-   * @param {*} pointer
-   * @param {*} condition
-   */
-  moveStructure(x, y, pointer=this, condition=(p) => p.nextBlock != undefined && p.branchID == p.nextBlock.branchID) {
-    let nodeReached = false;
-
-    while (condition(pointer)) {
-      pointer.posY += y;
-      if (pointer.type == 'node') {
-        nodeReached = true;
-        if (pointer.nextBlock == pointer.previousBlock2) {
-          pointer.posX = pointer.previousBlock.posX;
-        } else {
-          pointer.posX = (pointer.previousBlock.posX + pointer.previousBlock2.posX) / 2;
-        }
-      } else {
-        if (!nodeReached) {
-          pointer.posX += x;
-        } else {
-          pointer.posX = pointer.previousBlock.posX;
-        }
-      }
-
-      if (pointer.type == 'condition' && pointer.nextBlock2) {
-        nodeReached = false;
-        if (pointer.node != pointer.nextBlock2) {
-          this.moveStructure(x, y, pointer.nextBlock2,
-              (p)=> p.branchID == p.nextBlock.branchID);
-        }
-      }
-
-      pointer = pointer.nextBlock;
+  *
+  * @param {*} x
+  * @param {*} y
+  * @param {*} pointer
+  */
+  moveStructure(x, y, pointer=this) {
+    if (!pointer) {
+      return;
     }
-    pointer.posY += y;
-    if (pointer.type == 'node' && pointer.previousBlock2.type == 'condition') {
-      pointer.posX = pointer.previousBlock.posX;
-      nodeReached = true;
-    } else {
-      if (!nodeReached) {
-        pointer.posX += x;
+
+    if (pointer.type == 'condition') {
+      pointer.posX += x;
+      pointer.posY += y;
+      if (pointer.node.nType == 'if') {
+        this.moveStructure(x, y, pointer.nextBlock);
+        this.moveStructure(x, y, pointer.nextBlock2);
+      } else if (pointer.node.nType == 'lo') {
+        this.moveStructure(x, y, pointer.nextBlock);
+        this.moveStructure(x, y, pointer.nextBlock2);
       } else {
-        pointer.posX = pointer.previousBlock.posX;
+        this.moveStructure(x, y, pointer.nextBlock);
+      }
+    } else if (pointer.type == 'node') {
+      pointer.posX += x;
+      pointer.posY += y;
+      this.moveStructure(x, y, pointer.nextBlock);
+    } else {
+      pointer.posX += x;
+      pointer.posY += y;
+      if (pointer.nextBlock) {
+        if (pointer.nextBlock.branchID == pointer.branchID) {
+          this.moveStructure(x, y, pointer.nextBlock);
+        }
       }
     }
   }

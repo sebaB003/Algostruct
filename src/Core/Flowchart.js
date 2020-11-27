@@ -74,7 +74,7 @@ export class Flowchart {
     block.insert(new InputBlock(this.memory));
     block.nextBlock.insert(new InsertBlock(this.memory));
     this.updateFlowchart();
-    this.updateStructure();
+    this.updateStructure(block.nextBlock);
   }
 
   /**
@@ -84,7 +84,7 @@ export class Flowchart {
     block.insert(new OutputBlock(this.memory));
     block.nextBlock.insert(new InsertBlock(this.memory));
     this.updateFlowchart();
-    this.updateStructure();
+    this.updateStructure(block.nextBlock);
   }
 
   /**
@@ -93,7 +93,7 @@ export class Flowchart {
   createStatement(block) {
     block.insert(new StatementBlock(this.memory));
     block.nextBlock.insert(new InsertBlock(this.memory));
-    this.updateStructure();
+    this.updateStructure(block.nextBlock);
   }
 
   /**
@@ -344,42 +344,75 @@ export class Flowchart {
    * @param {BaseBlock} condition
    * @return {*}
   */
-  updateBranchOffset(pointer, condition) {
+  updateBranchOffset(pointer, condition=null) {
     if (!pointer) {
       return true;
     }
 
     if (pointer.type == 'condition') {
-      const branchN = this.updateBranchOffset(pointer.nextBlock, pointer);
+      let branchN = 1;
       let branchN2 = 1;
-      branchN2 = this.updateBranchOffset(pointer.nextBlock2, pointer);
-      pointer.brenchWidth = branchN2 + ((pointer.width / 2) / 150);
-      pointer.secondaryBrenchWidth = branchN + ((pointer.width / 2) / 150);
-      return (branchN + branchN2) + ((pointer.width / 2) / 150);
-    } else if (pointer.type == 'node' && condition) {
-      if (condition.node == pointer) {
-        if (pointer.nType == 'if') {
-          this.updateBranchOffset(pointer.nextBlock);
-          return 1;
-        } else {
-          return 0;
-        }
+      let maxN = 1;
+      let maxN2 = 1;
+      if (pointer.node.nType == 'if') {
+        maxN = this.updateBranchOffset(pointer.nextBlock, pointer);
+        maxN2 = this.updateBranchOffset(pointer.nextBlock2, pointer);
+        branchN = maxN.pop();
+        branchN2 = maxN2.pop();
+      } else if (pointer.node.nType == 'lo') {
+        maxN = this.updateBranchOffset(pointer.nextBlock, condition);
+        maxN2 = this.updateBranchOffset(pointer.nextBlock2, pointer);
+        console.log(maxN, maxN2);
+        branchN = maxN[maxN.length - 1];
+        branchN2 = maxN2[maxN2.length - 1];
       } else {
-        return this.updateBranchOffset(pointer.nextBlock, condition);
+        maxN = this.updateBranchOffset(pointer.nextBlock, condition);
+        branchN = 1;
       }
+
+      const res = maxN.pop();
+      pointer.brenchWidth = Math.max(branchN2 + ((pointer.width / 2) / 150));
+      pointer.secondaryBrenchWidth = Math.max(branchN + ((pointer.width / 2) / 150));
+      const off = Math.abs(pointer.posX - pointer.node.posX) / 150;
+      maxN.push(Math.max(branchN + branchN2 + ((pointer.width /2) / 150), res + off));
+      return maxN;
+    } else if (pointer.type == 'node') {
+      const val = this.updateBranchOffset(pointer.nextBlock, condition);
+      const max = val[val.length - 1];
+      console.log(val);
+      if (pointer.nType == 'if') {
+        val.push(1);
+      } else if (pointer.nType == 'dl') {
+        pointer.previousBlock2.secondaryBrenchWidth = max;
+        val[val.length - 1] += 0.5;
+      } else {
+        val[val.length - 1] += 1.5;
+      }
+      return val;
     } else {
-      return this.updateBranchOffset(pointer.nextBlock, condition);
+      if (pointer.nextBlock) {
+        if (pointer.nextBlock.branchID == pointer.branchID) {
+          const val = this.updateBranchOffset(pointer.nextBlock, condition);
+          console.log(val);
+          const res = val.pop();
+          val.push(Math.max(pointer.width / 150, res));
+          console.log(val);
+          return val;
+        }
+      }
+      return [1];
     }
   }
 
+
   /** */
-  updateStructure() {
+  updateStructure(block=this.startBlock) {
     this.updateBranchOffset(this.startBlock);
-    let curX = this.startBlock.posX;
-    let prevX = this.startBlock.posX;
-    let curY = this.startBlock.posY;
-    let prevY = this.startBlock.posY;
-    this._parse(this.startBlock, (p)=> p.type != 'end', function(block) {
+    let curX = block.posX;
+    let prevX = block.posX;
+    let curY = block.posY;
+    let prevY = block.posY;
+    this._parse(block, (p)=> p.type != 'end', function(block) {
       if (block.previousBlock) {
         if (block.type == 'node') {
           prevX = block.posX;
@@ -400,12 +433,24 @@ export class Flowchart {
           prevY = block.posY;
           block.posY = block.previousBlock.posY + 50 + block.previousBlock.height;
           curY = block.posY;
+          // block.posY -= (curY - prevY);
           if (block.previousBlock.type == 'condition') {
             prevX = block.posX;
             if (block.branchID > block.previousBlock.branchID) {
-              block.posX = block.previousBlock.posX - (block.previousBlock.secondaryBrenchWidth * 150);
+              const newX = block.previousBlock.posX - (block.previousBlock.secondaryBrenchWidth * 150);
+              block.posX = newX;
             } else {
-              block.posX = block.previousBlock.posX + (block.previousBlock.brenchWidth * 150);
+              if (block.previousBlock.node.nType == 'lo') {
+                const lastBlock = block.previousBlock.node.previousBlock2;
+                block.posY = Math.max(lastBlock.posY + 50 + lastBlock.height,
+                    block.posY + 50 + block.height);
+              }
+              if (block.previousBlock.node.nType != 'dl') {
+                const newX = block.previousBlock.posX + (block.previousBlock.brenchWidth * 150);
+                block.posX = newX;
+              } else {
+                block.posX = block.previousBlock.posX;
+              }
             }
             curX = block.posX;
           } else {
@@ -442,7 +487,14 @@ export class Flowchart {
           if (block.branchID > block.previousBlock.branchID) {
             block.posX -= (block.previousBlock.secondaryBrenchWidth * 150);
           } else {
-            block.posX += (block.previousBlock.brenchWidth * 150);
+            if (block.previousBlock.node.nType == 'lo') {
+              const lastBlock = block.previousBlock.node.previousBlock2;
+              block.posY = Math.max(lastBlock.posY + 50 + lastBlock.height,
+                  block.posY + 50 + block.height);
+            }
+            if (block.previousBlock.node.nType != 'dl') {
+              block.posX += (block.previousBlock.brenchWidth * 150);
+            }
           }
         }
       }

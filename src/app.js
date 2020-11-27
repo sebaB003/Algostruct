@@ -51,7 +51,6 @@ class App {
     this.builder.project = this.project;
     this.editor.project = this.project;
     this.editor.setRenderCallback(this.render.bind(this));
-    this.editor.setVariablePool(this.project.flowchart.variablePool);
     this.builder.setSelectCallback(this.updateSelection.bind(this));
     this.statusbar.display(this.retrieveStatus());
     this.builder._deselect();

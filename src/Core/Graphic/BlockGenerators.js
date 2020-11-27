@@ -278,11 +278,14 @@ export class BlockGenerator {
     const centerX2 = block2.posX;
     const offsetY1 = block1.height / 2;
     const offsetY2 = block2.height / 2;
-    const offsetX = block1.posX > block2.posX ?
-      centerX1 - Math.abs(centerX2 - centerX1) - 200 :
-      centerX1 - 200;
+    let offsetX = 0;
+    if (block2.nextBlock.type == 'condition') {
+      offsetX = (block2.nextBlock.brenchWidth * 150) + (block2.nextBlock.secondaryBrenchWidth * 150);
+    } else if (block1.type == 'condition') {
+      offsetX = block1.secondaryBrenchWidth * 150;
+    }
     svgEl.setAttribute('points', `${centerX1}, ${y1 - offsetY1}
-    ${offsetX}, ${y1 - offsetY1} ${offsetX}, ${block2.posY + offsetY2}
+    ${centerX2 - offsetX}, ${y1 - offsetY1} ${centerX2 - offsetX}, ${block2.posY + offsetY2}
     ${centerX2}, ${block2.posY + offsetY2}`);
     return svgEl;
   }
