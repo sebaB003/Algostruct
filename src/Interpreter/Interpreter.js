@@ -476,10 +476,10 @@ export class Interpreter {
     this.outputsView.console.clear();
 
     // let token;
-    // token = lexer.getNextToken();
+    // token = this.parser.lexer.getNextToken();
     // while(token.type != 'END') {
     //   console.log(token);
-    //   token = lexer.getNextToken();
+    //   token = this.parser.lexer.getNextToken();
     // }
     // console.log(token);
     this.parser.match('START');
@@ -489,7 +489,7 @@ export class Interpreter {
     this.parser.match('END');
     this.parser = null;
 
-    console.log(this.memory);
+  //   console.log(this.memory);
   }
 }
 

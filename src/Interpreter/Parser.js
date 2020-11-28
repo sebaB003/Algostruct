@@ -177,7 +177,7 @@ export class Parser {
     const blocks = [];
 
     console.log(this.currentToken);
-    while (this.currentToken.type != 'END' && this.currentToken.type != 'ELSE' && this.currentToken.type != 'ENDIF' && this.currentToken.type != 'ENDLOOP'&& this.currentToken.type != 'LOOP') {
+    while (this.currentToken.type != 'END' && this.currentToken.type != 'ELSE' && this.currentToken.type != 'ENDIF' && this.currentToken.type != 'ENDLOOP'&& this.currentToken.type != 'DOLOOP') {
       blocks.push(this.block());
     }
 
@@ -245,7 +245,7 @@ export class Parser {
     if (this.currentToken.type == 'DO') {
       this.match('DO');
       const loopBranch = this.flow();
-      this.match('LOOP');
+      this.match('DOLOOP');
       const condition = this.conditionalExpr();
       this.match('EOB');
       this.match('ENDLOOP');

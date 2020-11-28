@@ -12,6 +12,7 @@ export const RESERVED_KEY = {
   'ENDIF'   : new Token('ENDIF', 'ENDIF'),
   'DO'      : new Token('DO', 'DO'),
   'LOOP'    : new Token('LOOP', 'LOOP'),
+  'DOLOOP'    : new Token('DOLOOP', 'DOLOOP'),
   'ENDLOOP' : new Token('ENDLOOP', 'ENDLOOP'),
   'pow'     : new Token('POW', 'pow'),
   'int'     : new Token('INTEGER', 'int'),

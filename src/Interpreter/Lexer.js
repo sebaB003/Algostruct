@@ -137,7 +137,7 @@ export class Lexer {
       this.current_block = peekBlock;
       if (peekBlock.node == this.nodeStack[this.nodeStack.length-1]) {
         this.nodeStack.pop();
-        this.text = 'LOOP ' + this.current_block.content + ' EOB ENDLOOP EOB ';
+        this.text = 'DOLOOP ' + this.current_block.content + ' EOB ENDLOOP EOB ';
       } else if (peekBlock.node.nType == 'lo') {
         this.conditionStack.push(peekBlock);
         this.current_block = peekBlock.nextBlock2;
