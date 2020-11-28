@@ -11,6 +11,7 @@ export class NodeBlock extends BaseBlock {
     this.nType = nType;
     super.width = 10;
     super.height = 10;
+    this.offset = 0;
     memoryReference.add(this);
   }
 

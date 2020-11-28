@@ -95,7 +95,9 @@ function pasteBlock(block, parent) {
   if (parent.clipboard) {
     if (parent.clipboard.type != 'comment') {
       const {_content, hasErrors}=parent.clipboard;
-      block.insert(Object.assign(new parent.clipboard.constructor(parent.project.flowchart.memory), {_content, hasErrors} ));
+      const newBlock = Object.assign(new parent.clipboard.constructor(parent.project.flowchart.memory), {_content, hasErrors} )
+      newBlock.updateWidth();
+      block.insert(newBlock);
       block.nextBlock.insert(new InsertBlock(parent.project.flowchart.memory));
     }
     parent.render();
