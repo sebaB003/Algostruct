@@ -26,11 +26,17 @@ export class BaseBlock {
   }
 
   /**
+   * Updates the width of the block based on the text content
+   */
+  updateWidth() {
+    this.width = Math.max(this._content.length * 28 + 80, 200);
+  }
+  /**
    * @param {*} value
    */
   set content(value) {
     this._content = value;
-    this.width = Math.max(this._content.length * 28 + 80, 200);
+    this.updateWidth();
   }
 
   /** */
