@@ -74,14 +74,13 @@ export class Toolbar {
               this.appComponents.logsView.console.log('Execution stopped');
             }
           } else {
-            this.interpreter.startExecution();
+            this.interpreter.continueExecution();
           }
         });
     this.stepFlowchartBtn.addEventListener(
         'click',
         () => {
           try {
-            this.interpreter.startExecution();
             const showLogs = this.appComponents.project.preferences.showInterpreterLogs;
             const logsView = showLogs ? this.appComponents.logsView : undefined;
             this.interpreter.stepInterpret(this.appComponents.project.flowchart.startBlock, logsView);

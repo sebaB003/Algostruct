@@ -57,7 +57,7 @@ export class Console {
   }
 
   /** */
-  input(message='') {
+  input(message='', setInputBuffer) {
     const template = document.getElementById('input-entry');
     const inputEntryEl = document.importNode(template.content, true);
 
@@ -65,17 +65,15 @@ export class Console {
     const labelEl = inputEntryEl.querySelector('label');
     const form = inputEntryEl.querySelector('form');
 
-    let inputValue;
     form.addEventListener('submit', (event)=> {
       event.preventDefault();
-      inputValue = event.srcElement[0].value;
-      cellEl.textContent = `${message}${inputValue}`;
+      const inputValue = event.srcElement[0].value;
+      cellEl.textContent = `> ${message}${inputValue}`;
+      setInputBuffer(inputValue);
     });
 
     labelEl.textContent = message;
     this.consoleEl.appendChild(inputEntryEl);
-
-    return inputValue;
   }
 
   /**

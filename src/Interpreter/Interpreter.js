@@ -222,15 +222,24 @@ export class Interpreter {
 
     this.isStopped = false;
     this.isPaused = false;
-    this.interval;
 
     this.mode = 0;
     this.flowStack = new ProcessStack();
+
+    this.inputBuffer;
+  }
+
+  setInputBuffer(value) {
+    this.inputBuffer = value;
   }
 
   startExecution() {
     this.isStopped = false;
     this.isPaused = false;
+  }
+
+  continueExecution() {
+    this.startExecution();
     this.flowStack.startCurProcess();
   }
 
@@ -337,7 +346,7 @@ export class Interpreter {
         this.visit(node.blocks[index]);
       } else {
         this.flowStack.endCurProcess();
-        console.log('end');
+        this.scope = this.scope.encolsedScope;
       }
       index++;
     }
@@ -358,17 +367,17 @@ export class Interpreter {
 
   /** */
   visitCondition(node) {
-    const newScope = new Scope('work', this.scope.scopeLevel + 1, this.scope);
-    this.scope = newScope;
     const result = this.visit(node.node);
     this.log(`Condition solved as: ${result}`);
     if (result) {
+      const newScope = new Scope('work', this.scope.scopeLevel + 1, this.scope);
+      this.scope = newScope;
       this.visit(node.trueBranch);
     } else {
+      const newScope = new Scope('work', this.scope.scopeLevel + 1, this.scope);
+      this.scope = newScope;
       this.visit(node.falseBranch);
     }
-
-    this.scope = this.scope.encolsedScope;
   }
 
   /** */
@@ -422,22 +431,43 @@ export class Interpreter {
    */
   visitAssign(node) {
     const variableName = node.leftNode.value;
+    let value;
     if (this.scope.hasDeep(variableName)) {
-      const content = this.scope.getDeep(variableName);
-      const value = this.visit(node.rightNode);
-      const valueType = this.getValueType(value);
-
-      if (valueType == content['type'] || content['type'] == 'auto') {
-        content['value'] = this.parseValue(value);
-        this.scope.setDeep(variableName, content);
-        if (this.watchesView.state == 'open') {
-          this.watchesView.showWatches(this.scope.mem());
-        }
+      console.log(node.rightNode);
+      if (node.rightNode.constructor.name == 'Input') {
+        this.visit(node.rightNode);
+        const process = new Process(readInputBuffer.bind(this, this), 1);
+        this.flowStack.createProcess(process);
       } else {
-        this.error(`Unexpected variable type: '${valueType}'\nExpected:${content['type']}`);
+        value = this.visit(node.rightNode);
+        this.assign(variableName, value);
       }
     } else {
       this.error(`Undefined variable '${variableName}'`);
+    }
+
+    function readInputBuffer() {
+      if (this.inputBuffer !== undefined) {
+        value = this.inputBuffer;
+        this.assign(variableName, value);
+        this.flowStack.endCurProcess();
+        this.continueExecution();
+      }
+    }
+  }
+
+  assign(variableName, value) {
+    const valueType = this.getValueType(value);
+    const content = this.scope.getDeep(variableName);
+    
+    if (valueType == content['type'] || content['type'] == 'auto') {
+      content['value'] = this.parseValue(value);
+      this.scope.setDeep(variableName, content);
+      if (this.watchesView.state == 'open') {
+        this.watchesView.showWatches(this.scope.mem());
+      }
+    } else {
+      this.error(`Unexpected variable type: '${valueType}'\nExpected:${content['type']}`);
     }
   }
 
@@ -529,7 +559,8 @@ export class Interpreter {
    */
   visitInput(node) {
     this.pauseExecution();
-    return this.outputsView.console.input(node.message);
+    this.setInputBuffer(undefined);
+    this.outputsView.console.input(node.message, this.setInputBuffer.bind(this));
   }
 
   /**
@@ -572,18 +603,22 @@ export class Interpreter {
     return node.value;
   }
 
+  // TODO: change behaviour -> when paused you can switch interpreter mode
+
   /** 
    * @param {StartBlock} startBlock
    * @param {logsView} logsView
+   * 
   */
   stepInterpret(startBlock, logsView) {
     this.mode = 1;
     if (!this.parser) {
       this.outputsView.console.clear();
       this.reset(startBlock);
+      this.setLogsView(logsView);
     }
 
-    this.setLogsView(logsView);
+    this.startExecution();
 
     if (this.parser.currentToken.type == 'START') {
       this.parser.match('START');
@@ -598,7 +633,7 @@ export class Interpreter {
 
   /** */
   interpret() {
-    this.mode = 1;
+    this.mode = 0;
     this.outputsView.console.clear();
 
     // let token;
