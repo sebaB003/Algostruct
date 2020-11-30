@@ -101,16 +101,16 @@ class App {
 
     try {
       await this.projectManager.loadFile(file);
+      this.topbar.updateTopbarElements();
+      this.updateView();
+      this.render();
     } catch (error) {
-      this.logsView.console.error('An error occured while loading the project');
-      this.logsView.console.error(`${error}`);
-      this.logsView.console.log('Creating a new project...');
       this.topbar._createNewProject();
+      this.logsView.console.error('An error occured while loading the project');
+      // this.logsView.console.error(`${error}`);
+      this.logsView.console.log('Creating a new project...');
     }
 
-    this.topbar.updateTopbarElements();
-    this.updateView();
-    this.render();
     this.hideLoadingScreen();
   }
 

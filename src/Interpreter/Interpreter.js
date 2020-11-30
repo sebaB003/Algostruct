@@ -108,6 +108,102 @@ class Scope {
   }
 }
 
+/**
+ *
+ */
+class Process {
+
+  /**
+   * @param {*} callback
+   * @param {*} time
+   */
+  constructor(callback, time, autostart=true) {
+    this.callback = callback;
+    this.time = time;
+    this.process;
+    if (autostart) {
+      this.startProcess();
+    }
+  }
+
+  /** */
+  stopProcess() {
+    clearInterval(this.process);
+    this.process = null;
+  }
+
+  /** */
+  pauseProcess() {
+    this.stopProcess();
+  }
+
+  /** */
+  startProcess() {
+    this.deleteProcess();
+    this.process = setInterval(this.callback, this.time);
+  }
+
+  /** */
+  deleteProcess() {
+    this.stopProcess();
+    delete this;
+  }
+}
+
+/** */
+class ProcessStack {
+  /**
+   * @param {*} array
+   */
+  constructor(array=[]) {
+    this.stack = array;
+    this.length = array ? array.length : 0;
+  }
+
+  /** */
+  pauseCurProcess() {
+    if (this.length) {
+      this.stack[this.length - 1].pauseProcess();
+    }
+  }
+
+  /** */
+  endCurProcess() {
+    const curProcess = this.stack.pop();
+    if (curProcess) {
+      curProcess.deleteProcess();
+    }
+    this.length--;
+    this.startCurProcess();
+  }
+
+  /**
+   * 
+   * @param {*} process 
+   */
+  createProcess(process) {
+    this.pauseCurProcess();
+    this.stack.push(process);
+    this.length++;
+  }
+
+  /** */
+  startCurProcess() {
+    if (this.length) {
+      this.stack[this.length - 1].startProcess();
+    }
+  }
+
+  /** */
+  terminate() {
+    while (this.length) {
+      this.stack.pop().deleteProcess();
+      this.length--;
+    }
+  }
+}
+
+
 /** */
 export class Interpreter {
   /**
@@ -127,11 +223,15 @@ export class Interpreter {
     this.isStopped = false;
     this.isPaused = false;
     this.interval;
+
+    this.mode = 0;
+    this.flowStack = new ProcessStack();
   }
 
   startExecution() {
     this.isStopped = false;
     this.isPaused = false;
+    this.flowStack.startCurProcess();
   }
 
   stopExecution() {
@@ -139,11 +239,13 @@ export class Interpreter {
     this.isStopped = true;
     this.isPaused = false;
     this.parser = null;
+    this.flowStack.terminate();
     console.log('stopped');
   }
 
   pauseExecution() {
     this.isPaused = true;
+    this.flowStack.pauseCurProcess();
   }
 
   /**
@@ -158,6 +260,8 @@ export class Interpreter {
     if (this.watchesView.state == 'open') {
       this.watchesView.showWatches(this.scope.mem());
     }
+    this.flowStack.terminate();
+    this.flowStack = new ProcessStack();
   }
 
   /**
@@ -176,6 +280,7 @@ export class Interpreter {
     if (this.logsView) {
       this.logsView.console.error(message, false);
     }
+    this.flowStack.terminate();
     throw new Error(message);
   }
 
@@ -196,7 +301,11 @@ export class Interpreter {
       const visitorName = `visit${tree.constructor.name}`;
       const visitor = this[visitorName];
       if (visitor) {
-        return visitor.call(this, tree);
+        const result = visitor.call(this, tree);
+        if (this.mode) {
+          this.flowStack.pauseCurProcess();
+        }
+        return result;
       } else {
         this.error('Unexpected token');
       }
@@ -220,9 +329,22 @@ export class Interpreter {
    * @param {*} node
    */
   visitFlow(node) {
-    for (const block of node.blocks) {
-      this.visit(block);
+
+    let index = 0;
+    console.log('>', node.blocks.length);
+    function iterFlow() {
+      if (index < node.blocks.length) {
+        this.visit(node.blocks[index]);
+      } else {
+        this.flowStack.endCurProcess();
+        console.log('end');
+      }
+      index++;
     }
+
+    const process = new Process(iterFlow.bind(this), 1);
+    this.flowStack.createProcess(process);
+    console.log(this.flowStack);
   }
 
   /**
@@ -260,20 +382,21 @@ export class Interpreter {
 
     /** */
     function loop(interpreter) {
-      if (result && !interpreter.isStopped) {
-        if (!interpreter.isPaused) {
-          const newScope = new Scope('work', interpreter.scope.scopeLevel + 1, interpreter.scope);
-          interpreter.scope = newScope;
-          interpreter.visit(node.loopBranch);
-          interpreter.scope = interpreter.scope.encolsedScope;
-          result = interpreter.visit(node.condition);
-        }
+      if (result) {
+        const newScope = new Scope('work', interpreter.scope.scopeLevel + 1, interpreter.scope);
+        interpreter.scope = newScope;
+        interpreter.visit(node.loopBranch);
+        interpreter.scope = interpreter.scope.encolsedScope;
+        result = interpreter.visit(node.condition);
+        interpreter.log(`Condition solved as: ${result}`);
       } else {
-        clearInterval(interpreter.interval);
+        this.flowStack.endCurProcess();
       }
-      interpreter.log(`Condition solved as: ${result}`);
     }
-    this.interval = setInterval(loop.bind(this, this), 1);
+
+    const process = new Process(loop.bind(this, this), 1);
+    this.flowStack.createProcess(process);
+    console.log(this.flowStack);
   }
 
   /**
@@ -454,6 +577,7 @@ export class Interpreter {
    * @param {logsView} logsView
   */
   stepInterpret(startBlock, logsView) {
+    this.mode = 1;
     if (!this.parser) {
       this.outputsView.console.clear();
       this.reset(startBlock);
@@ -463,16 +587,18 @@ export class Interpreter {
 
     if (this.parser.currentToken.type == 'START') {
       this.parser.match('START');
-    } else if (this.parser.currentToken.type == 'END') {
+      this.visit(this.parser.flow());
+    } else if (this.parser.currentToken.type == 'END' && !this.flowStack.length) {
       this.parser.match('END');
       this.parser = null;
     } else {
-      this.visit(this.parser.block());
+      this.flowStack.startCurProcess();
     }
   }
 
   /** */
   interpret() {
+    this.mode = 1;
     this.outputsView.console.clear();
 
     // let token;
@@ -483,17 +609,8 @@ export class Interpreter {
     // }
     // console.log(token);
     this.parser.match('START');
-    while (this.parser.currentToken.type != 'END') {
-      this.visit(this.parser.block());
-    }
+    this.visit(this.parser.flow());
     this.parser.match('END');
     this.parser = null;
-
-  //   console.log(this.memory);
   }
 }
-
-// Generate new Interpeter on file loading
-// Fix loops saving / loading
-// Add step and stop interpreter
-// Try to make async

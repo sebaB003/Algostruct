@@ -59,7 +59,7 @@ export class Toolbar {
         () => {
           const isPaused = this.interpreter.isPaused;
           if (!isPaused) {
-            this.interpreter.stopExecution();
+            // this.interpreter.stopExecution();
             this.interpreter.startExecution();
             try {
               const showLogs = this.appComponents.project.preferences.showInterpreterLogs;
@@ -89,6 +89,7 @@ export class Toolbar {
               this.appComponents.logsView.console.log('Execution completed');
             }
           } catch (e) {
+            console.log(e);
             this.interpreter.stopExecution();
             this.appComponents.logsView.console.log('Execution stopped');
           }
