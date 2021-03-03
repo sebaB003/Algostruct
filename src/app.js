@@ -8,7 +8,7 @@ import {OutputView} from './UI/OutputView';
 import {WatchesView} from './UI/WatchesView';
 import {View} from './UI/View';
 import {ProjectManager} from './Core/ProjectManager';
-import { Interpreter } from './Interpreter/Interpreter';
+import {Interpreter} from './Interpreter/Interpreter';
 
 /**
  * This class contains is the core of Algostruct

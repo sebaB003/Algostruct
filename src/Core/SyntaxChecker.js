@@ -39,18 +39,25 @@ export class SyntaxChecker {
   */
   static _checkStatementSyntax(content) {
     const statements = content.split(';');
+    if (!statements[statements.length-1]) {
+      statements.pop();
+    }
 
     let isSyntaxCorrect = false;
 
-    for (const statement of statements) {
-      console.log(statement);
-      if (checkStatementRegex.test(statement.trim()) &&
-          checkParenthesis(statement.trim())) {
-        isSyntaxCorrect = true;
-      } else {
-        isSyntaxCorrect = false;
-        break;
+    if (statements.length) {
+      for (const statement of statements) {
+        console.log(statement);
+        if (checkStatementRegex.test(statement.trim()) &&
+            checkParenthesis(statement.trim())) {
+          isSyntaxCorrect = true;
+        } else {
+          isSyntaxCorrect = false;
+          break;
+        }
       }
+    } else {
+      isSyntaxCorrect = true;
     }
 
     return isSyntaxCorrect;

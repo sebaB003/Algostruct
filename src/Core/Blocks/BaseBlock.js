@@ -1,8 +1,6 @@
 /**
- * TODO: reorganize class
- * TODO: find a way to render branches
- * TODO: create SVGGenerator
-*/
+ *
+ */
 export class BaseBlock {
   /**
    * @param {*} type

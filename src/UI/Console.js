@@ -57,23 +57,8 @@ export class Console {
   }
 
   /** */
-  input(message='', setInputBuffer) {
-    const template = document.getElementById('input-entry');
-    const inputEntryEl = document.importNode(template.content, true);
-
-    const cellEl = inputEntryEl.querySelector('.cell');
-    const labelEl = inputEntryEl.querySelector('label');
-    const form = inputEntryEl.querySelector('form');
-
-    form.addEventListener('submit', (event)=> {
-      event.preventDefault();
-      const inputValue = event.srcElement[0].value;
-      cellEl.textContent = `> ${message}${inputValue}`;
-      setInputBuffer(inputValue);
-    });
-
-    labelEl.textContent = message;
-    this.consoleEl.appendChild(inputEntryEl);
+  input(inputStream, message='') {
+    this.consoleEl.appendChild(inputStream.open(message));
   }
 
   /**

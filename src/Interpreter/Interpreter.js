@@ -203,6 +203,55 @@ class ProcessStack {
   }
 }
 
+/**
+ * Create and render an input stream to comunicate with the user
+ */
+class InputStream {
+  /**
+   * @param {*} inputBufferSetter callback to set an input buffer
+   */
+  constructor(inputBufferSetter) {
+    this.inputBufferSetter = inputBufferSetter;
+    this.inputValue;
+    this.message = '';
+    this.cellEl;
+  }
+
+  /**
+   * Open the stram
+   * @param {*} message optional message to display
+   * @return {*} DOM element to display the input stream
+   */
+  open(message='') {
+    this.message = message;
+
+    const template = document.getElementById('input-entry');
+    const inputEntryEl = document.importNode(template.content, true);
+
+    this.cellEl = inputEntryEl.querySelector('.cell');
+    const labelEl = inputEntryEl.querySelector('label');
+    const form = inputEntryEl.querySelector('form');
+
+    form.addEventListener('submit', (event)=> {
+      event.preventDefault();
+      this.inputValue = event.srcElement[0].value;
+      this.close();
+    });
+
+    labelEl.textContent = this.message;
+
+    return this.cellEl;
+  }
+
+  /**
+   * Close the stream
+   */
+  close() {
+    this.cellEl.textContent = `> ${this.message}${this.inputValue}`;
+    this.inputBufferSetter(this.inputValue);
+  }
+}
+
 
 /** */
 export class Interpreter {
@@ -227,31 +276,48 @@ export class Interpreter {
     this.flowStack = new ProcessStack();
 
     this.inputBuffer;
+    this.inputStream = new InputStream(this.setInputBuffer.bind(this));
   }
 
+  /**
+   * Sets the input buffer to a value
+   * @param {*} value
+   */
   setInputBuffer(value) {
     this.inputBuffer = value;
   }
 
+  /**
+   */
   startExecution() {
     this.isStopped = false;
     this.isPaused = false;
   }
 
+  /**
+   * Continue the program execution
+   */
   continueExecution() {
     this.startExecution();
     this.flowStack.startCurProcess();
   }
 
+  /**
+   * Stops the program execution
+   */
   stopExecution() {
     clearInterval(this.interval);
     this.isStopped = true;
     this.isPaused = false;
     this.parser = null;
     this.flowStack.terminate();
+    this.inputStream.close();
     console.log('stopped');
   }
 
+  /**
+   * Pause the program execution
+   */
   pauseExecution() {
     this.isPaused = true;
     this.flowStack.pauseCurProcess();
@@ -338,9 +404,12 @@ export class Interpreter {
    * @param {*} node
    */
   visitFlow(node) {
-
     let index = 0;
     console.log('>', node.blocks.length);
+
+    /**
+     * Used in a process to step through the program flow
+     */
     function iterFlow() {
       if (index < node.blocks.length) {
         this.visit(node.blocks[index]);
@@ -367,39 +436,33 @@ export class Interpreter {
 
   /** */
   visitCondition(node) {
+    const newScope = new Scope('work', this.scope.scopeLevel + 1, this.scope);
+    this.scope = newScope;
     const result = this.visit(node.node);
     this.log(`Condition solved as: ${result}`);
     if (result) {
-      const newScope = new Scope('work', this.scope.scopeLevel + 1, this.scope);
-      this.scope = newScope;
       this.visit(node.trueBranch);
     } else {
-      const newScope = new Scope('work', this.scope.scopeLevel + 1, this.scope);
-      this.scope = newScope;
       this.visit(node.falseBranch);
     }
   }
 
   /** */
   visitLoop(node) {
-    if (node.firstExec) {
-      this.visit(node.loopBranch);
-    }
-
     let result = this.visit(node.condition);
     this.log(`Condition solved as: ${result}`);
 
     /** */
     function loop(interpreter) {
+      result = interpreter.visit(node.condition);
       if (result) {
         const newScope = new Scope('work', interpreter.scope.scopeLevel + 1, interpreter.scope);
         interpreter.scope = newScope;
         interpreter.visit(node.loopBranch);
-        interpreter.scope = interpreter.scope.encolsedScope;
-        result = interpreter.visit(node.condition);
         interpreter.log(`Condition solved as: ${result}`);
       } else {
-        this.flowStack.endCurProcess();
+        interpreter.flowStack.endCurProcess();
+        // interpreter.scope = interpreter.scope.encolsedScope;
       }
     }
 
@@ -446,6 +509,7 @@ export class Interpreter {
       this.error(`Undefined variable '${variableName}'`);
     }
 
+    /** */
     function readInputBuffer() {
       if (this.inputBuffer !== undefined) {
         value = this.inputBuffer;
@@ -456,6 +520,7 @@ export class Interpreter {
     }
   }
 
+  /** */
   assign(variableName, value) {
     const valueType = this.getValueType(value);
     const content = this.scope.getDeep(variableName);
@@ -560,7 +625,7 @@ export class Interpreter {
   visitInput(node) {
     this.pauseExecution();
     this.setInputBuffer(undefined);
-    this.outputsView.console.input(node.message, this.setInputBuffer.bind(this));
+    this.outputsView.console.input(this.inputStream, node.message);
   }
 
   /**
