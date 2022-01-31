@@ -546,6 +546,8 @@ export class Interpreter {
       return 'int';
     } else if (value == true || value == false) {
       return 'bool';
+    } else if (/.+/.test(value)) {
+      return 'string';
     }
 
     this.error(`Unexpected value: '${value}'`);
@@ -658,6 +660,13 @@ export class Interpreter {
    * @param {*} node 
    */
   visitNumber(node) {
+    return node.value;
+  }
+
+  /**
+   * @param {*} node 
+   */
+  visitString(node) {
     return node.value;
   }
 

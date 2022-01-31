@@ -232,7 +232,27 @@ export class Lexer {
                   RESERVED_KEY[id] :
                   new Token('ID', id);
 
+                  console.log(token);
     return token;
+  }
+
+  /**
+   * Find and returns a string
+   * @return {String}
+  */
+   getString(char) {
+    let string = '';
+    this.advance();
+
+    while (
+      this.current_character != null && this.current_character != char
+    ) {
+      string += this.current_character;
+      this.advance();
+    }
+    this.advance();
+
+    return new Token(token.STRING_CONST, string);
   }
 
   /**
@@ -258,6 +278,13 @@ export class Lexer {
 
       if (/[_a-zA-z]/.test(this.current_character)) {
         const token = this.getId();
+        token.blockId = tokenBlockId;
+        token.pos = tokenStartPos;
+        return token;
+      }
+
+      if (/[\"]/.test(this.current_character)) {
+        const token = this.getString('\"');
         token.blockId = tokenBlockId;
         token.pos = tokenStartPos;
         return token;

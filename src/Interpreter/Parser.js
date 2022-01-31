@@ -213,12 +213,12 @@ export class Parser {
       statement = this.outputExpr();
     } else if (this.currentToken.type == 'IN') {
       statement = this.inputExpr();
-    } else if (['INTEGER', 'FLOAT', 'AUTO', 'BOOL'].includes(this.currentToken.type)) {
+    } else if (['INTEGER', 'FLOAT', 'AUTO', 'BOOL', 'STRING'].includes(this.currentToken.type)) {
       statement = this.declaration();
     } else if (this.currentToken.type == 'EOB') {
       statement = this.none();
     } else {
-      this.error('Invalid statement');
+      this.error(`Invalid statement: ${this.currentToken.type}`);
     }
 
     return statement;
@@ -426,6 +426,9 @@ export class Parser {
     } else if (token.type == 'FALSE_CONST' || token.type == 'TRUE_CONST') {
       this.match(token.type);
       return new ASTComponents.BoolVal(token);
+    } else if (token.type == 'STRING_CONST') {
+      this.match(token.type);
+      return new ASTComponents.String(token);
     }
   }
 
@@ -481,8 +484,11 @@ export class Parser {
       this.match('FLOAT');
     } else if (token.type == 'BOOL') {
       this.match('BOOL');
-    } else {
+    } else if (token.type == 'AUTO') {
       this.match('AUTO');
+    } else if (token.type == 'STRING')
+    {
+      this.match('STRING');
     }
 
     return new ASTComponents.Type(token);

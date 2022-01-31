@@ -11,6 +11,7 @@ export const INTEGER = 'INTEGER';
 export const INTEGER_CONST = 'INTEGER_CONST';
 export const FLOAT = 'FLOAT';
 export const FLOAT_CONST = 'FLOAT_CONST';
+export const STRING_CONST = 'STRING_CONST';
 export const BOOL = 'BOOL';
 export const TRUE_CONST = 'TRUE';
 export const FALSE_COSNT = 'TRUE';

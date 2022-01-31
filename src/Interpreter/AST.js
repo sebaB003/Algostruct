@@ -91,6 +91,16 @@ export class Number {
   }
 }
 
+export class String {
+   /**
+   * @param {*} token
+   */
+  constructor(token) {
+    this.token = token;
+    this.value = token.value;
+  }
+}
+
 /** */
 export class BoolVal {
   /**
